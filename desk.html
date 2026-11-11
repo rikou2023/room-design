@@ -1,0 +1,485 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>桌面布线 · 3D</title>
+<style>
+  * { box-sizing: border-box; }
+  html, body { margin: 0; height: 100%; overflow: hidden; background: #e9e6e0;
+    font-family: "Microsoft YaHei", "Yu Gothic UI", "PingFang SC", sans-serif; color: #2b2a27; }
+  #stage, #labels { position: fixed; inset: 0; }
+  #labels { pointer-events: none; }
+  .panel { position: fixed; background: rgba(255,255,255,.92); border: 1px solid #d5d0c6;
+    border-radius: 10px; padding: 12px 14px; backdrop-filter: blur(6px); font-size: 12px; }
+  #left { top: 14px; left: 14px; width: 250px; max-height: calc(100vh - 28px); overflow-y: auto; }
+  #right { top: 14px; right: 14px; width: 330px; max-height: calc(100vh - 28px); overflow-y: auto; line-height: 1.6; }
+  h1 { margin: 0 0 2px; font-size: 16px; }
+  h2 { margin: 14px 0 6px; font-size: 13px; border-top: 1px solid #e3ded4; padding-top: 10px; }
+  h2:first-of-type { border-top: 0; padding-top: 0; margin-top: 6px; }
+  p { margin: 0 0 8px; color: #6b675e; }
+  .row { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+  .row > span { width: 100%; color: #6b675e; }
+  button { font: inherit; padding: 6px 10px; border-radius: 6px; cursor: pointer;
+    border: 1px solid #c9c3b6; background: #fff; color: #2b2a27; }
+  button:hover { background: #f3f0ea; }
+  button.on { background: #2f5d50; border-color: #2f5d50; color: #fff; }
+  .fold { float: right; padding: 2px 8px; }
+  .folded > *:not(h1) { display: none; }
+  label.cat { display: flex; align-items: center; gap: 6px; width: 100%; cursor: pointer; }
+  .sw { width: 22px; height: 6px; border-radius: 3px; flex: none; }
+  ul, ol { margin: 0 0 8px; padding-left: 18px; }
+  li { margin-bottom: 4px; }
+  .cable { display: flex; gap: 8px; align-items: baseline; padding: 4px 6px; border-radius: 6px; cursor: pointer; }
+  .cable:hover { background: #f3f0ea; }
+  .cable.sel { background: #e4efe9; outline: 1px solid #2f5d50; }
+  .cable b { flex: none; width: 30px; }
+  .cable small { color: #8a857a; display: block; }
+  table { border-collapse: collapse; width: 100%; margin-bottom: 8px; }
+  td, th { border-bottom: 1px solid #e9e4da; padding: 4px 4px; text-align: left; vertical-align: top; }
+  th { color: #6b675e; font-weight: normal; }
+  .lb { font-size: 11px; padding: 2px 6px; border-radius: 4px; white-space: nowrap;
+    background: rgba(255,255,255,.88); border: 1px solid #cfc9bc; color: #2b2a27; }
+  .lb.acc { background: rgba(20,140,140,.92); border-color: #148c8c; color: #fff; }
+  .lb.dir { background: rgba(255,255,255,.55); border-style: dashed; color: #8a857a; }
+  #err { position: fixed; inset: 0; display: none; align-items: center; justify-content: center;
+    padding: 24px; text-align: center; font-size: 14px; color: #8a2b2b; }
+  @media (max-width: 900px) { #right { top: auto; bottom: 14px; left: 14px; right: 14px; width: auto; max-height: 40vh; } }
+</style>
+</head>
+<body>
+<div id="stage"></div>
+<div id="labels"></div>
+
+<div id="left" class="panel">
+  <h1>桌面布线 · 3D <button class="fold" data-fold="left">收起</button></h1>
+  <p>120×60 黑色四腿桌 · 面朝西坐，右手边是北</p>
+  <div class="row"><span>视角</span>
+    <button data-view="seat">座位</button>
+    <button data-view="top">俯视</button>
+    <button data-view="under">桌下</button>
+    <button data-view="back">背面</button>
+    <button data-view="corner">右下墙角</button>
+  </div>
+  <div class="row"><span>显示</span>
+    <button id="btnLabel" class="on">标签</button>
+    <button id="btnTop">桌板透明</button>
+    <button id="btnAcc" class="on">配件高亮</button>
+  </div>
+  <div class="row" id="cats"><span>线缆类别（点右侧清单里的某一根可单独高亮）</span></div>
+</div>
+
+<div id="right" class="panel">
+  <h1>布线方案 <button class="fold" data-fold="right">收起</button></h1>
+
+  <h2>思路</h2>
+  <ul>
+    <li><b>桌面上只留设备，不留线</b>：所有线从桌子后沿和墙之间的缝（桌子离墙留 3 cm）直接掉下去。</li>
+    <li><b>桌板下面挂一条线槽</b>：排插、USB 充电器和所有多余的线都收在里面，从座位看不到。</li>
+    <li><b>只有两束线落地</b>：右后桌腿一束（去墙角的插座和路由器），左后桌腿一束（去主机）。各套一根理线管。</li>
+    <li><b>主机放桌下左侧</b>：右下墙角留给光猫和路由器；主机在左边，腿部空间居中不受影响。</li>
+    <li><b>网络设备单独供电</b>：光猫、路由器直接插墙插，不经过桌面排插。关掉排插总开关时网络不断。</li>
+  </ul>
+
+  <h2>北墙的插座只有两个口，这样分</h2>
+  <table>
+    <tr><th>墙插</th><th>接什么</th><th>带的设备</th></tr>
+    <tr><td>第 1 口</td><td>桌面排插（6 口带总开关）</td><td>主机、主屏、副屏、USB 充电器</td></tr>
+    <tr><td>第 2 口</td><td>一分二插头</td><td>光猫、路由器</td></tr>
+  </table>
+  <p>两个口正好用完。桌面这一路可以一键断电，网络那一路一直通着。</p>
+
+  <h2>线缆清单</h2>
+  <div id="cableList"></div>
+  <p>长度是按模型里的走线量出来的，再留 25% 余量后取整。设备尺寸和接口位置是示意，实际以你的设备为准。</p>
+
+  <h2>需要添置的配件</h2>
+  <table>
+    <tr><th>配件</th><th>规格</th><th>用途</th></tr>
+    <tr><td>桌下线槽</td><td>已有，不用买</td><td>装排插、充电器和余线</td></tr>
+    <tr><td>排插</td><td>6 口，带总开关，线长 2 m</td><td>主机、两块屏、USB 充电器，余 2 口</td></tr>
+    <tr><td>充电头</td><td>单口，用手头闲置的手机充电头，不用买</td><td>只给无线充电台；挂灯和键鼠充电线改插已有的 USB 集线器</td></tr>
+    <tr><td>一分二插头</td><td>2 口</td><td>光猫和路由器接墙插</td></tr>
+    <tr><td>理线管</td><td>50 cm × 2</td><td>包住两束落地的线</td></tr>
+    <tr><td>魔术贴扎带</td><td>10 根左右</td><td>线槽里分组捆扎，可反复拆</td></tr>
+    <tr><td>背胶线夹</td><td>6～8 个</td><td>桌子后沿的五个下线点</td></tr>
+  </table>
+
+  <h2>安装顺序</h2>
+  <ol>
+    <li>桌子离西墙留 3 cm，装桌下线槽。</li>
+    <li>排插和 USB 充电器放进线槽，排插总线沿右后桌腿下到墙插。</li>
+    <li>光猫、路由器摆到右下墙角，用一分二接墙插，两者之间用短网线。</li>
+    <li>主机直接放在桌下左侧的地上，背面朝墙。</li>
+    <li>装显示器悬臂，主屏的电源线、视频线、挂灯线顺着悬臂走到桌夹，再从后沿下到线槽。</li>
+    <li>摆副屏、条形音响（主屏正下方）、无线充电台，线从各自正后方的下线点掉下去。</li>
+    <li>主机的五根线（电源、两根视频、网线、音响线）在线槽左端汇成一束，套理线管下到主机。</li>
+    <li>每根线的多余长度绕成圈扎好，留在线槽里。</li>
+  </ol>
+</div>
+<div id="err"></div>
+
+<script type="importmap">
+{ "imports": {
+  "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+  "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
+} }
+</script>
+<script>
+  window.addEventListener('error', function (e) {
+    var el = document.getElementById('err');
+    el.style.display = 'flex';
+    el.textContent = '加载失败：' + (e.message || '无法加载 3D 库，请检查网络后刷新');
+  }, true);
+</script>
+<script type="module">
+import * as THREE from 'three';
+import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+import { CSS2DRenderer, CSS2DObject } from 'three/addons/renderers/CSS2DRenderer.js';
+
+/* 坐标：x = 离西墙的方向（桌子后沿 x=0，前沿 x=60）；z = 沿桌长（北端/右手 z=0，南端/左手 z=120）；y 向上。单位 cm
+   西墙面在 x=-3（桌子离墙留 3 cm 走线），北墙面在 z=-2 */
+const DL = 120, DD = 60, DH = 72, WALL_X = -3, WALL_Z = -2;
+
+const stage = document.getElementById('stage');
+const renderer = new THREE.WebGLRenderer({ antialias: true });
+renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+renderer.shadowMap.enabled = true;
+renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+stage.appendChild(renderer.domElement);
+const labelRenderer = new CSS2DRenderer({ element: document.getElementById('labels') });
+
+const scene = new THREE.Scene();
+scene.background = new THREE.Color(0xe9e6e0);
+const camera = new THREE.PerspectiveCamera(40, 1, 2, 3000);
+const controls = new OrbitControls(camera, renderer.domElement);
+controls.enableDamping = true;
+controls.dampingFactor = 0.08;
+controls.maxPolarAngle = Math.PI * 0.68;
+controls.minDistance = 20;
+controls.maxDistance = 600;
+
+scene.add(new THREE.HemisphereLight(0xffffff, 0xcfc8ba, 1.7));
+const sun = new THREE.DirectionalLight(0xfff4e0, 1.6);
+sun.position.set(180, 260, 200);
+sun.target.position.set(20, 40, 60);
+sun.castShadow = true;
+sun.shadow.mapSize.set(2048, 2048);
+sun.shadow.camera.left = -160; sun.shadow.camera.right = 160;
+sun.shadow.camera.top = 160; sun.shadow.camera.bottom = -160;
+sun.shadow.camera.near = 20; sun.shadow.camera.far = 800;
+sun.shadow.normalBias = 0.6;
+scene.add(sun, sun.target);
+
+const mat = (color, o = {}) => new THREE.MeshStandardMaterial({ color, roughness: 0.8, metalness: 0, ...o });
+function block(x0, x1, y0, y1, z0, z1, material, o = {}) {
+  const m = new THREE.Mesh(new THREE.BoxGeometry(x1 - x0, y1 - y0, z1 - z0), material);
+  m.position.set((x0 + x1) / 2, (y0 + y1) / 2, (z0 + z1) / 2);
+  m.castShadow = o.cast !== false; m.receiveShadow = true;
+  scene.add(m);
+  return m;
+}
+function cyl(r0, r1, h, x, y, z, material, seg = 24) {
+  const m = new THREE.Mesh(new THREE.CylinderGeometry(r0, r1, h, seg), material);
+  m.position.set(x, y, z); m.castShadow = true; m.receiveShadow = true;
+  scene.add(m);
+  return m;
+}
+const labelObjs = [];
+function label(text, x, y, z, cls = '') {
+  const el = document.createElement('div');
+  el.className = 'lb ' + cls;
+  el.textContent = text;
+  const o = new CSS2DObject(el);
+  o.position.set(x, y, z);
+  scene.add(o);
+  labelObjs.push(o);
+  return o;
+}
+
+/* ---------- 房间一角 ---------- */
+block(-8, 190, -3, 0, -8, 170, mat(0xd8c3a0), { cast: false });
+const westWall = block(-8, WALL_X, 0, 170, -8, 170, mat(0xf4f1ea), { cast: false });
+const northWall = block(WALL_X, 190, 0, 170, -8, WALL_Z, mat(0xf4f1ea), { cast: false });
+label('西墙', -3, 150, 60, 'dir');
+label('北墙（右手边）', 70, 150, -2, 'dir');
+label('床在这一侧 →', 30, 4, 150, 'dir');
+
+/* ---------- 桌子：黑色四腿，120×60×72 ---------- */
+const deskM = mat(0x1e1e21, { roughness: 0.55, transparent: true });
+const legM = mat(0x18181a, { roughness: 0.5 });
+block(0, DD, DH - 2.5, DH, 0, DL, deskM);
+[[2, 2], [DD - 6, 2], [2, DL - 6], [DD - 6, DL - 6]].forEach(([x, z]) => block(x, x + 4, 0, DH - 2.5, z, z + 4, legM));
+
+/* ---------- 桌面设备 ---------- */
+const dark = mat(0x2e3338, { roughness: 0.5 });
+const grey = mat(0xd7d9dc, { roughness: 0.6 });
+const white = mat(0xf2f1ee, { roughness: 0.5 });
+
+/* 主屏 27 寸：居中、悬空，悬臂夹在桌子左后角 */
+block(8.5, 11, DH + 8, DH + 44, 29.5, 90.5, dark);
+block(6, 8.5, DH + 20, DH + 32, 54, 66, dark);
+block(2, 9, DH - 5, DH + 1.5, DL - 6, DL + 1, dark);
+block(3.5, 7.5, DH, DH + 20, DL - 4.5, DL - 0.5, dark);
+function bar(p, q, t) {
+  const a = new THREE.Vector3(...p), b = new THREE.Vector3(...q);
+  const m = new THREE.Mesh(new THREE.BoxGeometry(t, t, a.distanceTo(b)), dark);
+  m.position.copy(a).add(b).multiplyScalar(0.5);
+  m.lookAt(b); m.castShadow = true;
+  scene.add(m);
+}
+const ELBOW = [4.5, DH + 40, 94.75];
+bar([5.5, DH + 19, DL - 2.5], ELBOW, 4.5);
+bar(ELBOW, [6, DH + 27, 60], 4.5);
+label('主屏 27 寸（悬臂）', 10, DH + 52, 60);
+
+/* 屏幕挂灯 */
+block(9, 13, DH + 44, DH + 46.5, 37, 83, dark);
+label('屏幕挂灯', 12, DH + 50, 40);
+
+/* 副屏 24.5 寸：竖放、在左侧，内扣约 18° */
+block(7, 9.5, DH + 5, DH + 61, 88.5, 121.5, dark).rotation.y = Math.PI / 10;
+block(7, 10, DH, DH + 12, 103, 107, dark);
+block(4, 18, DH, DH + 1.2, 96, 114, dark);
+label('副屏 24.5 寸（竖）', 10, DH + 68, 108);
+
+/* 音箱 ×2、键盘、鼠标、无线充电台、键鼠充电线头 */
+/* 条形音响 [占位] 42×7×7：放在悬空的主屏正下方，一根线分出 USB（供电）和 3.5mm（音频）两个头 */
+block(5, 12, DH, DH + 7, 39, 81, dark);
+cyl(2.6, 2.6, 1.5, 8.5, DH + 3.5, 38.4, grey, 20).rotation.x = Math.PI / 2;
+label('条形音响', 9, DH + 3, 60);
+block(32, 45, DH, DH + 2, 38, 82, grey);
+block(34, 44, DH, DH + 3, 24, 30, dark);
+cyl(5, 5, 1.2, 15, DH + 0.6, 30, white, 32);
+label('无线充电台', 15, DH + 6, 30);
+/* USB 集线器（已有，4 口 USB 3.0，[占位] 9×9×2.5）：放在音响左边，接主机 */
+block(6, 15, DH, DH + 2.5, 84.5, 93.5, dark);
+label('USB 集线器', 10, DH + 8, 89);
+block(24, 26, DH, DH + 0.9, 87, 89, white);
+label('键鼠充电线头', 26, DH + 5, 86);
+
+/* ---------- 桌下 ---------- */
+/* 主机：桌下左侧，放在带轮托架上 */
+block(10, 54, 0, 44, 90, 112, dark);
+label('主机', 56, 30, 101);
+
+/* 右下墙角：墙插、光纤入户口、光猫、路由器 */
+/* 墙插（只有两个口）和网口都在北墙上、靠近墙角的下方；光猫和路由器沿北墙并排立在桌下右端 */
+/* 面对北墙看：网口在左（靠墙角），墙插在右 */
+block(9, 14, 19, 25, WALL_Z, WALL_Z + 0.6, white, { cast: false });
+block(19, 27, 17, 26, WALL_Z, WALL_Z + 0.6, white, { cast: false });
+label('网口', 11.5, 30, -1);
+label('墙插（2 口）', 23, 31, -1);
+block(9, 23, 0, 18, 5, 9, white);
+block(26, 42, 0, 22, 5, 10, dark);
+label('光猫', 16, 21, 7);
+label('路由器', 34, 25, 7);
+
+/* 耳机改用无线的：没有线，不挂在桌下 */
+
+/* ---------- 理线配件（可高亮） ---------- */
+const accM = mat(0x4a4f55, { roughness: 0.6, transparent: true, opacity: 0.9 });
+const accHi = new THREE.Color(0x19a3a3), accLo = new THREE.Color(0x4a4f55);
+const accMeshes = [], accLabels = [];
+const A = m => { m.material = accM; accMeshes.push(m); return m; };
+const AL = (...a) => { const o = label(...a, 'acc'); accLabels.push(o); return o; };
+
+/* 桌下线槽：挂在桌板下靠后沿 */
+A(block(3, 15, 57, 58, 12, 108, accM, { cast: false }));
+A(block(3, 3.6, 58, 64, 12, 108, accM, { cast: false }));
+A(block(14.4, 15, 58, 64, 12, 108, accM, { cast: false }));
+[20, 60, 100].forEach(z => { A(block(3, 3.6, 64, DH - 2.5, z - 1, z + 1, accM, { cast: false })); });
+const underLabels = [];                                   // 被桌板挡住的东西：从上方看时不显示标签
+const UL = (...a) => { const o = AL(...a); underLabels.push(o); return o; };
+UL('① 桌下线槽', 16, 54, 60);
+/* 排插、USB 充电器（在线槽里） */
+block(5, 11, 58, 61.5, 28, 64, white, { cast: false });
+block(5, 11, 58, 62, 69, 78, white, { cast: false });
+UL('② 排插（带总开关）', 16, 62, 44);
+UL('③ 充电头（给无线充电台）', 16, 62, 76);
+/* 一分二插头 */
+block(23.5, 27, 17, 20.5, WALL_Z + 0.6, 2, white, { cast: false });
+AL('④ 一分二：光猫、路由器', 32, 14, 1);
+/* 两根理线管 */
+A(cyl(2.4, 2.4, 46, 5.4, 32, 7.6, accM, 16));
+A(cyl(3.2, 3.2, 22, 9.6, 47, 100, accM, 16));
+AL('⑤ 理线管（右后腿）', 10, 34, 2);
+AL('⑤ 理线管（去主机）', 14, 46, 116);
+/* 桌子后沿的五个下线点 */
+[30, 60, 87, 105, 117].forEach(z => A(block(-1.2, 0.4, DH - 2.5, DH, z - 1.5, z + 1.5, accM, { cast: false })));
+AL('⑥ 后沿下线点 ×5', 2, DH + 4, 76);
+
+const belowDesk = labelObjs.filter(o => !underLabels.includes(o) && o.position.y < DH - 3 &&
+  o.position.x > -3 && o.position.x < DD + 4 && o.position.z > -2 && o.position.z < DL + 2);
+
+/* ---------- 线缆 ---------- */
+const CATS = {
+  power:   { name: '电源线', color: 0xe4572e },
+  video:   { name: '视频线', color: 0x2e86de },
+  network: { name: '网线 / 光纤', color: 0x27ae60 },
+  usb:     { name: 'USB 线', color: 0x8e44ad },
+  audio:   { name: '音频线', color: 0xe0a800 },
+};
+/* 线槽里每根线占一条「车道」（x 不同），避免画在一起 */
+const CABLES = [
+  { id: 'P1', cat: 'power', name: '排插总线 → 墙插', note: '沿右后桌腿下去，套理线管',
+    pts: [[6, 60, 34], [6, 60, 14], [5, 56, 8], [5, 10, 8], [12, 6, 3], [21, 23, -1.2]] },
+  { id: 'P2', cat: 'power', name: '主机电源 → 排插',
+    pts: [[10, 30, 96], [9, 52, 96], [6.8, 60, 94], [6.8, 60, 60], [8, 61.5, 58]] },
+  { id: 'P3', cat: 'power', name: '主屏电源 → 排插', note: '顺悬臂走到桌夹，再下到线槽',
+    pts: [[7, 98, 62], [6, 100, 64], [4.5, 111, 94], [5.5, 90, 117], [4, 75, 118], [-1.5, 70, 117], [-1.5, 64, 112], [7.6, 60, 106], [7.6, 60, 54], [8, 61.5, 52]] },
+  { id: 'P4', cat: 'power', name: '副屏电源 → 排插',
+    pts: [[7, 92, 105], [5, 76, 105], [1, 73, 105], [-1.5, 70, 105], [-1.5, 64, 102], [8.4, 60, 98], [8.4, 60, 48], [8, 61.5, 46]] },
+  { id: 'P5', cat: 'power', name: '充电头 → 排插', note: '都在线槽里，很短',
+    pts: [[8, 61, 70], [9.8, 60, 66], [9.8, 60, 42], [8, 61.5, 40]] },
+  { id: 'P6', cat: 'power', name: '光猫电源 → 墙插（一分二）', note: '不经过排插，关排插时网络不断',
+    pts: [[25, 18, 1.5], [24, 7, 2.5], [19, 3, 3.5], [16, 5, 5]] },
+  { id: 'P7', cat: 'power', name: '路由器电源 → 墙插（一分二）',
+    pts: [[26, 18, 1.5], [28, 6, 2.5], [32, 3, 3.5], [34, 5, 5]] },
+  { id: 'V1', cat: 'video', name: '主机 → 主屏（DP）', note: '线槽左端上到桌夹，顺悬臂到屏幕背后',
+    pts: [[10, 36, 100], [9, 52, 100], [10, 60, 98], [10, 60, 108], [-1.5, 64, 113], [-1.5, 70, 118], [4, 75, 119], [5.5, 90, 118.5], [4.5, 111, 96], [6.5, 100, 60]] },
+  { id: 'V2', cat: 'video', name: '主机 → 副屏（HDMI）',
+    pts: [[10, 34, 104], [9.5, 52, 103], [10.8, 60, 102], [-1.5, 64, 104], [-1.5, 70, 106], [1, 73, 106], [5, 76, 106], [7, 88, 106]] },
+  { id: 'N1', cat: 'network', name: '墙上网口 → 光猫',
+    pts: [[11.5, 22, -1.2], [12, 14, 1.5], [13, 9, 3.5], [14, 10, 5]] },
+  { id: 'N2', cat: 'network', name: '光猫 → 路由器', note: '用 30 cm 短网线',
+    pts: [[21, 11, 9], [24.5, 7, 11.5], [28, 11, 10]] },
+  { id: 'N3', cat: 'network', name: '路由器 → 主机', note: '右后腿上线槽，横穿整条线槽，左端下到主机',
+    pts: [[30, 14, 5], [22, 5, 2.5], [10, 6, 4], [5.8, 12, 7.2], [5.8, 56, 7.2], [11.6, 60, 14], [11.6, 60, 98], [10, 52, 106], [10, 32, 106]] },
+  { id: 'U1', cat: 'usb', name: '屏幕挂灯 → USB 集线器', note: '顺悬臂到桌夹，再贴着桌面后沿从副屏底座背后走到集线器',
+    pts: [[11.5, 117, 60], [8, 112, 62], [5, 108, 80], [4.5, 111, 95], [5.5, 90, 117.8], [4, 75, 117.2], [3, 73, 112], [2.5, 72.8, 98], [6, 73.3, 93]] },
+  { id: 'U2', cat: 'usb', name: '无线充电台 → 充电头（线槽里）', note: '充电台放在悬空的主屏下面，线直接从后沿掉下去',
+    pts: [[11, 72.6, 30], [2, 72.6, 30], [-1.5, 70, 30], [-1.5, 64, 32], [13.2, 60, 36], [13.2, 60, 72], [8, 61.5, 72]] },
+  { id: 'U3', cat: 'usb', name: '键鼠充电线 → USB 集线器', note: '只在桌面上，一小段；线头用线夹固定，用时拉出来',
+    pts: [[15, 73.2, 89], [19, 72.7, 90], [24, 72.6, 88]] },
+  { id: 'U4', cat: 'usb', name: 'USB 集线器 → 主机', note: '集线器自带的线，从后沿掉进线槽，左端下到主机背面',
+    pts: [[6, 73.2, 87], [1, 73, 87], [-1.5, 70, 87], [-1.5, 64, 88], [14, 60, 91], [14, 60, 98], [10, 52, 101], [10, 38, 102]] },
+  { id: 'A1', cat: 'audio', name: '条形音响 → 主机（USB 供电 ＋ 3.5mm 音频）', note: '一根线两个头，都插主机背面；音响跟着主机开关',
+    pts: [[5, 75, 60], [1, 73.5, 60], [-1.5, 70, 60], [-1.5, 64, 62], [5.2, 60, 66], [5.2, 60, 92], [9, 50, 94], [10, 28, 94]] },
+];
+
+const cableMeshes = {};
+for (const c of CABLES) {
+  const curve = new THREE.CatmullRomCurve3(c.pts.map(p => new THREE.Vector3(...p)), false, 'catmullrom', 0.08);
+  c.length = curve.getLength();
+  const r = c.cat === 'power' ? 0.55 : 0.42;
+  const m = new THREE.Mesh(new THREE.TubeGeometry(curve, Math.max(40, Math.round(c.length)), r, 8),
+    new THREE.MeshStandardMaterial({ color: CATS[c.cat].color, roughness: 0.6, transparent: true }));
+  m.castShadow = true;
+  scene.add(m);
+  cableMeshes[c.id] = m;
+}
+
+/* ---------- 面板 ---------- */
+const catOn = Object.fromEntries(Object.keys(CATS).map(k => [k, true]));
+let solo = null;
+function refreshCables() {
+  for (const c of CABLES) {
+    const m = cableMeshes[c.id];
+    m.visible = catOn[c.cat];
+    const dim = solo && solo !== c.id;
+    m.material.opacity = dim ? 0.1 : 1;
+    m.material.depthWrite = !dim;
+  }
+  document.querySelectorAll('.cable').forEach(el => el.classList.toggle('sel', el.dataset.id === solo));
+}
+const catsEl = document.getElementById('cats');
+for (const [k, v] of Object.entries(CATS)) {
+  const n = CABLES.filter(c => c.cat === k).length;
+  const lab = document.createElement('label');
+  lab.className = 'cat';
+  lab.innerHTML = `<input type="checkbox" checked><span class="sw" style="background:#${v.color.toString(16).padStart(6, '0')}"></span>${v.name}（${n} 根）`;
+  lab.querySelector('input').addEventListener('change', e => { catOn[k] = e.target.checked; refreshCables(); });
+  catsEl.appendChild(lab);
+}
+const listEl = document.getElementById('cableList');
+for (const c of CABLES) {
+  const buy = Math.max(0.5, Math.ceil(c.length * 1.25 / 50) * 0.5);
+  const el = document.createElement('div');
+  el.className = 'cable';
+  el.dataset.id = c.id;
+  el.innerHTML = `<b style="color:#${CATS[c.cat].color.toString(16).padStart(6, '0')}">${c.id}</b>
+    <span>${c.name}<small>走线约 ${Math.round(c.length)} cm，建议线长 ${buy} m${c.note ? '；' + c.note : ''}</small></span>`;
+  el.addEventListener('click', () => { solo = solo === c.id ? null : c.id; refreshCables(); });
+  listEl.appendChild(el);
+}
+refreshCables();
+
+const views = {
+  seat:   { p: [240, 190, 60],  t: [8, 66, 60] },
+  top:    { p: [31, 300, 60],   t: [30, 0, 60] },
+  under:  { p: [170, 26, 80],   t: [8, 50, 58] },
+  back:   { p: [-170, 120, 60], t: [10, 68, 60] },
+  corner: { p: [100, 55, 80],   t: [24, 14, 3] },
+};
+let tween = null;
+function go(name, instant) {
+  const v = views[name], p = new THREE.Vector3(...v.p), t = new THREE.Vector3(...v.t);
+  if (instant) { camera.position.copy(p); controls.target.copy(t); controls.update(); return; }
+  tween = { p0: camera.position.clone(), t0: controls.target.clone(), p1: p, t1: t, k: 0 };
+}
+document.querySelectorAll('[data-view]').forEach(b => b.addEventListener('click', () => go(b.dataset.view)));
+renderer.domElement.addEventListener('pointerdown', () => { tween = null; });
+
+let showLabels = true, accOn = true, topClear = false;
+const setLabels = () => {
+  labelObjs.forEach(o => { o.visible = showLabels && (accOn || !accLabels.includes(o)); });
+};
+document.getElementById('btnLabel').addEventListener('click', e => {
+  showLabels = !showLabels; e.target.classList.toggle('on', showLabels); setLabels();
+});
+document.getElementById('btnAcc').addEventListener('click', e => {
+  accOn = !accOn; e.target.classList.toggle('on', accOn); setLabels();
+});
+document.getElementById('btnTop').addEventListener('click', e => {
+  topClear = !topClear; e.target.classList.toggle('on', topClear);
+});
+document.querySelectorAll('[data-fold]').forEach(b => b.addEventListener('click', () => {
+  const folded = document.getElementById(b.dataset.fold).classList.toggle('folded');
+  b.textContent = folded ? '展开' : '收起';
+}));
+
+function resize() {
+  const w = window.innerWidth, h = window.innerHeight;
+  renderer.setSize(w, h); labelRenderer.setSize(w, h);
+  camera.aspect = w / h; camera.updateProjectionMatrix();
+}
+window.addEventListener('resize', resize);
+resize();
+go('seat', true);
+
+const clock = new THREE.Clock();
+function frame() {
+  const dt = Math.min(clock.getDelta(), 0.05);
+  if (tween) {
+    tween.k = Math.min(1, tween.k + dt / 0.9);
+    const e = tween.k < 0.5 ? 2 * tween.k * tween.k : 1 - Math.pow(-2 * tween.k + 2, 2) / 2;
+    camera.position.lerpVectors(tween.p0, tween.p1, e);
+    controls.target.lerpVectors(tween.t0, tween.t1, e);
+    if (tween.k >= 1) tween = null;
+  }
+  controls.update();
+
+  /* 相机转到墙后面时把那面墙藏起来 */
+  westWall.visible = camera.position.x > WALL_X;
+  northWall.visible = camera.position.z > WALL_Z;
+
+  const k = 1 - Math.exp(-dt * 8);
+  deskM.opacity += ((topClear ? 0.22 : 1) - deskM.opacity) * k;
+  deskM.depthWrite = deskM.opacity > 0.9;
+  accM.color.lerp(accOn ? accHi : accLo, k);
+  const hidden = camera.position.y > DH + 20 && !topClear;
+  underLabels.forEach(o => { o.visible = showLabels && accOn && !hidden; });
+  /* 接近正俯视时，桌板下面所有东西的标签都收起来，只看桌面 */
+  const steep = !topClear &&
+    (camera.position.y - controls.target.y) / camera.position.distanceTo(controls.target) > 0.85;
+  belowDesk.forEach(o => { o.visible = showLabels && (accOn || !accLabels.includes(o)) && !steep; });
+
+  renderer.render(scene, camera);
+  labelRenderer.render(scene, camera);
+  requestAnimationFrame(frame);
+}
+frame();
+</script>
+</body>
+</html>
