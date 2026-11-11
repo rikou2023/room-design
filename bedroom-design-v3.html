@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <link rel="icon" href="data:,">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>南麻布 202 · 卧室 v3 布局试验（L 型桌 · 原床位）</title>
+<title>南麻布 202 · 卧室 v3（L 型桌 · 黑白风）</title>
 <style>
   * { box-sizing: border-box; }
   html, body { margin: 0; height: 100%; overflow: hidden; background: #efe9df;
@@ -77,7 +77,7 @@
 
 <aside id="side">
   <button id="toggleSide">展开</button>
-  <h1>卧室 v3 · L 型桌布局试验</h1>
+  <h1>卧室 v3 · L 型桌 · 黑白风</h1>
   <p class="sub">南麻布 202 卧室 315 × 308 cm · 租房友好：墙上和天花上什么都不装</p>
   <div class="seg" id="segMode">
     <button data-mode="solo" class="on">现在：一个人住</button>
@@ -98,7 +98,8 @@
     <button id="btnZones" class="on">净空区：开</button>
   </div>
       <h2>这一版是什么</h2>
-  <p><b>v3 布局试验</b>：风格和规则跟 v2 一样（奶油奇趣风；墙上和天花板一个孔都不打；衣柜折门前留 30cm；门扫过的地方空着）。区别是按你的想法换了布局：<b>床还是原来那张 140×195</b>，桌子换成 <b>L 型桌</b>，L 角在左边（西边）。主桌 160×70 靠西墙，副桌 120×50 靠床。</p>
+  <p><b>v3 布局试验</b>：规则跟 v2 一样（墙上和天花板一个孔都不打；衣柜折门前留 30cm；门扫过的地方空着）。区别是按你的想法换了布局：<b>床还是原来那张 140×195</b>，桌子换成 <b>L 型桌</b>，L 角在左边（西边）。主桌 160×70 靠西墙，副桌 120×50 靠床。</p>
+  <p><b>风格：黑白极简（奥利奥风）</b>。墙是白的，木地板保留，家具全部只用黑和白：白色桌面配哑光黑金属腿，云白 bouclé 床配白底黑格被子和一根黑色靠垫，黑白棋盘格地毯，黑框波浪镜，黑色扭扭落地灯配白球灯罩。造型还是 v2 那种圆角、波浪、泡泡、蘑菇，这样黑白也不显得冷，反而更年轻。黑白反差大，在小房间里每件家具都看得很清楚。黑色只用在细线条（桌腿、镜框、灯杆）和小件上，大面积还是白色，所以房间不会显得压抑。唯一的一点颜色是郁金香的绿叶。</p>
   <p><b>为什么 L 角放在主桌南端：</b>如果 L 角放在北端（西北角），副桌就得沿北墙往东伸到 x190，正好撞进门扫区（x143–227），而且离床很远。放在南端，副桌刚好贴着床的北沿，可以当床头柜、餐桌和化妆台，门口那一片也完全空出来了。</p>
   <h2>配色</h2>
   <div class="pal" id="pal"></div>
@@ -170,12 +171,12 @@ const W = 315, D = 308, H = 240, T = 10;
 
 /* ================= 配色 ================= */
 const PALETTE = [
-  { hex: '#FFF6EA', name: '奶油白', use: '大面积底色：床架 / 桌面 / 矮柜' },
-  { hex: '#F6B8C8', name: '草莓奶昔粉', use: '被子 / 转椅 / 镜框 / 地毯' },
-  { hex: '#A8D4F0', name: '天空蓝', use: '推车 / 第二床被子' },
-  { hex: '#FFE07A', name: '柠檬黄', use: '桌腿 / 落地灯 / 桌面镜' },
-  { hex: '#BFD8A6', name: '抹茶奶绿', use: '杯子 / 收纳门 / 植物' },
-  { hex: '#F2785C', name: '番茄红', use: '一点点亮色：蘑菇凳 / 爱心抱枕' },
+  { hex: '#FAFAFA', name: '纯白', use: '桌面 / 矮柜 / 床品底色' },
+  { hex: '#F3F3F1', name: '云白 bouclé', use: '床框 / 床头靠垫 / 椅脚' },
+  { hex: '#1D1D1F', name: '哑光黑', use: '桌腿 / 椅座 / 镜框 / 推车 / 灯杆 / 显示器' },
+  { hex: '#3A3A3C', name: '炭灰', use: '遮光帘 / 键盘 / 小物' },
+  { hex: '#9A9A9A', name: '银灰', use: '格纹过渡 / 收纳小件' },
+  { hex: '#6F8F5A', name: '植物绿', use: '唯一一点颜色：郁金香茎叶 / 杯子' },
 ];
 const C = { cream: 0xf3ede2, oat: 0xe0d2bc, walnut: 0x6b4a32, caramel: 0xb5733e, wine: 0x6e2a31, olive: 0x6f7a4c,
   ink: 0x2b2622, chrome: 0xd7d9db, white: 0xfbfaf7, linen: 0xf6f1e8, oak: 0xd9c19c };
@@ -380,7 +381,7 @@ const doorPivot = new THREE.Group();
 
 /* ===== v2 构件：奶油奇趣风（局部坐标：原点在占地中心地面，宽沿 x，深沿 z，正面朝 +z） ===== */
 const B = {};
-const P = { cream: 0xfff6ea, pink: 0xf6b8c8, matcha: 0xbfd8a6, lemon: 0xffe07a, sky: 0xa8d4f0, cocoa: 0x7a5543, white: 0xfffdf8, tomato: 0xf2785c };
+const P = { cream: 0xf3f3f1, pink: 0x1d1d1f, matcha: 0x6f8f5a, lemon: 0x1a1a1a, sky: 0x232325, cocoa: 0x141414, white: 0xfafafa, tomato: 0x1d1d1f };   // 黑白风
 const boucle = (c) => M(c, { roughness: 1 });
 const gloss = (c) => M(c, { roughness: 0.25 });
 function tube(g, pts, r, m, seg = 64) {
@@ -395,11 +396,11 @@ B.cloudBed = (o) => {
   const z0 = -d / 2 + 14;                         // 床头靠垫之后
   /* 涟漪软包床架：一圈竖向"泡芙"圆柱 */
   box(g, w, 26, d - 14, 0, 2, (z0 + d / 2) / 2, fr, 8);
-  const ripple = M(0xfbeedd, { roughness: 1 });
+  const ripple = M(0xe9e9e6, { roughness: 1 });
   for (let x = -w / 2 + 6; x <= w / 2 - 6; x += 9.2) cyl(g, 5, 5, 24, x, 3, d / 2 - 3, ripple, 16);
   for (let z = z0 + 6; z <= d / 2 - 8; z += 9.4) cyl(g, 5, 5, 24, w / 2 - 3, 3, z, ripple, 16);
   /* 储物抽屉（东侧 = 局部 -x，因为床旋转 180°） */
-  for (const zz of [-40, 30]) box(g, 1, 14, 56, -w / 2 - 0.3, 8, zz, M(0xf0e2cf));
+  for (const zz of [-40, 30]) box(g, 1, 14, 56, -w / 2 - 0.3, 8, zz, M(0xdedede));
   box(g, w - 4, 22, d - 20, 0, 28, (z0 + d / 2) / 2, M(P.white, { roughness: 0.9 }), 7);       // 床垫
   const top = 50;
   /* 被子：一人 = 草莓粉格纹；两人 = 粉 + 天蓝 两床 */
@@ -410,16 +411,16 @@ B.cloudBed = (o) => {
   }) });
   const dz0 = z0 + 48, dz1 = d / 2 + 2, dzc = (dz0 + dz1) / 2, dl = dz1 - dz0;
   if (!duo) {
-    box(g, w + 6, 9, dl, 0, top - 4, dzc, ging('#fde7ee', '#f6b8c8'), 4.5);
-    box(g, w + 6, 3, 24, 0, top + 4.5, dz0 + 12, M(0xfff1f4, { roughness: 1 }), 1.5);
+    box(g, w + 6, 9, dl, 0, top - 4, dzc, ging('#ffffff', '#1d1d1f'), 4.5);
+    box(g, w + 6, 3, 24, 0, top + 4.5, dz0 + 12, M(0xffffff, { roughness: 1 }), 1.5);
   } else {
-    box(g, w / 2 + 2, 9, dl, -w / 4 - 1, top - 4, dzc, ging('#fde7ee', '#f6b8c8'), 4.5);
-    box(g, w / 2 + 2, 10, dl - 6, w / 4 + 1, top - 4, dzc + 3, ging('#e6f3fc', '#a8d4f0'), 4.5);
+    box(g, w / 2 + 2, 9, dl, -w / 4 - 1, top - 4, dzc, ging('#ffffff', '#1d1d1f'), 4.5);
+    box(g, w / 2 + 2, 10, dl - 6, w / 4 + 1, top - 4, dzc + 3, ging('#e9e9e9', '#555558'), 4.5);
   }
   /* 枕头 */
-  const pil = M(0xfffaf3, { roughness: 1 });
+  const pil = M(0xffffff, { roughness: 1 });
   const np = duo ? [-w / 4, w / 4] : [-w / 4, w / 4];
-  np.forEach((x, i) => { const p = box(g, w / 2 - 10, 13, 38, x, top - 1, z0 + 22, i ? M(duo ? 0xe6f3fc : 0xfffaf3, { roughness: 1 }) : pil, 6); p.rotation.x = -0.12; });
+  np.forEach((x, i) => { const p = box(g, w / 2 - 10, 13, 38, x, top - 1, z0 + 22, i ? M(duo ? 0x2a2a2c : 0xffffff, { roughness: 1 }) : pil, 6); p.rotation.x = -0.12; });
   /* 云朵抱枕 + 爱心抱枕 */
   const cloud = M(0xffffff, { roughness: 1 });
   [[-14, 0, 0, 11], [0, 4, 0, 13], [14, 0, 0, 11]].forEach(([x, y, z, r]) => sph(g, r, x - 18, top + 12 + y, z0 + 40 + z, cloud, 1, 0.8, 0.55));
@@ -441,7 +442,7 @@ B.lowBed = (o) => {
   const z0 = -d / 2 + 14;                         // 床头靠垫之后
   /* 涟漪软包床架：一圈竖向"泡芙"圆柱 */
   box(g, w, 18, d - 14, 0, 2, (z0 + d / 2) / 2, fr, 8);
-  const ripple = M(0xfbeedd, { roughness: 1 });
+  const ripple = M(0xe9e9e6, { roughness: 1 });
   for (let x = -w / 2 + 6; x <= w / 2 - 6; x += 9.2) cyl(g, 5, 5, 17, x, 3, d / 2 - 3, ripple, 16);
   for (let z = z0 + 6; z <= d / 2 - 8; z += 9.4) cyl(g, 5, 5, 17, w / 2 - 3, 3, z, ripple, 16);
   /* 储物抽屉（东侧 = 局部 -x，因为床旋转 180°） */
@@ -455,16 +456,16 @@ B.lowBed = (o) => {
   }) });
   const dz0 = z0 + 48, dz1 = d / 2 + 2, dzc = (dz0 + dz1) / 2, dl = dz1 - dz0;
   if (!duo) {
-    box(g, w + 6, 9, dl, 0, top - 4, dzc, ging('#fde7ee', '#f6b8c8'), 4.5);
-    box(g, w + 6, 3, 24, 0, top + 4.5, dz0 + 12, M(0xfff1f4, { roughness: 1 }), 1.5);
+    box(g, w + 6, 9, dl, 0, top - 4, dzc, ging('#ffffff', '#1d1d1f'), 4.5);
+    box(g, w + 6, 3, 24, 0, top + 4.5, dz0 + 12, M(0xffffff, { roughness: 1 }), 1.5);
   } else {
-    box(g, w / 2 + 2, 9, dl, -w / 4 - 1, top - 4, dzc, ging('#fde7ee', '#f6b8c8'), 4.5);
-    box(g, w / 2 + 2, 10, dl - 6, w / 4 + 1, top - 4, dzc + 3, ging('#e6f3fc', '#a8d4f0'), 4.5);
+    box(g, w / 2 + 2, 9, dl, -w / 4 - 1, top - 4, dzc, ging('#ffffff', '#1d1d1f'), 4.5);
+    box(g, w / 2 + 2, 10, dl - 6, w / 4 + 1, top - 4, dzc + 3, ging('#e9e9e9', '#555558'), 4.5);
   }
   /* 枕头 */
-  const pil = M(0xfffaf3, { roughness: 1 });
+  const pil = M(0xffffff, { roughness: 1 });
   const np = duo ? [-w / 4, w / 4] : [-w / 4, w / 4];
-  np.forEach((x, i) => { const p = box(g, w / 2 - 10, 13, 38, x, top - 1, z0 + 22, i ? M(duo ? 0xe6f3fc : 0xfffaf3, { roughness: 1 }) : pil, 6); p.rotation.x = -0.12; });
+  np.forEach((x, i) => { const p = box(g, w / 2 - 10, 13, 38, x, top - 1, z0 + 22, i ? M(duo ? 0x2a2a2c : 0xffffff, { roughness: 1 }) : pil, 6); p.rotation.x = -0.12; });
   /* 云朵抱枕 + 爱心抱枕 */
   const cloud = M(0xffffff, { roughness: 1 });
   [[-14, 0, 0, 11], [0, 4, 0, 13], [14, 0, 0, 11]].forEach(([x, y, z, r]) => sph(g, r, x - 18, top + 12 + y, z0 + 40 + z, cloud, 1, 0.8, 0.55));
@@ -486,7 +487,7 @@ B.extTable = (o) => {
   box(g, L, 3.5, Dd, 0, 68.5, 0, topM, 1.6);
   if (L > 130 && !o.solid) box(g, 0.5, 0.4, Dd - 2, L / 2 - 40, 72, 0, M(0xe8e0d4));       // 伸缩板接缝
   for (const [x, z] of [[-L / 2 + 8, -Dd / 2 + 8], [L / 2 - 8, -Dd / 2 + 8], [-L / 2 + 8, Dd / 2 - 8], [L / 2 - 8, Dd / 2 - 8]]) cyl(g, 3.2, 3.2, 68.5, x, 0, z, legM, 20);
-  box(g, L - 20, 4, 3, 0, 62, -Dd / 2 + 8, M(0xf6efe4));
+  box(g, L - 20, 4, 3, 0, 62, -Dd / 2 + 8, M(0x1a1a1a));
   return g;
 };
 B.bubbleChair = () => {
@@ -507,13 +508,13 @@ B.mushroomStool = (o) => {
   return g;
 };
 B.cart = (o) => {
-  /* 天蓝三层推车 44×34×64：零食 / 手柄 / 充电，可推进桌下（桌下净高 68） */
+  /* 哑光黑三层推车 44×34×64：零食 / 手柄 / 充电，可推进桌下（桌下净高 68） */
   const g = new THREE.Group();
   const m = gloss(P.sky);
   for (const [x, z] of [[-20, -15], [20, -15], [-20, 15], [20, 15]]) { cyl(g, 1, 1, 58, x, 5, z, m, 8); sph(g, 2.5, x, 2.5, z, M(0xffffff)); }
   for (const y of [8, 33, 58]) { box(g, 44, 1, 34, 0, y, 0, m, 0.5); box(g, 44, 5, 1, 0, y, 17, m); box(g, 44, 5, 1, 0, y, -17, m); }
   const pad = box(g, 16, 5, 10, 10, 34, 3, gloss(0xffffff), 2.5);           // 手柄
-  ['#f6b8c8', '#a8d4f0', '#ffe07a', '#bfd8a6'].forEach((c, i) => box(g, 1.6, 17, 13.5, -16 + i * 2.2, 9, 0, M(new THREE.Color(c).getHex())));   // 游戏盒
+  ['#ffffff', '#1d1d1f', '#9a9a9a', '#1d1d1f'].forEach((c, i) => box(g, 1.6, 17, 13.5, -16 + i * 2.2, 9, 0, M(new THREE.Color(c).getHex())));   // 游戏盒
   cyl(g, 4, 4, 9, -10, 34, 0, gloss(P.tomato), 16);                          // 零食罐
   sph(g, 5, 12, 14, 0, gloss(P.lemon));
   return g;
@@ -525,7 +526,7 @@ B.lowBench = (o) => {
   for (const x of [-L / 2 + 5, L / 2 - 5]) for (const z of [-12, 12]) cyl(g, 2.5, 2.5, 5, x, 0, z, gloss(P.lemon), 12);
   /* 波浪拱门格 + 粉色推门 */
   box(g, L / 2 - 4, 30, 1, -L / 4, 10, 17.6, gloss(P.pink), 2);
-  for (let i = 0; i < 6; i++) { const x = 4 + i * ((L / 2 - 10) / 6); box(g, 1.5, 22, 14, x, 10, 4, M(['#ffe07a', '#a8d4f0', '#bfd8a6', '#f6b8c8', '#ffffff', '#f2785c'].map(c => new THREE.Color(c).getHex())[i])); }
+  for (let i = 0; i < 6; i++) { const x = 4 + i * ((L / 2 - 10) / 6); box(g, 1.5, 22, 14, x, 10, 4, M(['#1d1d1f', '#ffffff', '#9a9a9a', '#1d1d1f', '#ffffff', '#6f8f5a'].map(c => new THREE.Color(c).getHex())[i])); }
   return g;
 };
 B.wavyMirror = (o) => {
@@ -563,7 +564,7 @@ B.wiggleLamp = (o) => {
 B.mushroomLamp = (o) => {
   const g = new THREE.Group();
   const c = o.color || P.pink;
-  const base = gloss(c);
+  const base = gloss(o.base || c);
   lathe(g, [[0, 0], [7, 0], [7, 1.2], [2.2, 3], [1.7, 14], [1.7, 18], [0, 18]], 0, 0, 0, base);
   const capM = glow(c, 0.1);
   lathe(g, [[0, 30], [4, 29.6], [8.5, 27.5], [11, 23], [11, 21.6], [9, 21.2], [0, 21.4]], 0, 0, 0, capM);
@@ -583,7 +584,7 @@ B.checkerRug = (o) => {
     i ? shape.lineTo(x, z) : shape.moveTo(x, z);
   }
   const tex = canvasTex(512, 512, (x, cw, ch) => {
-    const n = 8; for (let i = 0; i < n; i++) for (let j = 0; j < n; j++) { x.fillStyle = (i + j) % 2 ? '#f6b8c8' : '#fff3e6'; x.fillRect(i * cw / n, j * ch / n, cw / n, ch / n); }
+    const n = 8; for (let i = 0; i < n; i++) for (let j = 0; j < n; j++) { x.fillStyle = (i + j) % 2 ? '#1d1d1f' : '#f5f5f3'; x.fillRect(i * cw / n, j * ch / n, cw / n, ch / n); }
   });
   const geo = new THREE.ExtrudeGeometry(shape, { depth: 1.6, bevelEnabled: true, bevelThickness: 0.5, bevelSize: 0.8, bevelSegments: 2 });
   geo.rotateX(Math.PI / 2);
@@ -596,7 +597,7 @@ B.tulips = () => {
   const g = new THREE.Group();
   lathe(g, [[0, 0], [5, 0], [6.5, 4], [4, 9], [6, 14], [4.2, 18], [3.5, 20], [0, 20]], 0, 0, 0, M(0xd9ecff, { roughness: 0.05, transparent: true, opacity: 0.75 }));
   const r = rnd(4);
-  ['#f6b8c8', '#ffe07a', '#f2785c', '#f6b8c8', '#ffffff'].forEach((c, i) => {
+  ['#ffffff', '#f2f2f2', '#ffffff', '#ececec', '#ffffff'].forEach((c, i) => {
     const a = i * 1.25, t = 0.12 + r() * 0.12, hh = 18 + r() * 8;
     const x = Math.sin(a) * hh * t, z = Math.cos(a) * hh * t;
     tube(g, [[0, 18, 0], [x / 2, 18 + hh / 2, z / 2], [x, 18 + hh, z]], 0.35, M(0x7fae5a), 8);
@@ -606,9 +607,9 @@ B.tulips = () => {
 };
 B.meal = () => {
   const g = new THREE.Group();
-  box(g, 34, 1, 24, 0, 0, 0, M(0xffe9b8, { roughness: 0.6 }), 0.5);       // 托盘
+  box(g, 34, 1, 24, 0, 0, 0, M(0x1d1d1f, { roughness: 0.6 }), 0.5);       // 托盘
   cyl(g, 10, 8, 1.6, -6, 1, 0, gloss(0xffffff), 32);
-  sph(g, 4, -9, 3, -2, M(0xffd56b), 1, 0.5, 1); sph(g, 3, -3, 3, 3, M(0xf2785c), 1, 0.6, 1);
+  sph(g, 4, -9, 3, -2, M(0xf5f5f5), 1, 0.5, 1); sph(g, 3, -3, 3, 3, M(0x3a3a3c), 1, 0.6, 1);
   cyl(g, 3.6, 3, 9, 10, 1, -4, gloss(P.matcha), 16);
   return g;
 };
@@ -623,7 +624,7 @@ B.makeupSet = () => {
   cyl(g, 1.2, 1.2, 15, 0, 0, -1, gloss(P.lemon)); cyl(g, 7, 8, 1.5, 0, 0, 0, gloss(P.lemon));
   /* 亚克力收纳 + 口红 */
   box(g, 18, 10, 10, 22, 0, 4, M(0xffffff, { transparent: true, opacity: 0.45, roughness: 0.05 }), 1);
-  ['#f2785c', '#f6b8c8', '#ffffff', '#7a5543', '#ffe07a'].forEach((c, i) => cyl(g, 1.3, 1.3, 9, 16 + i * 3, 1, 4, gloss(new THREE.Color(c).getHex()), 10));
+  ['#1d1d1f', '#ffffff', '#9a9a9a', '#1d1d1f', '#c8c8c8'].forEach((c, i) => cyl(g, 1.3, 1.3, 9, 16 + i * 3, 1, 4, gloss(new THREE.Color(c).getHex()), 10));
   return g;
 };
 B.plushBear = () => {
@@ -678,7 +679,7 @@ B.dayBed = (o) => {
   box(g, L - 18, 14, 92, 0, 30, zb + 54, M(P.white, { roughness: 0.95 }), 6);        // 床垫 97×196 → 简化
   /* 涟漪靠背（独立立着，贴墙但不固定） */
   box(g, L - 4, 74, 12, 0, 6, zb + 6, fr, 6);
-  const ripple = M(0xfbeedd, { roughness: 1 });
+  const ripple = M(0xe9e9e6, { roughness: 1 });
   for (let x = -L / 2 + 8; x <= L / 2 - 8; x += 9.6) cyl(g, 5, 5, 66, x, 10, zb + 12.5, ripple, 14);
   /* 两端扶手：圆润泡芙 */
   for (const s of [-1, 1]) {
@@ -696,10 +697,10 @@ B.dayBed = (o) => {
     for (let i = 0; i < 8; i++) { x.globalAlpha = .45; x.fillRect(i * 32, 0, 16, ch); x.fillRect(0, i * 32, cw, 16); }
     x.globalAlpha = 1;
   }) });
-  const pil = M(0xfffaf3, { roughness: 1 });
+  const pil = M(0xffffff, { roughness: 1 });
   if (!duo) {
     /* 一人：白天当沙发，被子叠在北端，枕头在南端 */
-    box(g, 60, 12, 74, L / 2 - 50, top, zb + 60, ging('#fde7ee', '#f6b8c8'), 5);
+    box(g, 60, 12, 74, L / 2 - 50, top, zb + 60, ging('#ffffff', '#1d1d1f'), 5);
     const p = box(g, 34, 13, 50, -L / 2 + 34, top, zb + 60, pil, 6); p.rotation.z = 0.15;
     const heart = new THREE.Shape(); heart.moveTo(0, -9); heart.bezierCurveTo(-14, 2, -8, 14, 0, 7); heart.bezierCurveTo(8, 14, 14, 2, 0, -9);
     const hm = shade(new THREE.Mesh(new THREE.ExtrudeGeometry(heart, { depth: 6, bevelEnabled: true, bevelSize: 2.5, bevelThickness: 2.5, bevelSegments: 4 }), M(P.tomato, { roughness: 0.8 })));
@@ -710,17 +711,17 @@ B.dayBed = (o) => {
     for (const x of [-L / 2 + 20, L / 2 - 20]) cyl(g, 3, 3, 4, x, 0, D / 2 - 8, gloss(0xffffff), 12);
     box(g, L - 24, 14, 86, 0, 30, zTop + 45, M(P.white, { roughness: 0.95 }), 6);
     const dl = L - 70;
-    box(g, dl, 9, 94, 18, top - 1, zb + 54, ging('#fde7ee', '#f6b8c8'), 4.5);
-    box(g, dl, 10, 86, 18, top - 1, zTop + 44, ging('#e6f3fc', '#a8d4f0'), 4.5);
-    [zb + 54, zTop + 44].forEach((z, i) => { const p = box(g, 34, 13, 56, -L / 2 + 36, top, z, i ? M(0xe6f3fc, { roughness: 1 }) : pil, 6); p.rotation.z = 0.15; });
+    box(g, dl, 9, 94, 18, top - 1, zb + 54, ging('#ffffff', '#1d1d1f'), 4.5);
+    box(g, dl, 10, 86, 18, top - 1, zTop + 44, ging('#e9e9e9', '#555558'), 4.5);
+    [zb + 54, zTop + 44].forEach((z, i) => { const p = box(g, 34, 13, 56, -L / 2 + 36, top, z, i ? M(0x2a2a2c, { roughness: 1 }) : pil, 6); p.rotation.z = 0.15; });
   }
   return g;
 };
 B.ustProjector = () => {
   /* 超短焦投影：放在矮柜上，离墙 10cm 往上打 */
   const g = new THREE.Group();
-  box(g, 40, 11, 28, 0, 0, 0, gloss(0xf6f3ee), 4);
-  box(g, 24, 0.6, 6, 0, 11, -8, gloss(0x22252b), 0.3);
+  box(g, 40, 11, 28, 0, 0, 0, gloss(0x1d1d1f), 4);
+  box(g, 24, 0.6, 6, 0, 11, -8, gloss(0x9a9a9a), 0.3);
   box(g, 34, 2, 1, 0, 3, 14.2, M(0xd9d4cc));
   return g;
 };
@@ -735,15 +736,15 @@ B.ps5Flat = () => {
 B.feltPad = () => { const g = new THREE.Group(); box(g, 70, 0.4, 30, 0, 0, 0, M(0xd6c6ad, { roughness: 1 }), 0.2); return g; };
 B.monitor = () => {
   const g = new THREE.Group();
-  const white = M(0xf2f1ee, { roughness: 0.4 });
+  const white = M(0x1d1d1f, { roughness: 0.4 });
   /* 支臂夹在桌后沿 */
-  box(g, 6, 4, 8, 0, 0, -18, metal(0x9a9a98));
+  box(g, 6, 4, 8, 0, 0, -18, metal(0x2a2a2a));
   cyl(g, 1.6, 1.6, 30, 0, 4, -18, white, 12);
   const arm = box(g, 3, 3, 16, 0, 32, -11, white); arm.rotation.x = 0.2;
   box(g, 61.5, 37, 2.6, 0, 26, -3, white, 0.8);
   const scr = new THREE.Mesh(new THREE.PlaneGeometry(59, 33.5), new THREE.MeshStandardMaterial({
     map: canvasTex(512, 290, (x, w, h) => {
-      const gr = x.createLinearGradient(0, 0, w, h); gr.addColorStop(0, '#e9cdb0'); gr.addColorStop(.55, '#c98d6b'); gr.addColorStop(1, '#6e2a31');
+      const gr = x.createLinearGradient(0, 0, w, h); gr.addColorStop(0, '#f2f2f2'); gr.addColorStop(.55, '#8c8c8c'); gr.addColorStop(1, '#161616');
       x.fillStyle = gr; x.fillRect(0, 0, w, h);
       x.fillStyle = 'rgba(255,248,236,.85)'; x.beginPath(); x.arc(w * .68, h * .42, 46, 0, 7); x.fill();
       x.fillStyle = 'rgba(47,42,37,.55)'; x.fillRect(0, h - 18, w, 18);
@@ -756,19 +757,19 @@ B.monitor = () => {
 };
 B.keyboard = () => {
   const g = new THREE.Group();
-  box(g, 36, 2.2, 12.5, 0, 0, 0, M(0xf1ece2, { roughness: 0.5 }), 0.6);
-  for (let r = 0; r < 4; r++) box(g, 33, 0.6, 2, 0, 2.2, -4.5 + r * 3, M(0xe6dccb, { roughness: 0.6 }));
-  box(g, 6, 2.5, 10.5, 30, 0, 0, M(0xf1ece2, { roughness: 0.5 }), 2.5);     // 鼠标
+  box(g, 36, 2.2, 12.5, 0, 0, 0, M(0x1d1d1f, { roughness: 0.5 }), 0.6);
+  for (let r = 0; r < 4; r++) box(g, 33, 0.6, 2, 0, 2.2, -4.5 + r * 3, M(0x3a3a3c, { roughness: 0.6 }));
+  box(g, 6, 2.5, 10.5, 30, 0, 0, M(0x1d1d1f, { roughness: 0.5 }), 2.5);     // 鼠标
   return g;
 };
 B.pcRack = (o) => {
   const g = new THREE.Group();
-  const st = M(0xf2efe9, { roughness: 0.5, metalness: 0.2 });
+  const st = M(0x1d1d1f, { roughness: 0.5, metalness: 0.2 });
   for (const [x, z] of [[-14, -24], [14, -24], [-14, 24], [14, 24]]) { box(g, 1.6, 52, 1.6, x, 4, z, st); sph(g, 2, x, 2, z, M(0x333333)); }
   box(g, 30, 1.2, 50, 0, 5, 0, st); box(g, 30, 1.2, 50, 0, 55, 0, st);
   /* 主机 Thermaltake mATX 22×41.1×41.1，面板朝前，背后留走线 */
   box(g, 22, 41.1, 41.1, 0, 6.2, 4, M(0x26272a, { roughness: 0.35, metalness: 0.3 }), 0.6);
-  const gl = new THREE.Mesh(new THREE.PlaneGeometry(37, 35), new THREE.MeshStandardMaterial({ color: 0x7a6cff, emissive: 0x9f8cff,
+  const gl = new THREE.Mesh(new THREE.PlaneGeometry(37, 35), new THREE.MeshStandardMaterial({ color: 0xdddddd, emissive: 0xffffff,
     emissiveIntensity: 0.25, transparent: true, opacity: 0.55, roughness: 0.1 }));
   gl.rotation.y = -Math.PI / 2; gl.position.set(-11.05, 27, 4); g.add(gl);
   /* 路由器（天线放平） */
@@ -792,7 +793,7 @@ B.curtains = (o) => {
   /* 纱帘：白天拉开铺满窗 / 晚上也在；遮光帘：白天收在西侧固定扇，晚上拉上 */
   const sheer = wave(250, 232, 22, 2.2, 0xffffff, 0.5); sheer.position.set(0, 118, 3); g.add(sheer);
   const bw = duo ? 250 : 44;
-  const black = wave(bw, 234, duo ? 20 : 7, duo ? 3 : 4.5, 0xf6c3cf, 1); black.position.set(-125 + bw / 2, 118, -3); g.add(black);
+  const black = wave(bw, 234, duo ? 20 : 7, duo ? 3 : 4.5, 0x3a3a3c, 1); black.position.set(-125 + bw / 2, 118, -3); g.add(black);
   box(g, 258, 3, 12, 0, 235, 0, M(0xf3efe8));      // 原有窗帘轨
   return g;
 };
@@ -803,54 +804,54 @@ B.curtains = (o) => {
 const ITEMS = [
   // —— 睡觉
   { id: 'bed', cat: '睡觉', name: '低矮涟漪软包床（床垫 140×195）', size: [145, 199, 75], at: [99.5, 233.5], rot: 90, build: 'lowBed',
-    desc: '奶白 bouclé 涟漪床框，薄边，床面高 42，属于低床。框体东西长 199、南北宽 145：x0–199，z161–306，床头朝西，三根泡芙靠垫立在床头，不固定在墙上。北侧紧贴副桌，南侧贴着落地窗，所以只能从东边床尾上下床。' },
+    desc: '云白 bouclé 涟漪床框（中间一根黑色靠垫点缀），薄边，床面高 42，属于低床。框体东西长 199、南北宽 145：x0–199，z161–306，床头朝西，三根泡芙靠垫立在床头，不固定在墙上。北侧紧贴副桌，南侧贴着落地窗，所以只能从东边床尾上下床。' },
   { id: 'bedding', cat: '睡觉', name: '床品', size: [150, 200, 10], info: true,
-    desc: '一个人：一床草莓粉格纹被。两个人：粉色和天蓝各一床单人被。' },
+    desc: '一个人：一床白底黑格纹被。两个人：白底黑格、浅灰格各一床单人被，加一个黑色枕头。' },
   // —— L 型桌
   { id: 'desk', cat: 'L 型桌', name: 'L 型桌 · 主桌 160×70（靠西墙）', size: [160, 70, 72], at: [35, 80], rot: 90, build: 'extTable', solid: true,
-    desc: '贴西墙，x0–70、z0–160，从西北角一直到床边。白色桌面，柠檬黄圆腿，高 72。北段放电脑，南段放化妆和小物件。' },
+    desc: '贴西墙，x0–70、z0–160，从西北角一直到床边。白色桌面，哑光黑金属圆腿，高 72。北段放电脑，南段放化妆和小物件。' },
   { id: 'side', cat: 'L 型桌', name: 'L 型桌 · 副桌 120×50（靠床）', size: [120, 50, 72], at: [130, 135], rot: 180, build: 'extTable', solid: true,
     desc: 'L 角在主桌南端，副桌从这里往东伸：x70–190，z110–160，南沿正好贴着床。可以当床头柜（台灯、手机），也可以当餐桌和化妆台，人坐在北边，朝南。' },
-  { id: 'monitor', cat: '电脑', name: '27 寸显示器＋夹桌支臂', size: [61, 20, 65], at: [19, 75], y: 72, rot: 90, build: 'monitor', mode: 'solo',
+  { id: 'monitor', cat: '电脑', name: '27 寸黑色显示器＋黑色夹桌支臂', size: [61, 20, 65], at: [19, 75], y: 72, rot: 90, build: 'monitor', mode: 'solo',
     desc: '在主桌北段，屏幕朝东。支臂可以推到墙边。' },
-  { id: 'monitor2', cat: '电脑', name: '27 寸显示器＋夹桌支臂', size: [61, 20, 65], at: [19, 58], y: 72, rot: 90, build: 'monitor', mode: 'duo', desc: '两人模式往北挪 17，给副桌的座位让出地方。' },
+  { id: 'monitor2', cat: '电脑', name: '27 寸黑色显示器＋黑色夹桌支臂', size: [61, 20, 65], at: [19, 58], y: 72, rot: 90, build: 'monitor', mode: 'duo', desc: '两人模式往北挪 17，给副桌的座位让出地方。' },
   { id: 'kb', cat: '电脑', name: '键盘＋鼠标', size: [44, 13, 3], at: [52, 75], y: 72.4, rot: 90, build: 'keyboard', mode: 'solo', desc: '' },
   { id: 'kb2', cat: '电脑', name: '键盘＋鼠标', size: [44, 13, 3], at: [52, 58], y: 72.4, rot: 90, build: 'keyboard', mode: 'duo', desc: '' },
-  { id: 'rack', cat: '电脑', name: '带轮双层架（主机＋路由器）', size: [30, 50, 60], at: [40, 25], rot: 90, build: 'pcRack',
+  { id: 'rack', cat: '电脑', name: '黑色带轮双层架（主机＋路由器）', size: [30, 50, 60], at: [40, 25], rot: 90, build: 'pcRack',
     desc: '放在主桌下的西北角（x15–65，z10–40）。下层放 Thermaltake mATX 主机（22×41.1×41.1），上层放路由器，坐着时碰不到腿。' },
-  { id: 'chair', cat: 'L 型桌', name: '草莓粉泡泡转椅', size: [52, 52, 82], at: [98, 75], rot: -90, build: 'bubbleChair', mode: 'solo',
-    desc: '坐在主桌前，面朝西用电脑；转个身就能用副桌吃饭或化妆。往后拉的方向是东边，空间很足。' },
-  { id: 'chair2', cat: 'L 型桌', name: '草莓粉泡泡转椅（电脑位）', size: [52, 52, 82], at: [98, 58], rot: -90, build: 'bubbleChair', mode: 'duo', desc: '两人模式坐在主桌北段，椅子离全身镜约 2cm。' },
-  { id: 'stool', cat: 'L 型桌', name: '番茄红蘑菇凳（副桌位）', size: [38, 38, 47], at: [150, 90], rot: 0, build: 'mushroomStool', mode: 'duo',
+  { id: 'chair', cat: 'L 型桌', name: '黑白泡泡转椅', size: [52, 52, 82], at: [98, 75], rot: -90, build: 'bubbleChair', mode: 'solo',
+    desc: '黑色圈圈绒座面，白色五星脚。坐在主桌前，面朝西用电脑；转个身就能用副桌吃饭或化妆。往后拉的方向是东边，空间很足。' },
+  { id: 'chair2', cat: 'L 型桌', name: '黑白泡泡转椅（电脑位）', size: [52, 52, 82], at: [98, 58], rot: -90, build: 'bubbleChair', mode: 'duo', desc: '两人模式坐在主桌北段，椅子离全身镜约 2cm。' },
+  { id: 'stool', cat: 'L 型桌', name: '黑色波点蘑菇凳（副桌位）', size: [38, 38, 47], at: [150, 90], rot: 0, build: 'mushroomStool', mode: 'duo',
     desc: '女朋友吃饭、化妆时坐在副桌北边（x131–169，z71–109），离门扫区还有约 15cm。平时塞进副桌下面。' },
-  { id: 'stoolS', cat: 'L 型桌', name: '番茄红蘑菇凳（收在副桌下）', size: [38, 38, 47], at: [110, 135], rot: 0, build: 'mushroomStool', mode: 'solo',
+  { id: 'stoolS', cat: 'L 型桌', name: '黑色波点蘑菇凳（收在副桌下）', size: [38, 38, 47], at: [110, 135], rot: 0, build: 'mushroomStool', mode: 'solo',
     desc: '一人模式收在副桌下，有客人来时再拉出来。' },
-  { id: 'makeup', cat: 'L 型桌', name: '柠檬黄波浪桌面镜＋亚克力收纳', size: [40, 16, 36], at: [100, 150], y: 72, rot: 180, build: 'makeupSet',
+  { id: 'makeup', cat: 'L 型桌', name: '黑框波浪桌面镜＋亚克力收纳', size: [40, 16, 36], at: [100, 150], y: 72, rot: 180, build: 'makeupSet',
     desc: '放在副桌西段，靠近 L 角，坐在转椅上就能化妆。' },
-  { id: 'meal', cat: 'L 型桌', name: '早餐托盘（吃饭区）', size: [34, 24, 10], at: [150, 128], y: 72, rot: 180, build: 'meal',
+  { id: 'meal', cat: 'L 型桌', name: '黑色早餐托盘（吃饭区）', size: [34, 24, 10], at: [150, 128], y: 72, rot: 180, build: 'meal',
     desc: '副桌东段就是餐桌，一个人或两个人都在这里吃。' },
-  { id: 'lamp', cat: '灯光', name: '草莓粉蘑菇台灯（床头灯）', size: [22, 22, 30], at: [180, 148], y: 72, rot: 0, build: 'mushroomLamp', color: 0xf6b8c8, scale: 0.8,
+  { id: 'lamp', cat: '灯光', name: '白色蘑菇台灯（黑底座，床头灯）', size: [22, 22, 30], at: [180, 148], y: 72, rot: 0, build: 'mushroomLamp', color: 0xf5f5f5, base: 0x1d1d1f, scale: 0.8,
     desc: '放在副桌东端，床头伸手就能够到。' },
-  { id: 'tulips', cat: '摆件', name: '玻璃波浪花瓶＋郁金香', size: [13, 13, 45], at: [14, 148], y: 72, rot: 0, build: 'tulips', desc: '主桌南端的角上。' },
-  { id: 'cart', cat: '收纳', name: '天蓝三层推车（零食·手柄·充电）', size: [44, 34, 64], at: [165, 135], rot: 0, build: 'cart',
+  { id: 'tulips', cat: '摆件', name: '玻璃花瓶＋白色郁金香（全屋唯一一点绿）', size: [13, 13, 45], at: [14, 148], y: 72, rot: 0, build: 'tulips', desc: '主桌南端的角上。' },
+  { id: 'cart', cat: '收纳', name: '哑光黑三层推车（零食·手柄·充电）', size: [44, 34, 64], at: [165, 135], rot: 0, build: 'cart',
     desc: '推进副桌下面的东段（x143–187），比桌下净高矮，进得去。' },
   // —— 东墙：投影 / PS
-  { id: 'bench', cat: '投影 · PS', name: '奶白矮柜（投影台＋PS 收纳）', size: [100, 35, 45], at: [297.5, 180], rot: -90, build: 'lowBench',
+  { id: 'bench', cat: '投影 · PS', name: '白色矮柜（黑色推门 · 投影台＋PS 收纳）', size: [100, 35, 45], at: [297.5, 180], rot: -90, build: 'lowBench',
     desc: '贴东墙，x280–315、z130–230，正对床。柜子里放游戏碟和手柄。' },
-  { id: 'ust', cat: '投影 · PS', name: '超短焦投影仪', size: [40, 28, 11], at: [300, 195], y: 45, rot: -90, build: 'ustProjector',
+  { id: 'ust', cat: '投影 · PS', name: '超短焦投影仪（黑色）', size: [40, 28, 11], at: [300, 195], y: 45, rot: -90, build: 'ustProjector',
     desc: '离墙约 15cm，打在东墙白墙上，不吊装，也不打孔。' },
   { id: 'ps5', cat: '投影 · PS', name: 'PS5（平放）＋手柄', size: [39, 26, 10], at: [300, 152], y: 45, rot: -90, build: 'ps5Flat', desc: '平放后不挡画面。' },
   { id: 'beam', cat: '投影 · PS', name: '东墙白墙投影 约 54 寸', size: [120, 0, 67], at: [315, 180], rot: -90, screen: true, build: 'beam',
     from: [0, 57, 15], cx: 0, cy: 106, w: 120, h: 67, wallHide: 'E',
     desc: '画面在东墙 z120–240，底边离地 72。坐在床上看过去约 2.6m，靠着床头靠垫打 PS、追剧都合适。比 v2 的北墙投影大一圈。' },
   // —— 其他
-  { id: 'mirror', cat: '摆件', name: '粉色波浪全身镜（自立式）', size: [45, 30, 160], at: [102, 15], rot: 0, build: 'wavyMirror',
+  { id: 'mirror', cat: '摆件', name: '黑框波浪全身镜（自立式）', size: [45, 30, 160], at: [102, 15], rot: 0, build: 'wavyMirror',
     desc: '贴北墙，x80–125、z0–30，在门扫区西边。站在主桌和副桌之间照全身。' },
-  { id: 'floorLamp', cat: '灯光', name: '柠檬黄波浪落地灯', size: [28, 28, 120], at: [300, 106], rot: 0, build: 'wiggleLamp',
+  { id: 'floorLamp', cat: '灯光', name: '黑色波浪落地灯（白球灯罩）', size: [28, 28, 120], at: [300, 106], rot: 0, build: 'wiggleLamp',
     desc: '东墙 z92–120，在衣柜净空区南边、矮柜北边。从床上看投影的视线从它南边过去，挡不到。' },
-  { id: 'rug', cat: '软装', name: '粉色棋盘格地毯（波浪边）', size: [80, 120, 1.6], at: [237, 190], rot: 0, build: 'checkerRug',
+  { id: 'rug', cat: '软装', name: '黑白棋盘格地毯（波浪边）', size: [80, 120, 1.6], at: [237, 190], rot: 0, build: 'checkerRug',
     desc: 'x197–277、z130–250，铺在床尾和矮柜之间，下床光脚踩。' },
-  { id: 'curtains', wall: 'S', cat: '软装', name: '纱帘＋粉色遮光帘（挂原有窗帘轨）', size: [255, 12, 235], at: [127.5, 300], rot: 0, build: 'curtains',
+  { id: 'curtains', wall: 'S', cat: '软装', name: '白纱帘＋炭灰遮光帘（挂原有窗帘轨）', size: [255, 12, 235], at: [127.5, 300], rot: 0, build: 'curtains',
     desc: '只换帘子，不新增安装。注意：床贴着落地窗，帘子下摆会被床压住（见"冲突"）。' },
 ];
 
