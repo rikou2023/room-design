@@ -44,9 +44,31 @@
   .lb.acc { background: rgba(20,140,140,.92); border-color: #148c8c; color: #fff; }
   #err { position: fixed; inset: 0; display: none; align-items: center; justify-content: center;
     padding: 24px; text-align: center; font-size: 14px; color: #8a2b2b; }
-  @media (max-width: 900px) {
-    #right { top: auto; bottom: 14px; left: 14px; right: 14px; width: auto; max-height: 36vh; }
-    #top { max-height: calc(64vh - 40px); }
+  .views { display: flex; flex-wrap: wrap; gap: 6px; width: 100%; }
+  .hint { color: #8a5a1f; font-size: 11px; line-height: 1.5; }
+  .touch-tip { display: none; }
+  #tabs { display: none; }
+  /* 手机 / 窄屏（< 900px）：两块面板改成底部抽屉，默认收起；底部一排标签页切换「视角/显示 · 布线 · 清单」 */
+  @media (max-width: 899.98px) {
+    #tabs { display: flex; position: fixed; left: 0; right: 0; bottom: 0; z-index: 6; gap: 6px;
+      padding: 6px 8px calc(6px + env(safe-area-inset-bottom)); background: rgba(255,255,255,.95);
+      border-top: 1px solid #d5d0c6; backdrop-filter: blur(6px); }
+    #tabs button { flex: 1; min-height: 44px; font-size: 13px; }
+    #top, #right { display: none; top: auto; left: 0; right: 0; width: auto;
+      bottom: calc(56px + env(safe-area-inset-bottom)); max-height: 46vh; border-radius: 12px 12px 0 0;
+      overscroll-behavior: contain; touch-action: pan-y; z-index: 5; }
+    body.open[data-tab=view] #top, body.open[data-tab=wire] #top, body.open[data-tab=list] #right { display: block; }
+    body[data-tab=view] #top .sec[data-sec=wire], body[data-tab=wire] #top .sec[data-sec=view] { display: none; }
+    #top .intro, .fold { display: none; }
+    h1 { font-size: 14px; }
+    .views { flex-wrap: nowrap; overflow-x: auto; -webkit-overflow-scrolling: touch; padding-bottom: 4px; touch-action: pan-x; }
+    .views button { flex: none; }
+    button { min-height: 40px; padding: 8px 12px; font-size: 13px; }
+    label.cat { min-height: 36px; }
+    input[type=checkbox] { width: 20px; height: 20px; }
+    input[type=range] { height: 36px; }
+    .cable { padding: 8px 6px; }
+    .touch-tip { display: block; }
     #help { display: none; }
   }
 </style>
@@ -57,8 +79,10 @@
 
 <div id="top" class="panel">
   <h1>南麻布 202 · 3D 户型 <button class="fold" data-fold="top">收起</button></h1>
-  <p>卧室 315 × 308 cm ＋ 阳台 · ErGear 160×80 主桌 ＋ 东墙 120×60 电视桌 · 桌面布线</p>
+  <p class="intro">卧室 315 × 308 cm ＋ 阳台 · ErGear 160×80 主桌 ＋ 东墙 120×60 电视桌 · 桌面布线</p>
+  <div class="sec" data-sec="view">
   <div class="row"><span>视角</span>
+    <div class="views">
     <button data-view="iso">斜视</button>
     <button data-view="top">俯视</button>
     <button data-view="inside">室内</button>
@@ -69,16 +93,26 @@
     <button data-view="under">桌下</button>
     <button data-view="bay">北端设备</button>
     <button data-view="back">墙后看桌</button>
+    </div>
   </div>
   <div class="row"><span>显示</span>
     <button id="btnWall" class="on">墙体自动隐藏</button>
     <button id="btnLabel" class="on">标签</button>
     <button id="btnDoor">门：开</button>
     <button id="btnChair">主椅：拉出</button>
-    <button id="btnProj">投影：关</button>
     <button id="btnBed">床上桌：关</button>
+    <button id="btnAO" class="on">环境光遮蔽</button>
+  </div>
+  <div class="row"><span>东墙（电视 / 投影二选一）</span>
+    <button id="btnTV" class="on">电视模式</button>
+    <button id="btnProj">投影模式</button>
+    <span id="eastInfo" class="hint"></span>
+  </div>
+  <p class="touch-tip">触屏：单指拖动转视角，双指捏合缩放、双指拖动平移；桌面物品可以按住直接拖。
+    「按住 Shift 拖屏幕调高低」在触屏上做不到，请用「布线」里的「屏幕底边离桌面」滑块。</p>
   </div>
 
+  <div class="sec" data-sec="wire">
   <h2>桌面布线</h2>
   <div class="row"><span>显示</span>
     <button id="btnWire" class="on">线缆</button>
@@ -101,8 +135,10 @@
     <span id="armInfo"></span>
     <span id="deskInfo"></span>
     <span>拖动屏幕：前后左右平移；按住 Shift 再拖：上下调高低。拖动桌夹：沿后沿前后移动</span>
+    <span class="touch-tip hint">触屏上没有 Shift：屏幕高低请用上面的滑块调。</span>
   </div>
   <div class="row"><button id="btnReset">桌面物品复位</button></div>
+  </div>
 </div>
 
 <div id="right" class="panel">
@@ -110,13 +146,22 @@
   <p>桌面上的东西挪动或去掉后，线和长度会跟着变。长度按模型里的走线量出来，留 25% 余量后取整；设备尺寸和接口位置是示意，以实物为准。</p>
   <div id="cableList"></div>
   <h2>尺寸说明</h2>
-  <p>[占位] 层高 240、桌高 72、床高 45、落地窗高 200、门高 200、阳台栏杆高 110、键盘 44×13，均为常见值，未实测。
+  <p>[实测] 东墙第二张桌（原来的黑桌）桌面高 76.2。</p>
+  <p>[占位] 层高 240、床高 45、落地窗高 200、门高 200、阳台栏杆高 110、键盘 44×13，均为常见值，未实测。
+    主桌高 72 是 ErGear 升降桌的最低档（72～118 可调），不是实测值。
     主机 22×44×34、光猫、路由器、条形音响、USB 集线器、主机吊架、网络设备托架的尺寸是示意。</p>
+  <p>[示意] 床占地 140×195 不变（软包床头板厚 4 cm 算在占地里，床垫按约 137×188 画在占地之内）。
+    衣柜折门前留 30 cm 净空（地上的橙色色块）。</p>
   <p>[推算] 北墙 = 墙 135 ＋ 门框 8 ＋ 门洞 84 ＋ 门框 8 ＋ 墙 15 ＋ 衣柜 65 = 315，其中门框宽 8 是为凑齐总宽推算的。</p>
-  <p>[估算] 卧室以北（走廊 / 浴室 / 厕所 / 厨房 / 玄关）按户型图比例估算，尺寸不准。</p>
+  <p>[估算] 卧室以北（走廊 / 浴室 / 厕所 / 厨房 / 玄关）按户型图比例估算，尺寸不准；浴缸、洗手台、马桶、厨房台面、冰箱、洗衣机、鞋柜只按原来的占位画出外形，尺寸未实测。</p>
   <p>[待确认] 北墙网口和墙插的位置沿用以前布线图里的位置。东墙电视桌（电视、PS5）的电源没有画：不知道东墙附近有没有插座。</p>
 </div>
 <div id="help" class="panel">左键拖动：旋转　右键拖动：平移　滚轮：缩放　桌面物品可直接拖</div>
+<nav id="tabs">
+  <button data-tab="view">视角 / 显示</button>
+  <button data-tab="wire">布线</button>
+  <button data-tab="list">清单</button>
+</nav>
 <div id="err"></div>
 
 <script type="importmap">
@@ -141,16 +186,36 @@ import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js';
 import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
 import { GTAOPass } from 'three/addons/postprocessing/GTAOPass.js';
 import { OutputPass } from 'three/addons/postprocessing/OutputPass.js';
+import { ShaderPass } from 'three/addons/postprocessing/ShaderPass.js';
+import { FXAAShader } from 'three/addons/shaders/FXAAShader.js';
 import { RoundedBoxGeometry } from 'three/addons/geometries/RoundedBoxGeometry.js';
+import { mergeVertices } from 'three/addons/utils/BufferGeometryUtils.js';
 
 /* 坐标：原点 = 卧室西北角；x 向东，z 向南，y 向上；单位 cm */
 const W = 315, D = 308, H = 240, T = 10;
 
+/* ---------- 性能分级：手机 / 平板（触屏小屏）走低档 ---------- */
+const MOBILE = /Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent) ||
+  (matchMedia('(pointer: coarse)').matches && Math.min(screen.width, screen.height) < 900);
+const DPR_MAX = MOBILE ? 1.5 : 2;                          // 手机像素比上限 1.5
+const dprFull = () => Math.min(window.devicePixelRatio || 1, DPR_MAX);
+
+/* ---------- 按需渲染：所有会改变画面的操作都调 invalidate()，改了场景（会影响阴影）调 sceneChanged() ---------- */
+let rafId = 0, lastT = 0, idle = true, aoDirty = true;
+function invalidate() {
+  if (rafId) return;
+  if (idle) { lastT = performance.now() - 16; idle = false; }
+  rafId = requestAnimationFrame(frame_);
+}
+
 const stage = document.getElementById('stage');
-const renderer = new THREE.WebGLRenderer({ antialias: true });
-renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+const renderer = new THREE.WebGLRenderer({ antialias: !MOBILE });
+renderer.setPixelRatio(dprFull());
 renderer.shadowMap.enabled = true;
 renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+renderer.shadowMap.autoUpdate = false;                     // 静态阴影：只在场景变了时重画（见 sceneChanged）
+renderer.shadowMap.needsUpdate = true;
+function sceneChanged() { renderer.shadowMap.needsUpdate = true; aoDirty = true; invalidate(); }
 renderer.toneMapping = THREE.ACESFilmicToneMapping;          // 电影级色调映射，亮部不发白、暗部有层次
 renderer.toneMappingExposure = 0.85;
 stage.appendChild(renderer.domElement);
@@ -181,33 +246,67 @@ const sun = new THREE.DirectionalLight(0xfff1dc, LIGHT.sunDay);
 sun.position.set(-150, 700, 520);
 sun.target.position.set(157, 0, 60);
 sun.castShadow = true;
-sun.shadow.mapSize.set(4096, 4096);
-sun.shadow.camera.left = -520; sun.shadow.camera.right = 520;
-sun.shadow.camera.top = 620; sun.shadow.camera.bottom = -620;
-sun.shadow.camera.near = 50; sun.shadow.camera.far = 2000;
+sun.shadow.mapSize.set(MOBILE ? 2048 : 4096, MOBILE ? 2048 : 4096);    // 手机 2048，电脑 4096
 sun.shadow.normalBias = 1.2;
 sun.shadow.bias = -0.0003;
 scene.add(sun, sun.target);
+/* 阴影相机只罩住卧室 ＋ 阳台（以前罩整套房子），同样的贴图精度更高。
+   做法：把这块区域的 8 个角换到光源视角下，取包围范围 */
+{
+  const cam = sun.shadow.camera, tmp = new THREE.OrthographicCamera();
+  tmp.position.copy(sun.position); tmp.lookAt(sun.target.position); tmp.updateMatrixWorld(true);
+  const lo = new THREE.Vector3(Infinity, Infinity, Infinity), hi = new THREE.Vector3(-Infinity, -Infinity, -Infinity), v = new THREE.Vector3();
+  for (const x of [-T - 4, W + T + 4]) for (const y of [-6, H + 6]) for (const z of [-T - 4, D + 150]) {
+    v.set(x, y, z).applyMatrix4(tmp.matrixWorldInverse);
+    lo.min(v); hi.max(v);
+  }
+  const m = 12;
+  cam.left = lo.x - m; cam.right = hi.x + m; cam.bottom = lo.y - m; cam.top = hi.y + m;
+  cam.near = Math.max(1, -hi.z - 60); cam.far = -lo.z + 60;
+  cam.updateProjectionMatrix();
+}
 
-/* 后处理：环境光遮蔽（墙角、家具底下、物体接触处的自然暗部） */
-const composer = new EffectComposer(renderer);
+/* 后处理：环境光遮蔽（墙角、家具底下、物体接触处的自然暗部）
+   抗锯齿：后处理链路下 WebGLRenderer 的 antialias 不起作用，所以电脑上给 composer 用带 4 倍 MSAA 的渲染目标；
+   手机上不开 MSAA（省显存），在 OutputPass 之后加一道 FXAA */
+const MSAA = !MOBILE && renderer.capabilities.isWebGL2;
+const composer = new EffectComposer(renderer, new THREE.WebGLRenderTarget(
+  window.innerWidth * dprFull(), window.innerHeight * dprFull(), { type: THREE.HalfFloatType, samples: MSAA ? 4 : 0 }));
 composer.addPass(new RenderPass(scene, camera));
 const gtao = new GTAOPass(scene, camera, 512, 512);
-gtao.updateGtaoMaterial({ radius: 22, distanceExponent: 1.2, thickness: 12, scale: 1, samples: 16 });
-gtao.updatePdMaterial({ lumaPhi: 10, depthPhi: 2, normalPhi: 3, radius: 6, rings: 2, samples: 16 });
+gtao.updateGtaoMaterial({ radius: 22, distanceExponent: 1.2, thickness: 12, scale: 1, samples: MOBILE ? 8 : 16 });
+gtao.updatePdMaterial({ lumaPhi: 10, depthPhi: 2, normalPhi: 3, radius: 6, rings: 2, samples: MOBILE ? 8 : 16 });
 gtao.blendIntensity = 0.85;
-/* 已经淡出的墙、玻璃、提示用的半透明色块不参与遮蔽计算，否则隔着它们看进房间会丢掉暗部 */
+gtao.enabled = !MOBILE;                                    // 手机默认关，面板上「环境光遮蔽」可以手动打开（8 采样）
+/* 半分辨率计算遮蔽（composer 会按「窗口 × 像素比」调 setSize，这里减半），结果在混合时放大回去 */
 {
-  const base = gtao.overrideVisibility.bind(gtao);
-  gtao.overrideVisibility = function () {
-    base();
-    this.scene.traverse(o => {
-      if (o.isMesh && o.material && !Array.isArray(o.material) && o.material.transparent && o.material.opacity < 0.6) o.visible = false;
-    });
+  const baseSize = gtao.setSize.bind(gtao);
+  gtao.setSize = (w, h) => baseSize(Math.max(1, Math.round(w / 2)), Math.max(1, Math.round(h / 2)));
+}
+/* 已经淡出的墙、玻璃、提示用的半透明色块不参与遮蔽计算，否则隔着它们看进房间会丢掉暗部。
+   以前每帧遍历两遍整个场景；现在只在场景变化后重新收集一次「带透明材质的网格」，每帧只看这张小表 */
+{
+  let cand = [];
+  const hidden = [];
+  if (typeof gtao.overrideVisibility === 'function' && typeof gtao.restoreVisibility === 'function') {
+    gtao.overrideVisibility = () => {};                    // 原版是为了藏点和线，场景里没有，不必遍历
+    gtao.restoreVisibility = () => {};
+  }
+  const baseRender = gtao.render.bind(gtao);
+  gtao.render = function (...a) {
+    if (aoDirty) {
+      cand = [];
+      scene.traverse(o => { if (o.isMesh && o.material && !Array.isArray(o.material) && o.material.transparent) cand.push(o); });
+      aoDirty = false;
+    }
+    for (const o of cand) if (o.visible && o.material.opacity < 0.6) { o.visible = false; hidden.push(o); }
+    try { baseRender(...a); } finally { for (const o of hidden) o.visible = true; hidden.length = 0; }
   };
 }
 composer.addPass(gtao);
 composer.addPass(new OutputPass());
+const fxaa = MSAA ? null : new ShaderPass(FXAAShader);
+if (fxaa) composer.addPass(fxaa);
 
 /* ---------- 程序生成的贴图 ---------- */
 let seed = 20261112;
@@ -494,24 +593,118 @@ doorPivot.rotation.y = Math.PI / 2;
 label('门洞 84', 185, 222, 0);
 
 /* ---------- 卧室家具 ---------- */
-/* 床 140×195，贴西南角，枕头朝西，无床头 */
-/* 床：无床头。木框床架（底部内收的踢脚）＋ 圆角床垫 ＋ 盖到床边垂下来的被子 ＋ 两个蓬松枕头 */
-{
-  const frameM = woodMat(28, 38, 46), sheetM = fabricMat(40, 25, 94, 10);
-  const duvetM = fabricMat(160, 30, 36, 8), duvetIn = fabricMat(40, 25, 90, 6), pillowM = fabricMat(40, 20, 97, 3);
-  rblock(0, 195, 7, 26, 168, 308, frameM, 1.5);                          // 床框
-  block(5, 190, 0, 7, 173, 303, mat(0x2a2622, { roughness: 0.8 }), { cast: false });   // 内收的底座（暗处）
-  rblock(1.5, 193.5, 26, 48, 169.5, 306.5, sheetM, 5);                   // 床垫 ＋ 床单
-  rblock(52, 196, 47, 51, 167, 307, duvetM, 2);                          // 被子盖在床面
-  rblock(52, 196, 30, 50, 166, 168.5, duvetM, 1.2);                      // 被子从北侧垂下
-  rblock(193.5, 196.5, 30, 50, 167, 307, duvetM, 1.2);                   // 被子从床尾垂下
-  rblock(48, 66, 49.5, 53.5, 167.5, 306.5, duvetIn, 2);                  // 被头翻折的一截（浅色被套里子）
-  [[176, 236], [240, 300]].forEach(([z0, z1]) => {
-    const p = rblock(7, 40, 47.5, 60, z0, z1, pillowM, 6);               // 枕头：大圆角，看起来蓬松
-    p.scale.y = 0.9;
-  });
+/* 床：占地 140×195 不变（x 0–195，z 168–308），贴西南角，枕头朝西。
+   燕麦色圈绒（bouclé）软包床：靠西墙一排「面包条」竖条软包床头（厚 4 cm，算在占地里）
+   ＋ 低矮软包床框（底座内收，看起来浮在地上）＋ 白床笠床垫 ＋ 鼠尾草绿被子（盖过床边自然垂下、带褶皱，被头翻折露出奶白里子）
+   ＋ 两个羽绒枕 ＋ 一个棋盘格靠枕（枕头和靠枕随「床上桌」开关换姿势，见 rebuild()）。所有部件都不出占地 */
+/* 圈绒布：一个个小线圈；同一套随机数再画一张灰度图当凹凸 */
+function boucleTex(h, s, l, srgb = true) {
+  return canvasTex(256, (g, S) => {
+    g.fillStyle = srgb ? hsl(h, s, l) : '#808080'; g.fillRect(0, 0, S, S);
+    for (let i = 0; i < 2600; i++) {
+      const x = rnd() * S, y = rnd() * S, r = 1 + rnd() * 2.2, up = rnd() > 0.5, a0 = rnd() * 6, a1 = a0 + 2.5 + rnd() * 3;
+      g.strokeStyle = srgb ? hsl(h, s, l + (up ? 7 : -9), 0.55) : (up ? 'rgba(255,255,255,.55)' : 'rgba(0,0,0,.55)');
+      g.lineWidth = 0.9;
+      g.beginPath(); g.arc(x, y, r, a0, a1); g.stroke();
+    }
+  }, srgb);
 }
-label('床 140×195', 105, 70, 238);
+function boucleMat(h, s, l, rx, ry) {
+  const s0 = seed, map = boucleTex(h, s, l);
+  seed = s0;
+  const bump = boucleTex(h, s, l, false);
+  map.repeat.set(rx, ry); bump.repeat.set(rx, ry);
+  return mat(0xffffff, { map, bumpMap: bump, bumpScale: 0.7, roughness: 1 });
+}
+/* 被子：一张网格「搭」在一个圆角盒上 —— 床面上的部分平铺（加一点蓬松和褶皱），
+   过了床边就绕着半径 r 的圆角往下垂，床角处按到角的距离往下垂（角上自然垂得低一点）。
+   x0 = 被头（不垂），x1 = 床尾垂边外沿（foot=false 时不往床尾垂），z0 / z1 = 两侧垂边外沿；
+   垂边的波浪褶只在 ±amp 之内，调用时外沿留够余量，保证不出床的占地 */
+const BED_PH = [1.3, 4.1, 2.2, 5.6];                       // 被子和翻折的被头共用同一套褶皱，两层不会互相穿
+function drapeSheet({ x0, x1, z0, z1, top, hem, r = 4, foot = true, puff = 1.6, wr = 0.8, amp = 0.45, nx = 96, nz = 72 }, material) {
+  const q = Math.PI * r / 2, eMax = Math.max(0.5, (top - hem) - r + q);
+  const xi1 = foot ? x1 - r : x1, zi0 = z0 + r, zi1 = z1 - r;
+  const t0 = x0, t1 = xi1 + (foot ? eMax : 0), s0 = zi0 - eMax, s1 = zi1 + eMax;
+  const g = new THREE.PlaneGeometry(1, 1, nx, nz);
+  const pos = g.attributes.position, uv = g.attributes.uv;
+  for (let i = 0; i < pos.count; i++) {
+    const a = pos.getX(i) + 0.5, b = 0.5 - pos.getY(i);              // a：被头 → 床尾；b：北 → 南（这样法线朝上）
+    const t = t0 + (t1 - t0) * a, s = s0 + (s1 - s0) * b;
+    const cx = Math.min(t, xi1), cz = Math.min(zi1, Math.max(zi0, s));
+    const ex = t - cx, es = s - cz, rho = Math.hypot(ex, es);
+    const rd = (rho + Math.max(ex, Math.abs(es))) / 2;             // 床角往下垂的量取「到角距离」和「到边距离」的平均
+    const h = rho < q ? r * Math.sin(rho / r) : r;                  // 水平往外伸多少（最多 r）
+    const d = rd < q ? r * (1 - Math.cos(rd / r)) : r + rd - q;      // 往下垂多少
+    const ux = rho > 1e-6 ? ex / rho : 0, uz = rho > 1e-6 ? es / rho : 0;
+    const k = Math.max(0, 1 - rho / q);                            // 1 = 床面上，0 = 垂边
+    const uzn = (cz - zi0) / (zi1 - zi0);
+    const dome = Math.pow(Math.sin(Math.PI * uzn), 0.6) * (foot ? Math.min(1, Math.max(0, (xi1 - cx) / 30 + 0.25)) : 1);
+    const wrin = Math.sin(cx * 0.085 + cz * 0.03 + BED_PH[0]) * Math.sin(cz * 0.05 - cx * 0.02 + BED_PH[1]) * 0.9
+               + Math.sin(cx * 0.19 - cz * 0.12 + BED_PH[2]) * 0.3;
+    const hang = Math.min(1, Math.max(0, (rho - q) / Math.max(1, eMax - q)));
+    const along = cx + cz;                                         // 沿床边走的坐标：垂边的竖褶沿着它起伏
+    const fold = Math.sin(along * 0.33 + BED_PH[3]) * 0.65 + Math.sin(along * 0.12 + BED_PH[0]) * 0.35;
+    const y = top - d + k * (puff * dome + wr * wrin * (0.35 + 0.65 * dome)) + hang * hang * 0.9 * fold;
+    const out = h + amp * hang * fold;
+    pos.setXYZ(i, cx + out * ux, Math.max(y, 25.8), cz + out * uz);
+    uv.setXY(i, t / 28, s / 28);
+  }
+  g.computeVertexNormals();
+  const m = new THREE.Mesh(g, material);
+  m.castShadow = true; m.receiveShadow = true;
+  scene.add(m);
+  return m;
+}
+/* 枕头 / 靠枕：把球面压成「四角方、边缘薄、中间鼓」的形状；hy 是厚度方向。贴图按平面投影 */
+function puffGeo(hx, hy, hz, ex = 0.32, ey = 1.25) {
+  const g = new THREE.SphereGeometry(1, 40, 24);
+  const p = g.attributes.position, uv = g.attributes.uv;
+  const f = (v, e) => Math.sign(v) * Math.pow(Math.abs(v), e);
+  for (let i = 0; i < p.count; i++) {
+    const x = f(p.getX(i), ex), y = f(p.getY(i), ey), z = f(p.getZ(i), ex);
+    p.setXYZ(i, x * hx, y * hy, z * hz);
+    uv.setXY(i, x * 0.5 + 0.5, z * 0.5 + 0.5);
+  }
+  g.computeVertexNormals();
+  return g;
+}
+const BED = { z0: 168, z1: 308, x1: 195, mattTop: 45 };
+const pillowM = fabricMat(40, 22, 96, 3);
+const checkerM = mat(0xffffff, { roughness: 0.95, map: canvasTex(256, (g, S) => {
+  const n = 4, c = S / n;
+  for (let i = 0; i < n; i++) for (let j = 0; j < n; j++) {
+    g.fillStyle = (i + j) % 2 ? hsl(92, 18, 58) : hsl(40, 30, 92); g.fillRect(i * c, j * c, c, c);
+  }
+  for (let i = 0; i < 2500; i++) { g.fillStyle = `rgba(0,0,0,${rnd() * 0.06})`; g.fillRect(rnd() * S, rnd() * S, 2, 1); }
+}) });
+{
+  const headM = boucleMat(34, 22, 78, 3, 6), frameM = boucleMat(34, 22, 78, 10, 4);
+  const sheetM = fabricMat(40, 18, 95, 10);
+  const duvetM = fabricMat(92, 16, 62, 1), duvetIn = fabricMat(40, 30, 91, 1);
+  duvetM.side = THREE.DoubleSide; duvetIn.side = THREE.DoubleSide;
+  /* 床头板：7 根竖条软包（胶囊压扁成 4 cm 厚），顶上一排圆弧，y 20–106 */
+  for (let i = 0; i < 7; i++) {
+    const c = new THREE.Mesh(new THREE.CapsuleGeometry(10, 66, 8, 20), headM);
+    c.scale.x = 0.2;
+    c.position.set(2, 63, BED.z0 + 10 + i * 20);
+    c.castShadow = true; c.receiveShadow = true;
+    scene.add(c);
+  }
+  rblock(4.2, BED.x1, 4, 25, BED.z0, BED.z1, frameM, 6);                       // 软包床框（圆角大，看起来软）
+  block(16, 183, 0, 4, BED.z0 + 12, BED.z1 - 12, mat(0x1d1c1a, { roughness: 0.8 }), { cast: false });   // 内收的黑色底座
+  rblock(5, 193.5, 24, BED.mattTop, 169.5, 306.5, sheetM, 5);                 // 床垫 ＋ 白床笠
+  /* 被子：床面高 48.6，垂到约 31；外沿离占地边留 0.5（褶皱最多 ±0.45） */
+  drapeSheet({ x0: 58, x1: 194.5, z0: 168.5, z1: 307.5, top: 48.6, hem: 31 }, duvetM);
+  /* 被头往回折一截（露出奶白里子）：比被面高 1.9，两侧只往下卷一点 */
+  drapeSheet({ x0: 58, x1: 82, z0: 170, z1: 306, top: 50.5, hem: 49, r: 3.5, foot: false, amp: 0.2, nx: 30, nz: 72 }, duvetIn);
+  /* 折痕处的一道圆棱（胶囊沿 z 放倒，总长 138，z 169–307） */
+  const roll = new THREE.Mesh(new THREE.CapsuleGeometry(3, 132, 6, 16), duvetM);
+  roll.rotation.x = Math.PI / 2; roll.scale.z = 0.9;
+  roll.position.set(58.5, 48.4, 238);
+  roll.castShadow = true; roll.receiveShadow = true;
+  scene.add(roll);
+}
+label('床 140×195 · 软包床头', 105, 72, 238);
 
 /* ---------- 桌子、桌面物品、桌面布线 ---------- */
 const deskM = woodMat(30, 42, 52, { roughness: 0.45 });                 // 原木色（床上桌）
@@ -537,7 +730,6 @@ const pcGlassM = mat(0x1a2026, { roughness: 0.08, metalness: 0.2, transparent: t
 const leatherM = mat(0x18181a, { roughness: 0.42 });                       // 电竞椅：黑色皮面
 const leatherSideM = mat(0x232326, { roughness: 0.5 });
 const printerM = mat(0xeceae5, { roughness: 0.5 });
-const cushionM = mat(0xd9c7b0);
 const grey = mat(0xd7d9dc, { roughness: 0.6 });
 const itemWhite = mat(0xf2f1ee, { roughness: 0.5 });
 const disposeTree = o => o.traverse(c => { if (c.geometry) c.geometry.dispose(); });
@@ -583,29 +775,17 @@ const seamTM = seamM.clone(); seamTM.transparent = true;
 }
 label(`ErGear 升降桌 ${DL}×${DD}，高 ${DH}～118（离西墙 3 cm）`, 48, 152, 60);
 
-/* ---------- 东墙第二张桌 120×60（原收纳格的位置，南端贴柱子）：40 寸电视 ＋ PS5，不放椅子 ---------- */
+/* ---------- 东墙第二张桌 120×60（原收纳格的位置，南端贴柱子）：桌高 76.2（原黑桌实测），不放椅子 ----------
+   桌上放什么由「东墙模式」决定（电视模式：40 寸电视 ＋ 竖放 PS5；投影模式：电视收起、PS5 横放），见 rebuild() */
+const EAST = { top: 76.2, z0: 133, z1: 253, x0: W - 60 };
+const ps5W = mat(0xf4f4f2, { roughness: 0.3 }), ps5B = mat(0x111214, { roughness: 0.35, metalness: 0.2 });
+const ps5Led = mat(0x5aa0ff, { emissive: 0x2a6fd6, emissiveIntensity: 0.6 });
 {
-  const top = 72, z0 = 133, z1 = 253, x0 = W - 60;
+  const { top, z0, z1, x0 } = EAST;
   rblock(x0, W, top - 3, top, z0, z1, deskBlackM, 1.2);
   [[x0 + 2, z0 + 2], [W - 6, z0 + 2], [x0 + 2, z1 - 6], [W - 6, z1 - 6]]
     .forEach(([x, z]) => block(x, x + 4, 0, top - 3, z, z + 4, legBlackM));
-  label('第二张桌 120×60（东墙，原收纳格位置）', x0 + 30, top + 6, z0 + 12);
-  /* 40 寸电视 [占位] 含边框约 90×52、厚 6，屏幕朝西（朝床）；底座居中 */
-  const tz0 = z0 + 3, tz1 = tz0 + 90, tzc = (tz0 + tz1) / 2;
-  addScreen(block(W - 16, W - 10, top + 8, top + 60, tz0, tz1, dark), 'x', -1, 'tv');
-  block(W - 26, W - 4, top, top + 1.5, tzc - 12, tzc + 12, dark);
-  block(W - 14, W - 11, top, top + 9, tzc - 3, tzc + 3, dark);
-  label('40 寸电视 [占位] 约 90×52', W - 13, top + 68, tzc);
-  /* PS5 [占位] 竖放约 39×10×26，在电视南侧、靠柱子：中间黑色机身，两侧白壳高出一截，底下一个小底座 */
-  const ps5W = mat(0xf4f4f2, { roughness: 0.3 }), ps5B = mat(0x111214, { roughness: 0.35, metalness: 0.2 });
-  rblock(W - 32, W - 14, top + 2, top + 37, tz1 + 9.6, tz1 + 16.4, ps5B, 1.2);
-  [tz1 + 8, tz1 + 16.4].forEach(z => rblock(W - 35, W - 11, top + 1.5, top + 40, z, z + 1.6, ps5W, 3));
-  const foot = new THREE.Mesh(new THREE.CylinderGeometry(5, 6, 1.5, 24), ps5B);
-  foot.position.set(W - 23, top + 0.75, tz1 + 13); foot.castShadow = true; foot.receiveShadow = true;
-  scene.add(foot);
-  block(W - 32.2, W - 31.8, top + 10, top + 30, tz1 + 11, tz1 + 15,
-    mat(0x5aa0ff, { emissive: 0x2a6fd6, emissiveIntensity: 0.6 }), { cast: false });   // 前面的蓝色指示灯
-  label('PS5 [占位] 竖放', W - 23, top + 46, tz1 + 13);
+  label('第二张桌 120×60 · 高 76.2 [实测]（东墙）', x0 + 30, top + 6, z0 + 12);
   /* 床东头（x=195）到桌子前沿之间：去阳台的通道 */
   const strip = new THREE.Mesh(new THREE.PlaneGeometry(x0 - 195, 308 - 168),
     new THREE.MeshBasicMaterial({ color: 0x1d9e75, transparent: true, opacity: 0.18, depthWrite: false }));
@@ -920,6 +1100,7 @@ function refreshCables() {
     m.material.depthWrite = !dim;
   }
   document.querySelectorAll('.cable').forEach(el => el.classList.toggle('sel', el.dataset.id === solo));
+  invalidate();
 }
 const catsEl = document.getElementById('cats');
 const catCount = {};
@@ -1043,6 +1224,7 @@ function layout(light) {
     ? `屏幕离桌子前沿约 ${Math.round(DD - monitor.x - 2.5)} cm` : '';
   updateHitInfo();
   if (!light) { buildList(); syncUI(); }
+  sceneChanged();                                           // 物品、悬臂、线缆变了：重画阴影和画面
 }
 
 /* ---------- 面板：物品勾选、悬臂、高度、复位 ---------- */
@@ -1094,7 +1276,7 @@ document.getElementById('btnReset').addEventListener('click', () => {
 let accOn = true, topClear = false;
 const onOff = (id, get, set) => {
   const b = document.getElementById(id);
-  b.addEventListener('click', () => { set(!get()); b.classList.toggle('on', get()); });
+  b.addEventListener('click', () => { set(!get()); b.classList.toggle('on', get()); invalidate(); });
 };
 onOff('btnWire', () => wireOn, v => { wireOn = v; refreshCables(); });
 onOff('btnAcc', () => accOn, v => { accOn = v; });
@@ -1137,6 +1319,7 @@ renderer.domElement.addEventListener('pointerdown', e => {
   controls.enabled = false;
   renderer.domElement.setPointerCapture(e.pointerId);
   renderer.domElement.style.cursor = 'grabbing';
+  setLowRes(true);                                         // 手机：拖动时临时降到像素比 1
 }, { capture: true });
 renderer.domElement.addEventListener('pointermove', e => {
   if (!drag) {
@@ -1277,19 +1460,58 @@ function rebuild() {
   });
   dyn = [];
   const B = (...a) => keep(block(...a));
+  const RB = (...a) => keep(rblock(...a));
   const L = (...a) => { const o = keep(label(...a)); o.visible = showLabels; return o; };
+  const M = (geo, m, x, y, z, rz = 0) => {
+    const o = new THREE.Mesh(geo, m);
+    o.position.set(x, y, z); o.rotation.z = rz;
+    o.castShadow = true; o.receiveShadow = true;
+    scene.add(o); return keep(o);
+  };
 
   /* 主椅正对主屏默认位置（z=95）；收进时座面推到桌下，只剩靠背在桌沿外 */
   gamingChair(3 + (state.chair1 === 'in' ? DD + 2 : DD + 35), 95);
 
-  /* 床上桌 [占位] 100×40、高 28：放在被面上，人靠西墙、面朝东坐 */
+  /* 枕头：平时平躺、西端搭在床头板上；开床上桌时竖起来靠着床头板当靠垫。棋盘格靠枕只在平时摆出来 */
+  [204.5, 271.5].forEach(zc => {
+    if (state.bedTable) M(puffGeo(22, 7.5, 33), pillowM, 17, 68, zc, Math.PI / 2 + 0.25);
+    else M(puffGeo(22, 7.5, 33), pillowM, 27.5, 54.5, zc, -0.15);
+  });
+  if (!state.bedTable) M(puffGeo(20, 6, 20), checkerM, 52, 70, 238, -1.17);
+
+  /* 床上桌 [占位] 100×40、高 28：放在被面上，人靠着竖起的枕头、面朝东坐 */
   if (state.bedTable) {
     const by = 49;
     B(55, 95, by + 26, by + 28, 188, 288, deskM);
     [[57, 190], [91, 190], [57, 284], [91, 284]].forEach(([x, z]) => B(x, x + 2, by, by + 26, z, z + 2, dark));
-    B(1, 13, by + 6, by + 52, 180, 232, cushionM);
-    B(1, 13, by + 6, by + 52, 244, 296, cushionM);
     L('床上桌 [占位] 100×40×28', 75, by + 44, 238);
+  }
+
+  /* 东墙二选一。电视模式：40 寸电视 ＋ 竖放 PS5，投影关；
+     投影模式：电视收起（它在 y 84–136，会挡住画面 y 100–200 的下半），PS5 改横放（高约 10，不挡画面也不挡光束） */
+  {
+    const { top, z0 } = EAST;
+    const tz0 = z0 + 3, tz1 = tz0 + 90, tzc = (tz0 + tz1) / 2;
+    if (!state.proj) {
+      /* 40 寸电视 [占位] 含边框约 90×52、厚 6，屏幕朝西（朝床）；底座居中 */
+      addScreen(B(W - 16, W - 10, top + 8, top + 60, tz0, tz1, dark), 'x', -1, 'tv');
+      B(W - 26, W - 4, top, top + 1.5, tzc - 12, tzc + 12, dark);
+      B(W - 14, W - 11, top, top + 9, tzc - 3, tzc + 3, dark);
+      L('40 寸电视 [占位] 约 90×52', W - 13, top + 68, tzc);
+      /* PS5 [占位] 竖放约 39×10×26，在电视南侧、靠柱子：中间黑色机身，两侧白壳高出一截，底下一个小底座 */
+      RB(W - 32, W - 14, top + 2, top + 37, tz1 + 9.6, tz1 + 16.4, ps5B, 1.2);
+      [tz1 + 8, tz1 + 16.4].forEach(z => RB(W - 35, W - 11, top + 1.5, top + 40, z, z + 1.6, ps5W, 3));
+      M(new THREE.CylinderGeometry(5, 6, 1.5, 24), ps5B, W - 23, top + 0.75, tz1 + 13);
+      B(W - 32.2, W - 31.8, top + 10, top + 30, tz1 + 11, tz1 + 15, ps5Led, { cast: false });   // 前面的蓝色指示灯
+      L('PS5 [占位] 竖放', W - 23, top + 46, tz1 + 13);
+    } else {
+      /* PS5 [占位] 横放约 39×26×10：上下白壳夹着黑色机身，前面一条蓝灯 */
+      RB(W - 34, W - 8, top, top + 1.8, 205, 244, ps5W, 0.8);
+      RB(W - 31, W - 11, top + 1.6, top + 8.6, 206.5, 242.5, ps5B, 1.2);
+      RB(W - 34, W - 8, top + 8.4, top + 10.4, 205, 244, ps5W, 0.8);
+      B(W - 31.3, W - 30.9, top + 4, top + 6, 210, 239, ps5Led, { cast: false });
+      L('PS5 [占位] 横放（不挡画面）', W - 21, top + 20, 224.5);
+    }
   }
 
   /* 投影仪 [占位]：放主桌南端（悬臂桌夹南边），光束打到东墙画面四角 */
@@ -1307,6 +1529,7 @@ function rebuild() {
     scene.add(beam); keep(beam);
     L('投影 约 80 寸（177×100）', c.x - 6, c.y1 + 14, (c.z0 + c.z1) / 2);
   }
+  sceneChanged();
 }
 
 /* 衣柜：东西宽 65 × 进深 60，通顶，折门向南，距门框 15 */
@@ -1325,6 +1548,15 @@ function rebuild() {
     rblock(x, x + 1.6, 95, 135, 59.6, 61.6, handleM, 0.6));               // 两扇中门上的竖条拉手
 }
 label('衣柜 宽65×深60（通顶）', 282, H + 12, 30);
+/* 衣柜折门前 30 cm 净空：门面（z≈60）往南 30 cm、衣柜面宽范围内的半透明地面色块；这里别放东西 */
+{
+  const c = new THREE.Mesh(new THREE.PlaneGeometry(W - 250, 30),
+    new THREE.MeshBasicMaterial({ color: 0xe08a1e, transparent: true, opacity: 0.24, depthWrite: false }));
+  c.rotation.x = -Math.PI / 2;
+  c.position.set((250 + W) / 2, 0.45, 60 + 15);
+  scene.add(c);
+  label('衣柜折门净空 30 cm', (250 + W) / 2, 5, 76);
+}
 
 label('卧室 315 × 308', 215, 10, 150, 'room');
 
@@ -1361,19 +1593,199 @@ wall({ axis: 'x', at: -125, from: 0, to: 122, normal: [0, -1], t: 8 });
 fadable(block(150, 230, 0, 200, NZ - 6, NZ - 2, mat(0x6f6a62), { cast: false }), 0, -1);   // 玄关门
 fadable(block(0, 122, 0, H, NZ, -290, mat(0xcfcac0), { cast: false }), -1, -1, 0.3);       // MS / PS 管井
 
-const white = mat(0xfafafa, { roughness: 0.4 });
-block(8, 80, 0, 50, -280, -150, white);                         // 浴缸
-block(13, 75, 44, 50.3, -275, -155, mat(0xbcd6e0), { cast: false });
-block(90, 118, 60, 75, -180, -145, white);                      // 洗手台
-block(22, 62, 0, 40, -95, -45, white);                          // 马桶
-block(4, 22, 0, 75, -92, -48, white);
-block(255, W, 0, 85, -200, -90, mat(0xd9d5cc));                 // 厨房台面
-block(262, 308, 85, 86, -140, -96, mat(0x8f969a), { cast: false });
-block(262, 308, 85, 86, -194, -150, mat(0x3a3d40), { cast: false });
-const ghost = mat(0xffffff, { transparent: true, opacity: 0.35 });
-block(255, W, 0, 170, -80, -15, ghost, { cast: false });        // 冰箱位
-block(255, W, 0, 90, -282, -215, ghost, { cast: false });       // 洗衣机位
-block(275, W, 0, 100, NZ + 5, -300, mat(0xcbb999));             // 鞋柜
+/* 洁具和电器：外轮廓（平面占地、高度）沿用原来的占位盒子，只在里面加细节。尺寸仍是 [估算] */
+const ceramicM = mat(0xfbfbf9, { roughness: 0.16 });                      // 陶瓷 / 亚克力：亮白
+const chromeM = mat(0xe4e6e8, { roughness: 0.12, metalness: 1 });          // 镀铬（龙头）
+const steelM = mat(0xc4c8cb, { roughness: 0.32, metalness: 0.9 });         // 不锈钢（水槽、把手）
+const blackGlassM = mat(0x0e0f11, { roughness: 0.08, metalness: 0.3 });    // 黑玻璃（IH 炉面、洗衣机门）
+const applianceM = mat(0xeceae6, { roughness: 0.38, metalness: 0.1 });     // 家电外壳：暖白烤漆
+const plinthM = mat(0x2a2826, { roughness: 0.8 });
+/* 平面里的圆角矩形（房间坐标 x、z）→ Shape / Path。Shape 的第二个坐标 = -z，配合 extrudeUp() 的旋转 */
+function rrPath(path, x0, x1, z0, z1, r) {
+  const a0 = x0, a1 = x1, b0 = -z1, b1 = -z0;
+  r = Math.max(0.01, Math.min(r, (a1 - a0) / 2 - 0.01, (b1 - b0) / 2 - 0.01));
+  path.moveTo(a0 + r, b0);
+  path.lineTo(a1 - r, b0); path.quadraticCurveTo(a1, b0, a1, b0 + r);
+  path.lineTo(a1, b1 - r); path.quadraticCurveTo(a1, b1, a1 - r, b1);
+  path.lineTo(a0 + r, b1); path.quadraticCurveTo(a0, b1, a0, b1 - r);
+  path.lineTo(a0, b0 + r); path.quadraticCurveTo(a0, b0, a0 + r, b0);
+  return path;
+}
+/* 把平面形状往上拉伸成 y0..y1 的实体；bv = 倒角（外轮廓会往外长 bv，所以调用前先内缩） */
+function extrudeUp(shape, y0, y1, m, bv = 0, o = {}) {
+  let g = new THREE.ExtrudeGeometry(shape, { depth: Math.max(0.1, y1 - y0 - 2 * bv), bevelEnabled: bv > 0,
+    bevelThickness: bv, bevelSize: bv, bevelSegments: 3, curveSegments: 16 });
+  g.rotateX(-Math.PI / 2);                                  // 拉伸方向 → y；Shape 的第二个坐标 → -z
+  g.translate(0, y0 + bv, 0);
+  if (o.warp) {                                             // 需要时逐点变形（例如马桶座往下收窄）
+    const p = g.attributes.position;
+    for (let i = 0; i < p.count; i++) { const v = o.warp(p.getX(i), p.getY(i), p.getZ(i)); p.setXYZ(i, v[0], v[1], v[2]); }
+  }
+  /* ExtrudeGeometry 的法线是一面一面的（曲面看起来有棱），合并重合的顶点后重新算成平滑法线 */
+  g.deleteAttribute('normal');
+  g = mergeVertices(g);
+  g.computeVertexNormals();
+  const mesh = new THREE.Mesh(g, m);
+  mesh.castShadow = o.cast !== false; mesh.receiveShadow = true;
+  scene.add(mesh);
+  return mesh;
+}
+/* 一圈「壁」：外圆角矩形 x0..x1 × z0..z1，壁厚 wall，内圈圆角 rIn（浴缸、洗手盆、水槽、防水盘） */
+function basinWall(x0, x1, z0, z1, y0, y1, wall, rIn, rOut, m, bv = 1) {
+  const s = rrPath(new THREE.Shape(), x0 + bv, x1 - bv, z0 + bv, z1 - bv, rOut - bv);
+  s.holes.push(rrPath(new THREE.Path(), x0 + wall - bv, x1 - wall + bv, z0 + wall - bv, z1 - wall + bv, rIn + bv));
+  return extrudeUp(s, y0, y1, m, bv);
+}
+const cyl = (r0, r1, h, x, y, z, m, o = {}) => {
+  const c = new THREE.Mesh(new THREE.CylinderGeometry(r0, r1, h, o.seg || 24), m);
+  c.position.set(x, y, z);
+  if (o.rx) c.rotation.x = o.rx;
+  if (o.rz) c.rotation.z = o.rz;
+  c.castShadow = o.cast !== false; c.receiveShadow = true;
+  scene.add(c);
+  return c;
+};
+
+/* 浴缸：x 8–80，z -280..-150，高 50。一圈圆角缸壁（顶沿倒圆）＋ 缸底 ＋ 下水口；龙头装在北头缸壁内侧（不高出缸沿） */
+basinWall(8, 80, -280, -150, 0, 50, 7, 14, 6, ceramicM, 1.5);
+rblock(14, 74, 0, 12, -274, -156, ceramicM, 3);                                  // 缸底（缸深约 38）
+cyl(2.6, 2.6, 0.4, 44, 12.2, -262, chromeM, { cast: false });                   // 下水口
+cyl(1.2, 1.2, 9, 44, 43, -268.5, chromeM, { rx: Math.PI / 2 });                  // 出水嘴：从北头缸壁伸出来
+cyl(2.2, 2.2, 1.2, 44, 43, -272.6, chromeM, { rx: Math.PI / 2 });                // 出水嘴底座
+cyl(2.4, 2.4, 1.2, 34, 43, -272.6, chromeM, { rx: Math.PI / 2 });                // 冷热把手
+block(33.4, 34.6, 43, 47, -272.4, -270.6, chromeM);
+cyl(2.6, 2.6, 0.8, 44, 30, -272.6, chromeM, { rx: Math.PI / 2, cast: false });   // 溢水口
+
+/* 洗手台：x 90–118，z -180..-145。悬空的木纹浴室柜（y 28–58，柜门朝西）＋ 白瓷台盆（盆沿高 68）＋ 东侧台面上的小龙头（到 75） */
+{
+  const vanityM = woodMat(32, 30, 66, { roughness: 0.55 });
+  rblock(91, 118, 28, 58, -179.5, -145.5, vanityM, 1.2);                       // 柜体
+  block(90.2, 91.2, 30, 56, -178.8, -146.2, vanityM);                          // 柜门
+  block(90.05, 90.25, 43, 43.4, -178.8, -146.2, plinthM, { cast: false });     // 柜门上的拉手槽
+  basinWall(90, 118, -180, -145, 58, 68, 3, 8, 4, ceramicM, 1);                 // 台盆：一圈盆沿
+  rblock(92, 116, 58, 61, -178, -147, ceramicM, 1);                            // 盆底（盆深约 7）
+  cyl(1.6, 1.6, 0.3, 104, 61.2, -162.5, chromeM, { cast: false });              // 下水口
+  /* 东边盆沿上的龙头：立柱 ＋ 朝西的出水嘴 ＋ 顶上的把手 */
+  cyl(1.1, 1.3, 6.5, 116.2, 71.2, -162.5, chromeM);
+  cyl(0.8, 0.8, 6, 113.5, 73.6, -162.5, chromeM, { rz: Math.PI / 2 });
+  block(115.6, 116.8, 74.2, 75, -165, -160, chromeM);
+}
+
+/* 马桶：水箱 x 4–22（高 75，靠西墙），座 x 22–62（高 40），朝东。
+   水箱 ＋ 盖（顶上冲水按钮）＋ 下面接到座便的后身 ＋ D 形、底部收窄的座便 ＋ 打开的马桶圈 ＋ 一圈水面 ＋ 侧面的温水洗净遥控 */
+{
+  rblock(4, 20, 30, 71.5, -91, -49, ceramicM, 3);                                // 水箱
+  rblock(4, 21.5, 71.3, 74.5, -92, -48, ceramicM, 1.4);                          // 水箱盖
+  cyl(2.2, 2.2, 0.6, 12.5, 74.7, -70, chromeM, { cast: false });                  // 冲水按钮
+  rblock(8, 26, 0, 32, -84, -56, ceramicM, 4);                                   // 后身
+  /* 座便：平面是后平前圆的 D 形，往下逐渐收窄成底座 */
+  const dShape = (path, xb, xf, zc, hw) => {
+    const xm = xf - hw * 1.1, syc = -zc;
+    path.moveTo(xb, syc - hw); path.lineTo(xm, syc - hw);
+    path.absellipse(xm, syc, xf - xm, hw, -Math.PI / 2, Math.PI / 2, false);
+    path.lineTo(xb, syc + hw); path.lineTo(xb, syc - hw);
+    return path;
+  };
+  extrudeUp(dShape(new THREE.Shape(), 24, 60, -70, 16), 0, 37, ceramicM, 2, { warp: (x, y, z) => {
+    const k = Math.min(1, Math.max(0, y / 30)), s = k * k * (3 - 2 * k);
+    return [22 + (x - 22) * (0.72 + 0.28 * s), y, -70 + (z + 70) * (0.62 + 0.38 * s)];
+  } });
+  /* 马桶圈：D 形一圈，中间椭圆开口 */
+  const seat = dShape(new THREE.Shape(), 23.6, 61.2, -70, 17.6);
+  seat.holes.push(new THREE.Path().absellipse(44, 70, 13.6, 11.6, 0, Math.PI * 2, false));
+  extrudeUp(seat, 37, 40, mat(0xf6f5f2, { roughness: 0.3 }), 0.8);
+  /* 座便开口：盖在座便顶面上的一块椭圆（深一点的水色），从马桶圈中间看下去像水面 */
+  const water = new THREE.Mesh(new THREE.CircleGeometry(1, 40), mat(0x8fadb8, { roughness: 0.05, metalness: 0.1 }));
+  water.rotation.x = -Math.PI / 2; water.scale.set(12.5, 10.5, 1);
+  water.position.set(44, 37.15, -70); water.receiveShadow = true; scene.add(water);
+  rblock(22, 31, 32, 40, -95, -88, ceramicM, 1.5);                               // 温水洗净便座的侧边遥控
+  block(31, 31.2, 35, 38, -93.5, -89.5, plinthM, { cast: false });
+}
+
+/* 厨房台面：x 255–315，z -200..-90，台面高 85，柜门朝西（走廊一侧）。
+   内收踢脚 ＋ 柜体 ＋ 三组柜门 / 抽屉（不锈钢长把手）＋ 开了水槽洞的人造石台面 ＋ 不锈钢水槽和鹅颈龙头 ＋ 两口 IH 黑玻璃炉面 */
+{
+  const cabM = mat(0xf1efe9, { roughness: 0.55 }), topM2 = mat(0xdedad3, { roughness: 0.35 });
+  const SZ0 = -139, SZ1 = -97, SX0 = 263, SX1 = 307;                           // 水槽开口
+  block(259, W, 0, 9, -199, -91, plinthM, { cast: false });                    // 内收踢脚
+  block(257, W, 9, 63, -200, -90, cabM);                                       // 柜体（下半，顶在水槽底下面）
+  block(257, W, 63, 82, -200, SZ0, cabM);                                      // 柜体（上半，让开水槽）
+  block(257, W, 63, 82, SZ1, -90, cabM);
+  block(257, SX0, 63, 82, SZ0, SZ1, cabM);
+  block(SX1, W, 63, 82, SZ0, SZ1, cabM);
+  /* 柜门：北段（炉下）两个抽屉，中段、南段（水槽下）各一扇门 */
+  const front = (y0, y1, z0, z1, hy) => {
+    rblock(255.8, 257.2, y0, y1, z0 + 0.3, z1 - 0.3, cabM, 0.5);
+    rblock(255, 255.9, hy - 0.6, hy + 0.6, z0 + 6, z1 - 6, steelM, 0.4);       // 横向长把手
+  };
+  front(10, 45, -200, -163, 41); front(46, 81.5, -200, -163, 78);
+  front(10, 81.5, -163, -126.5, 78); front(10, 81.5, -126.5, -90, 78);
+  const ct = rrPath(new THREE.Shape(), 255.4, W - 0.4, -199.6, -90.4, 0.6);     // 倒角会往外长 0.4
+  ct.holes.push(rrPath(new THREE.Path(), SX0 + 1, SX1 - 1, SZ0 + 1, SZ1 - 1, 4));
+  extrudeUp(ct, 82, 85, topM2, 0.4);                                           // 台面（开水槽洞）
+  basinWall(SX0, SX1, SZ0, SZ1, 64, 85.3, 1.2, 4, 5, steelM, 0.3);              // 水槽壁（沿高出台面 0.3）
+  block(SX0 + 1, SX1 - 1, 64, 65.5, SZ0 + 1, SZ1 - 1, steelM, { cast: false }); // 槽底
+  cyl(2.4, 2.4, 0.3, 285, 65.7, -118, plinthM, { cast: false });                // 下水口
+  /* 鹅颈龙头：靠东墙的立柱 ＋ 半圈弯管 ＋ 朝下的出水口 */
+  cyl(1.5, 1.7, 22, 310, 96, -118, chromeM);
+  const neck = new THREE.Mesh(new THREE.TorusGeometry(6, 1.1, 10, 24, Math.PI), chromeM);
+  neck.position.set(304, 107, -118); neck.castShadow = true; scene.add(neck);
+  cyl(1.2, 1.2, 3, 298, 105.5, -118, chromeM);
+  block(311, 313.5, 99, 100, -119.5, -116.5, chromeM);                         // 把手
+  /* IH 炉面：黑玻璃 ＋ 两圈加热区 ＋ 前沿一排触控标记 */
+  rblock(262, 308, 85, 85.8, -194, -150, blackGlassM, 0.4);
+  [-183, -161].forEach(z => {
+    const ring = new THREE.Mesh(new THREE.RingGeometry(8, 8.6, 48), mat(0x7a7f84, { roughness: 0.4 }));
+    ring.rotation.x = -Math.PI / 2; ring.position.set(287, 85.83, z); scene.add(ring);
+  });
+  for (let i = 0; i < 5; i++) block(264.5, 265.5, 85.8, 85.86, -188 + i * 6, -186 + i * 6, mat(0xd8dcdf), { cast: false });
+}
+
+/* 冰箱：x 255–315，z -80..-15，高 170，门朝西。上面冷藏门、下面冷冻抽屉，竖 / 横两根不锈钢把手，门上一块小显示屏 */
+{
+  rblock(258.5, W, 0.8, 170, -80, -15, applianceM, 2.5);                        // 箱体
+  block(259, W - 3, 0, 1.2, -78, -17, plinthM, { cast: false });               // 底部
+  rblock(255.8, 258.8, 62, 169.6, -79.6, -15.4, applianceM, 1.2);              // 冷藏门
+  rblock(255.8, 258.8, 2, 61, -79.6, -15.4, applianceM, 1.2);                   // 冷冻抽屉
+  rblock(255, 256, 95, 145, -23, -20.5, steelM, 0.4);                           // 冷藏门竖把手（南侧）
+  rblock(255, 256, 54.5, 56.5, -70, -25, steelM, 0.4);                          // 冷冻抽屉横把手
+  rblock(255.6, 255.9, 140, 147, -74, -66, blackGlassM, 0.1);                   // 显示屏
+}
+
+/* 洗衣机：x 255–315，z -282..-215，放在白色防水盘里；滚筒式，门朝西。
+   机身 ＋ 顶部操作面板（旋钮、显示条、洗衣液抽屉）＋ 圆门（镀铬圈 ＋ 黑玻璃） */
+{
+  basinWall(255, W, -282, -215, 0, 5, 3, 3, 4, mat(0xf4f4f2, { roughness: 0.5 }), 0.6);   // 防水盘
+  block(258, W - 3, 0, 1.5, -279, -218, mat(0xe9e9e6), { cast: false });
+  rblock(258.5, 313, 5, 90, -280, -217, applianceM, 3);                         // 机身
+  rblock(257.4, 259, 76, 88, -279, -218, mat(0xf6f6f4, { roughness: 0.3 }), 1); // 操作面板
+  rblock(256.4, 257.6, 79, 85, -278, -264, applianceM, 0.5);                    // 洗衣液抽屉
+  rblock(256.9, 257.5, 80, 84, -257, -240, blackGlassM, 0.3);                   // 显示条
+  cyl(3, 3, 2, 257, 82, -229, steelM, { rz: Math.PI / 2 });                      // 旋钮
+  const doorRing = new THREE.Mesh(new THREE.TorusGeometry(15, 2.2, 14, 48), chromeM);
+  doorRing.rotation.y = -Math.PI / 2; doorRing.position.set(257.4, 44, -248.5);
+  doorRing.castShadow = true; scene.add(doorRing);
+  const doorGlass = new THREE.Mesh(new THREE.CircleGeometry(13.4, 48), blackGlassM);
+  doorGlass.rotation.y = -Math.PI / 2; doorGlass.position.set(257.6, 44, -248.5);
+  scene.add(doorGlass);
+}
+
+/* 鞋柜：x 275–315，z NZ+5..-300，高 100，门朝西。木纹柜体 ＋ 内收踢脚 ＋ 两扇竖条纹（长虹）柜门（按压开，无把手）＋ 稍深一点的顶板 */
+{
+  const shoeM = woodMat(34, 30, 70, { roughness: 0.55 }), shoeTopM = woodMat(30, 34, 52, { roughness: 0.45 });
+  const z0 = NZ + 5, z1 = -300, zm = (z0 + z1) / 2;
+  block(279, W, 0, 6, z0 + 2, z1 - 2, plinthM, { cast: false });              // 内收踢脚
+  block(277.5, W, 6, 97.5, z0, z1, shoeM);                                     // 柜体
+  rblock(275, W, 97.5, 100, z0, z1, shoeTopM, 0.6);                            // 顶板
+  [[z0 + 0.4, zm - 0.3], [zm + 0.3, z1 - 0.4]].forEach(([a, b]) => {
+    block(276.4, 277.6, 6.5, 97, a, b, shoeM);                                 // 门板
+    const n = Math.floor((b - a) / 4.6);
+    for (let i = 0; i < n; i++) {
+      const s0 = a + (b - a - n * 4.6) / 2 + i * 4.6;
+      rblock(275, 276.6, 7, 96.5, s0 + 0.35, s0 + 4.25, shoeM, 0.7);           // 竖条
+    }
+  });
+}
 
 label('[估算] 浴室', 61, 70, -210, 'est');
 label('[估算] 厕所', 61, 70, -65, 'est');
@@ -1402,6 +1814,7 @@ function go(name, instant) {
   const p = new THREE.Vector3(...v.p), t = new THREE.Vector3(...v.t);
   if (instant) { camera.position.copy(p); controls.target.copy(t); controls.update(); return; }
   tween = { p0: camera.position.clone(), t0: controls.target.clone(), p1: p, t1: t, k: 0 };
+  invalidate();
 }
 document.querySelectorAll('[data-view]').forEach(b =>
   b.addEventListener('click', () => go(b.dataset.view)));
@@ -1410,17 +1823,26 @@ renderer.domElement.addEventListener('pointerdown', () => { tween = null; });
 let autoHide = true, showLabels = true;
 const btnWall = document.getElementById('btnWall'), btnLabel = document.getElementById('btnLabel');
 const btnDoor = document.getElementById('btnDoor'), btnChair = document.getElementById('btnChair');
-const btnProj = document.getElementById('btnProj'), btnBed = document.getElementById('btnBed');
+const btnProj = document.getElementById('btnProj'), btnTV = document.getElementById('btnTV');
+const btnBed = document.getElementById('btnBed'), btnAO = document.getElementById('btnAO');
 btnDoor.addEventListener('click', () => {
   doorOpen = !doorOpen;
   btnDoor.textContent = doorOpen ? '门：开' : '门：关';
+  invalidate();
 });
-btnProj.addEventListener('click', () => {
-  state.proj = !state.proj;
-  btnProj.textContent = state.proj ? '投影：开' : '投影：关';
-  btnProj.classList.toggle('on', state.proj);
+/* 东墙：电视模式 / 投影模式，互斥 */
+const eastInfo = document.getElementById('eastInfo');
+function setEast(proj) {
+  state.proj = proj;
+  btnTV.classList.toggle('on', !proj);
+  btnProj.classList.toggle('on', proj);
+  eastInfo.textContent = proj
+    ? '投影模式：电视收起，PS5 改横放，房间灯光调暗。电视在 y84–136，会挡住画面（y100–200）的下半，所以和投影只能二选一。主椅拉出时可能挡到光束一角。'
+    : '电视模式：东墙放 40 寸电视和竖放的 PS5，投影关。电视会挡住投影画面的下半，所以两者只能二选一。';
   rebuild();
-});
+}
+btnTV.addEventListener('click', () => { if (state.proj) setEast(false); });
+btnProj.addEventListener('click', () => setEast(!state.proj));   // 投影模式下再点一次 = 关投影，回到电视模式
 btnBed.addEventListener('click', () => {
   state.bedTable = !state.bedTable;
   btnBed.textContent = state.bedTable ? '床上桌：开' : '床上桌：关';
@@ -1432,32 +1854,87 @@ btnChair.addEventListener('click', () => {
   btnChair.textContent = state.chair1 === 'out' ? '主椅：拉出' : '主椅：收进';
   rebuild();
 });
-btnWall.addEventListener('click', () => { autoHide = !autoHide; btnWall.classList.toggle('on', autoHide); });
+btnWall.addEventListener('click', () => { autoHide = !autoHide; btnWall.classList.toggle('on', autoHide); invalidate(); });
 btnLabel.addEventListener('click', () => {
   showLabels = !showLabels; btnLabel.classList.toggle('on', showLabels);
   labelObjs.forEach(o => { o.visible = showLabels; });
+  invalidate();
+});
+btnAO.classList.toggle('on', gtao.enabled);
+btnAO.addEventListener('click', () => {
+  gtao.enabled = !gtao.enabled;
+  btnAO.classList.toggle('on', gtao.enabled);
+  invalidate();
 });
 document.querySelectorAll('[data-fold]').forEach(b => b.addEventListener('click', () => {
   const folded = document.getElementById(b.dataset.fold).classList.toggle('folded');
   b.textContent = folded ? '展开' : '收起';
 }));
-rebuild();
+
+/* ---------- 窄屏底部抽屉：标签页切换，默认收起；再点当前标签 = 收起 ---------- */
+const NARROW = matchMedia('(max-width: 899.98px)');
+const tabBtns = document.querySelectorAll('#tabs [data-tab]');
+function setTab(tab, open) {
+  document.body.dataset.tab = tab;
+  document.body.classList.toggle('open', open);
+  tabBtns.forEach(b => b.classList.toggle('on', open && b.dataset.tab === tab));
+}
+tabBtns.forEach(b => b.addEventListener('click', () => {
+  const same = document.body.dataset.tab === b.dataset.tab && document.body.classList.contains('open');
+  setTab(b.dataset.tab, !same);
+}));
+setTab('view', false);
+NARROW.addEventListener('change', () => {                   // 切到窄屏时取消桌面上的「收起」，抽屉自己管显示
+  if (!NARROW.matches) return;
+  document.querySelectorAll('.panel.folded').forEach(p => p.classList.remove('folded'));
+  document.querySelectorAll('[data-fold]').forEach(b => { b.textContent = '收起'; });
+});
+/* 面板 / 标签栏上的滑动只滚动面板，不传给 3D 视角控制（面板本来就不在画布里，这里再保险一层） */
+['top', 'right', 'tabs', 'help'].forEach(id => {
+  const el = document.getElementById(id);
+  ['pointerdown', 'touchstart', 'touchmove', 'wheel'].forEach(t => el.addEventListener(t, e => e.stopPropagation(), { passive: true }));
+});
+
+/* 兜底：面板上的任何点击 / 输入都刷新一帧，避免漏掉某个开关导致「改了设置画面不刷新」 */
+['click', 'input', 'change'].forEach(t => document.addEventListener(t, () => invalidate(), true));
+
+/* 视角控制：拖动 / 缩放时出帧，松手后阻尼还在动也继续出帧（见 frame_ 里 controls.update() 的返回值） */
+let ctrlActive = false, lowRes = false;
+controls.addEventListener('change', invalidate);
+controls.addEventListener('start', () => { ctrlActive = true; setLowRes(true); });
+controls.addEventListener('end', () => { ctrlActive = false; invalidate(); });
+/* 手机：交互过程中临时把像素比降到 1，停下来再恢复 */
+function setLowRes(on) {
+  if (!MOBILE || lowRes === on || dprFull() <= 1) return;
+  lowRes = on;
+  resize();
+}
+
+setEast(false);                                             // 默认电视模式（内部会 rebuild）
 layout();
 
 function resize() {
-  const w = window.innerWidth, h = window.innerHeight;
+  const w = window.innerWidth, h = window.innerHeight, pr = lowRes ? 1 : dprFull();
+  renderer.setPixelRatio(pr);
   renderer.setSize(w, h); labelRenderer.setSize(w, h);
-  composer.setPixelRatio(renderer.getPixelRatio()); composer.setSize(w, h);
+  composer.setPixelRatio(pr); composer.setSize(w, h);
+  if (fxaa) fxaa.material.uniforms.resolution.value.set(1 / (w * pr), 1 / (h * pr));
   camera.aspect = w / h; camera.updateProjectionMatrix();
+  invalidate();
 }
 window.addEventListener('resize', resize);
 resize();
 go('iso', true);
 
 const dir = new THREE.Vector2();
-const clock = new THREE.Clock();
+/* 指数逼近目标值；离得很近就直接到位，这样动画能「结束」，按需渲染才能停下来 */
+const approach = (v, target, k, eps) => (Math.abs(target - v) < eps ? target : v + (target - v) * k);
 function frame_() {
-  const dt = Math.min(clock.getDelta(), 0.05);
+  rafId = 0;
+  const now = performance.now();
+  const dt = Math.min((now - lastT) / 1000, 0.05);
+  lastT = now;
+  let busy = false;                                         // 还有动画没结束 → 下一帧接着渲
 
   if (tween) {
     tween.k = Math.min(1, tween.k + dt / 0.9);
@@ -1465,8 +1942,9 @@ function frame_() {
     camera.position.lerpVectors(tween.p0, tween.p1, e);
     controls.target.lerpVectors(tween.t0, tween.t1, e);
     if (tween.k >= 1) tween = null;
+    busy = true;
   }
-  controls.update();
+  if (controls.update()) busy = true;                       // 阻尼还在动
 
   dir.set(camera.position.x - controls.target.x, camera.position.z - controls.target.z);
   const horiz = dir.length();
@@ -1477,31 +1955,51 @@ function frame_() {
     const hide = autoHide && flat > 0.2 && f.n.dot(dir) > f.threshold;
     const m = f.mesh.material;
     const target = hide ? 0.05 : f.mesh.userData.base;
-    m.opacity += (target - m.opacity) * lerpK;
+    m.opacity = approach(m.opacity, target, lerpK, 0.004);
+    if (m.opacity !== target) busy = true;
     m.depthWrite = m.opacity > 0.9;
   }
-  doorPivot.rotation.y += ((doorOpen ? Math.PI / 2 : 0) - doorPivot.rotation.y) * (1 - Math.exp(-dt * 6));
+  {
+    const target = doorOpen ? Math.PI / 2 : 0, r0 = doorPivot.rotation.y;
+    doorPivot.rotation.y = approach(r0, target, 1 - Math.exp(-dt * 6), 0.002);
+    if (doorPivot.rotation.y !== r0) renderer.shadowMap.needsUpdate = true;   // 门在转：阴影跟着重画
+    if (doorPivot.rotation.y !== target) busy = true;
+  }
 
   /* 桌板透明（看桌下）、理线配件高亮、布线标签 */
   const k3 = 1 - Math.exp(-dt * 8);
-  topM.opacity += ((topClear ? 0.22 : 1) - topM.opacity) * k3;
+  const topT = topClear ? 0.22 : 1;
+  topM.opacity = approach(topM.opacity, topT, k3, 0.004);
+  if (topM.opacity !== topT) busy = true;
   topM.depthWrite = topM.opacity > 0.9;
   seamTM.opacity = topM.opacity; seamTM.depthWrite = topM.depthWrite;
-  accM.color.lerp(accOn ? accHi : accLo, k3);
+  const accT = accOn ? accHi : accLo;
+  accM.color.lerp(accT, k3);
+  if (Math.abs(accM.color.r - accT.r) + Math.abs(accM.color.g - accT.g) + Math.abs(accM.color.b - accT.b) < 0.004) accM.color.copy(accT);
+  else busy = true;
   updateDeskLabels();
 
-  /* 开投影时房间灯光变暗 */
+  /* 投影模式时房间灯光变暗 */
   const k2 = 1 - Math.exp(-dt * 4);
-  hemi.intensity += ((state.proj ? LIGHT.hemiNight : LIGHT.hemiDay) - hemi.intensity) * k2;
-  sun.intensity += ((state.proj ? LIGHT.sunNight : LIGHT.sunDay) - sun.intensity) * k2;
-  scene.environment = state.proj ? null : envTex;          // 关灯看投影时去掉环境反射，屏幕的光才显得出来
-  scene.background.lerp(state.proj ? BG_DARK : BG_DAY, k2);
+  const hemiT = state.proj ? LIGHT.hemiNight : LIGHT.hemiDay, sunT = state.proj ? LIGHT.sunNight : LIGHT.sunDay;
+  hemi.intensity = approach(hemi.intensity, hemiT, k2, 0.002);
+  sun.intensity = approach(sun.intensity, sunT, k2, 0.005);
+  if (hemi.intensity !== hemiT || sun.intensity !== sunT) busy = true;
+  const envT = state.proj ? null : envTex;                 // 关灯看投影时去掉环境反射，屏幕的光才显得出来
+  if (scene.environment !== envT) scene.environment = envT;
+  const bgT = state.proj ? BG_DARK : BG_DAY;
+  scene.background.lerp(bgT, k2);
+  if (Math.abs(scene.background.r - bgT.r) + Math.abs(scene.background.g - bgT.g) + Math.abs(scene.background.b - bgT.b) < 0.003) scene.background.copy(bgT);
+  else busy = true;
 
   composer.render();
   labelRenderer.render(scene, camera);
-  requestAnimationFrame(frame_);
+
+  if (busy) invalidate();
+  else if (lowRes && !ctrlActive && !drag) setLowRes(false);   // 停下来了：恢复清晰度（resize 里会再出一帧）
+  else if (!rafId) idle = true;
 }
-frame_();
+invalidate();
 </script>
 </body>
 </html>
