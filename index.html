@@ -347,7 +347,9 @@ controls.minDistance = 40;
 controls.maxDistance = 4000;
 
 /* 有环境反射后，补光调低一些；白天 / 投影（夜间）两档 */
-const LIGHT = { hemiDay: 0.3, sunDay: 2.2, hemiNight: 0.08, sunNight: 0.1 };
+/* hemiIn / lampIn / winIn：相机在屋里时用的档位（见 frame_ 的 inside）。屋里的阳光只从南窗进，
+   其余亮度靠：环境光调高（冒充墙面反光）、室内灯全亮、窗口一盏朝屋里的柔光（冒充天光） */
+const LIGHT = { hemiDay: 0.3, sunDay: 2.2, hemiNight: 0.08, sunNight: 0.1, hemiIn: 0.5, lampIn: 0.8, winIn: 38000 };
 const hemi = new THREE.HemisphereLight(0xfffaf2, 0xb9b2a4, LIGHT.hemiDay);
 scene.add(hemi);
 const BG_DAY = new THREE.Color(0xe9e6e0), BG_DARK = new THREE.Color(0x2b2925);
@@ -359,13 +361,33 @@ sun.shadow.mapSize.set(MOBILE ? 2048 : 4096, MOBILE ? 2048 : 4096);    // 手机
 sun.shadow.normalBias = 1.2;
 sun.shadow.bias = -0.0003;
 scene.add(sun, sun.target);
-/* 阴影相机只罩住卧室 ＋ 阳台（以前罩整套房子），同样的贴图精度更高。
+/* 窗口天光：放在南面落地窗外侧、朝北照进卧室的一盏大角度柔光，不投影，照程只到卧室北墙附近 */
+const winFill = new THREE.SpotLight(0xf3f6ff, 0, 470, 1.25, 1, 1.6);
+winFill.position.set(128, 150, 345); winFill.target.position.set(150, 60, 60);
+winFill.castShadow = false;
+scene.add(winFill, winFill.target);
+/* 窗外的天空：一大块渐变色的幕布立在阳台南边，只在相机在屋里时显示（从屋外看全屋时它会变成一堵大墙）。
+   窗外实际是什么景没有资料，先用晴天的天空色 [占位] */
+const skyMat = new THREE.MeshBasicMaterial({ color: 0xffffff, toneMapped: false, fog: false });
+{
+  const cv = document.createElement('canvas'); cv.width = 4; cv.height = 256;
+  const g = cv.getContext('2d'), gr = g.createLinearGradient(0, 0, 0, 256);
+  gr.addColorStop(0, '#8fb9e6'); gr.addColorStop(0.55, '#cfe2f3'); gr.addColorStop(0.78, '#eef3f6'); gr.addColorStop(1, '#dcdcd6');
+  g.fillStyle = gr; g.fillRect(0, 0, 4, 256);
+  skyMat.map = new THREE.CanvasTexture(cv); skyMat.map.colorSpace = THREE.SRGBColorSpace;
+}
+const skyWall = new THREE.Mesh(new THREE.PlaneGeometry(5000, 1800), skyMat);
+skyWall.position.set(157, 560, 1300); skyWall.rotation.y = Math.PI;   // 朝北（朝屋里）
+skyWall.visible = false; skyWall.userData.noPick = true;
+scene.add(skyWall);
+const SKY_DAY = new THREE.Color(0xffffff), SKY_NIGHT = new THREE.Color(0x10141f);
+/* 阴影相机罩住整套房子 ＋ 阳台：人在屋里时，北侧没有窗的房间也要靠墙和天花板挡住阳光。
    做法：把这块区域的 8 个角换到光源视角下，取包围范围 */
 {
   const cam = sun.shadow.camera, tmp = new THREE.OrthographicCamera();
   tmp.position.copy(sun.position); tmp.lookAt(sun.target.position); tmp.updateMatrixWorld(true);
   const lo = new THREE.Vector3(Infinity, Infinity, Infinity), hi = new THREE.Vector3(-Infinity, -Infinity, -Infinity), v = new THREE.Vector3();
-  for (const x of [-T - 4, W + T + 4]) for (const y of [-6, H + 6]) for (const z of [-T - 4, D + 150]) {
+  for (const x of [-T - 4, W + T + 4]) for (const y of [-6, H + 6]) for (const z of [-400 - T - 4, D + 150]) {   // -400：比房屋最北端（NZ = -390）再多一点
     v.set(x, y, z).applyMatrix4(tmp.matrixWorldInverse);
     lo.min(v); hi.max(v);
   }
@@ -2041,7 +2063,11 @@ function casingX(xf, dx, a, b, top, m, nx) {
   block(121, 122, 0, 220, BZ0 + 1, DZ0, ubM, { cast: false });                          // 东（门洞北）
   block(121, 122, 0, 220, DZ1, BZ1 - 1, ubM, { cast: false });                          // 东（门洞南）
   block(121, 122, 200, 220, DZ0, DZ1, ubM, { cast: false });                            // 东（门洞上）
-  fadableUp(block(0, 122, 220, 221.5, BZ0, BZ1, ubM, { cast: false }), 222);           // 浴室天花板（俯视时淡出）
+  {                                                                                       // 浴室天花板（俯视时淡出），同样带一点自发光
+    const bc = fadableUp(block(0, 122, 220, 221.5, BZ0, BZ1, ubM, { cast: false }), 222);
+    bc.material.emissive.set(0xfff6ea); bc.material.emissiveIntensity = 0.4;
+    ceilMats.push(bc.material);
+  }
 
   /* 浴缸：东西向沿南墙，x 2–120（长 118），z -76..-12（宽 64），高 52 */
   basinWall(2, 120, -76, -12, 0, 52, 7, 14, 6, ceramicM, 1.5);
@@ -3373,6 +3399,7 @@ window.addEventListener('keydown', e => {
 
 /* ---------- 启动：默认布局 → 读存档（坏数据回到默认）→ 面板 ---------- */
 let dayK = 0.5;                                              // 白天室内灯打的折扣（frame_ 里平滑过渡）
+let insideLit = false, shell = null;                         // 当前是不是「屋里」的光；shell = 墙、天花板这些要挡阳光的外壳
 applyFurnList(DEFAULT_FURN);
 {
   const s = readSaved();
@@ -3483,14 +3510,28 @@ function frame_() {
   /* 夜间 = 「日光」关掉，或者投影模式（投影照旧把日光压暗，但不碰室内灯） */
   const night = !LIGHTS.day.on || state.proj;
   const k2 = 1 - Math.exp(-dt * 4);
-  const hemiT = night ? LIGHT.hemiNight : LIGHT.hemiDay, sunT = night ? LIGHT.sunNight : LIGHT.sunDay;
+  /* 相机在天花板以下 = 人在屋里：墙和天花板开始挡阳光（阳光只从南窗进），换成屋里的灯光档位。
+     相机在屋顶上方（看全屋）时保持原样：墙不挡光，整套房子被日光照亮 */
+  const inside = camera.position.y < H - 2;
+  if (inside !== insideLit) {
+    insideLit = inside;
+    if (!shell) shell = faders.filter(f => f.mesh.userData.base >= 0.9).map(f => { f.mesh.userData.cast0 = f.mesh.castShadow; return f.mesh; });
+    shell.forEach(m => { m.castShadow = inside || m.userData.cast0; });
+    skyWall.visible = inside;
+    renderer.shadowMap.needsUpdate = true;
+  }
+  const hemiT = night ? LIGHT.hemiNight : inside ? LIGHT.hemiIn : LIGHT.hemiDay, sunT = night ? LIGHT.sunNight : LIGHT.sunDay;
+  const winT = night || !inside ? 0 : LIGHT.winIn;
+  winFill.intensity = approach(winFill.intensity, winT, k2, 50);
+  if (winFill.intensity !== winT) busy = true;
+  skyMat.color.lerp(night ? SKY_NIGHT : SKY_DAY, k2);
   hemi.intensity = approach(hemi.intensity, hemiT, k2, 0.002);
   sun.intensity = approach(sun.intensity, sunT, k2, 0.005);
   if (hemi.intensity !== hemiT || sun.intensity !== sunT) busy = true;
   const envT = night ? null : envTex;                      // 夜里去掉环境反射，室内灯 / 屏幕的光才是主光源
   if (scene.environment !== envT) scene.environment = envT;
   /* 室内灯：intensity 和发光材质平滑过渡。白天（日光开、非投影）室内灯按 0.5 倍算（相当于眼睛适应了亮环境，避免叠在日光上过曝），夜里全亮 */
-  const dayKT = night ? 1 : 0.5;
+  const dayKT = night ? 1 : inside ? LIGHT.lampIn : 0.5;
   dayK = approach(dayK, dayKT, k2, 0.002);
   if (dayK !== dayKT) busy = true;
   const kL = 1 - Math.exp(-dt * 7);
