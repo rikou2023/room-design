@@ -2369,7 +2369,7 @@ const views = {
 };
 let tween = null, viewFov = null;
 /* 室内漫游：人站在屋里，眼睛高度固定；yaw = 朝向（0 朝北，π/2 朝东，π 朝南），pitch = 抬头（正）/ 低头（负） */
-const EYE = 150, WALK_SPEED = 130;                            // 眼高 cm [占位]、步行速度 cm/s
+const EYE = 160, WALK_SPEED = 130;                            // 眼高 cm、步行速度 cm/s
 const walk = { on: false, x: 0, z: 0, yaw: 0, pitch: 0, keys: {}, goto: null, fly: null };
 function baseFov() { return camera.aspect < 0.8 ? 55 : 38; }   // 竖屏手机：视野角放大，左右能多看到一点
 /* 视角预设是按横屏（宽高比约 1.6）调的。竖屏时左右能看到的范围窄很多：
@@ -3199,7 +3199,8 @@ const WALK_SPOTS = [
   ['窗边', 225, 285, -0.65],
 ];
 const btnWalk = document.getElementById('btnWalk'), walkSpotsEl = document.getElementById('walkSpots');
-const walkFov = () => (camera.aspect < 0.8 ? 80 : 70);
+/* 漫游用广角（接近手机超广角镜头）：横屏竖向 84°（横向约 110°），竖屏竖向 100°（横向约 57°） */
+const walkFov = () => (camera.aspect < 0.8 ? 100 : 84);
 function walkFly(x, z, yaw, pitch = -0.06, instant) {       // 换站位：0.7 秒滑过去（不做碰撞）
   if (instant) { walk.x = x; walk.z = z; walk.yaw = yaw; walk.pitch = pitch; walk.fly = null; }
   else {
