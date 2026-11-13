@@ -253,7 +253,7 @@
     厕所宽（南北）75 cm 是按「马桶约 40 宽，左右各比马桶宽约 17.5 cm」估算的；腾出的南北空间都给了整体浴室（z -215..0）。
     浴室：浴缸东西向沿南墙（约 118×64），洗手盆（宽约 48）和镜子（约 45×60）在西墙、靠浴缸北沿（从门口看偏左），东墙折叠门洞 z -172..-108，约 64 宽。玄关鞋柜在进门右手（西墙），沿整面墙，高约 210，两扇平开门。
     浴室、厕所、厨房、冰箱（约 120 高）＋ 微波炉、洗衣机（上开盖）的样子按实拍视频画，尺寸未实测。</p>
-  <p>[估算] 候选房 B（东边那套，麻布十番 1K 26.61㎡）：按广告户型图的布局、用总面积反推尺寸，内净约 295 × 839，层高按 240。户型图标「洋室 9 帖」，按总面积推出来洋室约 12㎡（约 7.5 帖），图上的标注和总面积对不上，以实测为准。户型图的指北针朝右，实际阳台朝东；为了和现在的房子并排对比，模型里摆成阳台朝南。</p>
+  <p>[估算] 候选房 B（东边那套，麻布十番 1K 26.61㎡）：按广告户型图的布局做，总面积 26.61㎡、洋室 9 帖两个数都满足——洋室内净约 295 × 489（壁芯约 14.6㎡，含东南角的柱子），剩下的面积给玄关、整体浴室（约 180 × 135）、走廊厨房、厕所（约 125 × 80）、洗衣机位。层高按 240。户型图的指北针朝右，实际阳台朝东；为了和现在的房子并排对比，模型里摆成阳台朝南。</p>
   <p>[待确认] 北墙网口和墙插的位置沿用以前布线图里的位置。东墙侧桌（目录里的电视、PS5）的电源没有画：不知道东墙附近有没有插座。</p>
 </div>
 <div id="modeBar"><button id="btnWalk" aria-pressed="false">室内漫游</button><button id="btnEdit" aria-pressed="false">编辑</button></div>
@@ -2434,9 +2434,10 @@ label('[估算] 洗衣机凹室', 285, 120, -248, 'est');
 label('[估算] 玄关', 200, 10, -340, 'est');
 
 /* ===================================================================
-   候选房 B：麻布十番 1K，按户型图和总面积 26.61㎡ 推算，放在现在这套房的东边对比
-   - 尺寸全部是 [估算]：沿用户型图的布局，用总面积 26.61㎡ 反推出内净约 295 × 839。
-     户型图标「洋室 9 帖」，但按总面积推出来洋室只有约 12㎡（约 7.5 帖）：图上的标注和总面积对不上，以实测为准
+   候选房 B：麻布十番 1K，放在现在这套房的东边对比
+   - 尺寸全部是 [估算]：沿用户型图的布局；总面积 26.61㎡、洋室 9 帖（用户确认）两个数都满足——
+     洋室做到壁芯约 14.6㎡（内净约 295 × 489，含东南角的柱子、不含收纳），
+     剩下的面积给玄关、整体浴室、走廊厨房、厕所、洗衣机位，整套内净约 295 × 839
    - 方向：户型图的指北针朝右，实际阳台朝东。这里为了和现在的房子并排对比，摆成同一个方向（玄关在北、阳台在南）
    - 局部坐标：原点 = B 的室内西北角，x 向东（0..295），z 向南（0..839）；建好后整组挪到 (CB.x0, 0, CB.z0)
    - 空房（照片是空室）：只有房子自带的设备，不放家具
@@ -2446,6 +2447,8 @@ CB.z0 = D - CB.l;                                            // 阳台一侧和�
 const candLabels = [];
 const candG = collect(0, 0, () => {
   const BW = CB.w, BL = CB.l;
+  /* 南北分段：玄关 / 浴室 0..145 ｜ 走廊厨房 145..340 ｜ 隔墙 340..350 ｜ 洋室 350..839 */
+  const ZA = 145, ZP = 340, ZR = 350;
   const bLabel = (text, x, y, z, cls = 'est') => { const o = label(text, x, y, z, cls); candLabels.push(o); return o; };
   const woodFloorM = mat(0xa8774f, { map: tiled(floorTex, BW, BL, 120), roughness: 0.5 });   // 中等深度的棕色木地板（照片）
   const psM = mat(0xefece6, { roughness: 0.9 });
@@ -2457,30 +2460,30 @@ const candG = collect(0, 0, () => {
   const lampM = () => mat(0xffffff, { emissive: 0xfff6e8, emissiveIntensity: 0.9, roughness: 0.3 });
 
   /* 地面：玄关地砖、整体浴室白色防水盘、其余棕色木地板 */
-  block(0, 105, -6, 0, 0, 160, tileMat(105, 160, 0xd9d3c8), { cast: false });
-  block(105, BW, -6, 0, 0, 160, psM, { cast: false });
-  block(115, BW, 0, 1, 0, 150, ubM, { cast: false });
-  block(0, BW, -6, 0, 160, BL, woodFloorM, { cast: false });
-  block(170, BW, 0, 0.3, 212, 300, mat(0xd6d0c4, { roughness: 0.55 }), { cast: false });   // 厕所软地板
+  block(0, 105, -6, 0, 0, ZA, tileMat(105, ZA, 0xd9d3c8), { cast: false });
+  block(105, BW, -6, 0, 0, ZA, psM, { cast: false });
+  block(115, BW, 0, 1, 0, 135, ubM, { cast: false });
+  block(0, BW, -6, 0, ZA, BL, woodFloorM, { cast: false });
+  block(170, BW, 0, 0.3, 190, 270, mat(0xd6d0c4, { roughness: 0.55 }), { cast: false });   // 厕所软地板
 
   /* 外墙：西墙开入户门，东墙开窗，南墙开阳台推拉门 */
-  wall({ axis: 'z', at: 0, from: -T, to: BL + T, normal: [-1, 0], openings: [{ a: 70, b: 155, top: 200 }] });
+  wall({ axis: 'z', at: 0, from: -T, to: BL + T, normal: [-1, 0], openings: [{ a: 58, b: 140, top: 200 }] });
   wall({ axis: 'z', at: BW, from: -T, to: BL + T, normal: [1, 0], openings: [{ a: 640, b: 725, bottom: 80, top: 205 }] });
   wall({ axis: 'x', at: 0, from: 0, to: BW, normal: [0, -1] });
   wall({ axis: 'x', at: BL, from: 0, to: BW, normal: [0, 1], openings: [{ a: 45, b: 205, top: 205 }] });
   /* 内墙：玄关 | 浴室、浴室 | 走廊、厕所、走廊 | 洋室、收纳 */
-  wall({ axis: 'z', at: 105, from: 0, to: 150, normal: [1, 0], t: 10 });
-  wall({ axis: 'x', at: 150, from: 115, to: BW, normal: [0, 1], t: 10, openings: [{ a: 125, b: 185, top: 200 }] });
-  wall({ axis: 'z', at: 160, from: 212, to: 300, normal: [1, 0], t: 10, openings: [{ a: 225, b: 289, top: 200 }] });
-  wall({ axis: 'x', at: 300, from: 160, to: BW, normal: [0, 1], t: 8 });
-  wall({ axis: 'x', at: 372, from: 0, to: BW, normal: [0, 1], t: 10, openings: [{ a: 86, b: 160, top: 200 }] });
-  wall({ axis: 'z', at: 165, from: 382, to: 442, normal: [-1, 0], t: 5 });
-  block(170, BW, 0, H, 160, 212, psM, { cast: false });                                      // 管井（户型图上的 PS 和结构）
-  block(240, BW, 0, H, 308, 372, psM, { cast: false });                                      // 洗衣机位东边的管井
+  wall({ axis: 'z', at: 105, from: 0, to: 135, normal: [1, 0], t: 10 });
+  wall({ axis: 'x', at: 135, from: 115, to: BW, normal: [0, 1], t: 10, openings: [{ a: 125, b: 185, top: 200 }] });
+  wall({ axis: 'z', at: 160, from: 190, to: 270, normal: [1, 0], t: 10, openings: [{ a: 200, b: 264, top: 200 }] });
+  wall({ axis: 'x', at: 270, from: 160, to: BW, normal: [0, 1], t: 8 });
+  wall({ axis: 'x', at: ZP, from: 0, to: BW, normal: [0, 1], t: 10, openings: [{ a: 86, b: 160, top: 200 }] });
+  wall({ axis: 'z', at: 165, from: ZR, to: ZR + 60, normal: [-1, 0], t: 5 });
+  block(170, BW, 0, H, ZA, 190, psM, { cast: false });                                       // 管井（户型图上的 PS 和结构）
+  block(240, BW, 0, H, 278, ZP, psM, { cast: false });                                       // 洗衣机位东边的管井
   block(210, BW, 0, H, 740, BL, psM, { cast: false });                                       // 洋室东南角的柱子
   ceiling(0, BW, 0, BL);
   /* 踢脚线（洋室三面） */
-  [[0, 1.2, 382, BL], [0, 210, BL - 1.2, BL], [BW - 1.2, BW, 442, 740]].forEach(([a, b, c, d]) =>
+  [[0, 1.2, ZR, BL], [0, 210, BL - 1.2, BL], [BW - 1.2, BW, ZR + 60, 740]].forEach(([a, b, c, d]) =>
     block(a, b, 0, 7, c, d, skirtM, { cast: false }));
 
   /* 入户门（西墙，向外开）、洋室门（向洋室里开，默认开）、厕所门（向走廊开）：可以点开关 */
@@ -2488,73 +2491,73 @@ const candG = collect(0, 0, () => {
     [-1, 1].forEach(sg => put(1.6, 1.6, 11, sg * (t / 2 + 2), 95, w - 11, leverM));
     put(t + 4, 4, 4, 0, 95, w - 6, leverM);
   };
-  const eDoor = swingDoor(-5, 154, 84, 198, 4, Math.PI, mat(0xdcd8d0, { roughness: 0.45 }), lever);
+  const eDoor = swingDoor(-5, 139, 80, 198, 4, Math.PI, mat(0xdcd8d0, { roughness: 0.45 }), lever);
   regDoor('b-entry', 'B 入户门', 'dr-entry', false, t => { eDoor.rotation.y = Math.PI + t * Math.PI / 2; }, [eDoor]);
-  const rDoor = swingDoor(160, 381, 74, 198, 3.5, -Math.PI / 2, leafM, lever);
+  const rDoor = swingDoor(160, ZR - 1, 74, 198, 3.5, -Math.PI / 2, leafM, lever);
   regDoor('b-room', 'B 洋室门', 'dr-bed', true, t => { rDoor.rotation.y = -Math.PI / 2 + t * Math.PI / 2; }, [rDoor]);
-  const tDoor = swingDoor(165, 225, 64, 198, 3.5, 0, leafM, lever);
+  const tDoor = swingDoor(165, 200, 64, 198, 3.5, 0, leafM, lever);
   regDoor('b-toilet', 'B 厕所门', 'dr-toilet', false, t => { tDoor.rotation.y = -t * Math.PI / 2; }, [tDoor]);
 
   /* 玄关：鞋柜（门朝南） */
   rblock(32, 105, 0, 110, 0, 40, mat(0xece7dc, { roughness: 0.5 }), 0.6);
   block(68, 69, 10, 104, 40, 40.4, mat(0xbdb5a6), { cast: false });
   [[62, 66], [71, 75]].forEach(([a, b]) => block(a, b, 60, 62, 40, 41.4, leverM));
-  bLabel('B 玄关', 52, 12, 110);
+  bLabel('B 玄关', 52, 12, 100);
 
-  /* 整体浴室：浴缸沿东墙，洗手盆和镜子在北墙 */
-  basinWall(222, 292, 4, 146, 1, 52, 6, 10, 5, ceramicM, 1.2);
-  rblock(227, 287, 1, 14, 9, 141, ceramicM, 3);
+  /* 整体浴室（内净约 180 × 135）：浴缸沿东墙，洗手盆和镜子在北墙 */
+  basinWall(222, 292, 4, 131, 1, 52, 6, 10, 5, ceramicM, 1.2);
+  rblock(227, 287, 1, 14, 9, 126, ceramicM, 3);
   basinWall(168, 212, 1, 33, 64, 76, 3, 10, 7, ceramicM, 1);
   rblock(170, 210, 64, 67, 3, 31, ceramicM, 1.5);
   cyl(1.2, 1.4, 6, 190, 79, 3, chromeM);
   cyl(0.8, 0.8, 7, 190, 81.5, 6.5, chromeM, { rx: Math.PI / 2 });
   block(170, 212, 108, 160, 0, 0.6, mat(0xd3d9d8, { metalness: 0.25, roughness: 0.06, envMapIntensity: 2.2 }), { cast: false });
-  cyl(1.6, 1.6, 20, 293, 70, 75, chromeM, { rx: Math.PI / 2 });                             // 浴缸龙头
+  cyl(1.6, 1.6, 20, 293, 70, 68, chromeM, { rx: Math.PI / 2 });                             // 浴缸龙头
   const bathLampM = lampM();
-  const bLamp = cyl(8, 8, 3, 205, H - 1.5, 75, bathLampM);
+  const bLamp = cyl(8, 8, 3, 205, H - 1.5, 68, bathLampM);
   bLamp.userData.lightId = 'b-bath';
-  regLight('b-bath', 'B 浴室灯', 'l-bath', [spot(205, H - 6, 75, 40000, 1.0, 300)], [{ m: bathLampM, max: 0.9 }],
+  regLight('b-bath', 'B 浴室灯', 'l-bath', [spot(205, H - 6, 68, 40000, 1.0, 300)], [{ m: bathLampM, max: 0.9 }],
     { eff: () => LIGHTS['b-bath'].on && candG.visible });
-  bLabel('B 浴室（整体浴室）', 205, 110, 75);
+  bLabel('B 浴室（整体浴室）', 205, 110, 68);
 
-  /* 厕所：马桶靠东墙、朝西（门口） */
-  rblock(277, 293, 32, 74, 243, 269, ceramicM, 3);
-  rblock(248, 282, 0.3, 38, 246, 266, ceramicM, 6);
-  rblock(246, 281, 38, 41, 245, 267, mat(0xf6f5f2, { roughness: 0.3 }), 4);
-  rblock(240, 254, 64, 71, 294, 300, mat(0xf3f2ee, { roughness: 0.35 }), 1.5);                // 卷纸架
-  bLabel('B 厕所', 232, 110, 256);
+  /* 厕所（内净约 125 × 80）：马桶靠东墙、朝西（门口） */
+  rblock(277, 293, 32, 74, 217, 243, ceramicM, 3);
+  rblock(248, 282, 0.3, 38, 220, 240, ceramicM, 6);
+  rblock(246, 281, 38, 41, 219, 241, mat(0xf6f5f2, { roughness: 0.3 }), 4);
+  rblock(240, 254, 64, 71, 264, 270, mat(0xf3f2ee, { roughness: 0.35 }), 1.5);                // 卷纸架
+  bLabel('B 厕所', 232, 110, 230);
 
   /* 厨房：沿西墙，二口煤气灶 ＋ 水槽 ＋ 棕色柜门；后面一面绿色墙；尽头是冰箱位 */
-  block(0, 0.6, 85, H, 165, 305, greenM, { cast: false });
-  block(0, 56, 0, 8, 170, 300, mat(0x3a332d), { cast: false });
-  rblock(0, 60, 8, 82, 170, 300, cabM, 0.6);
-  block(0, 62, 82, 85, 170, 300, mat(0xc7cbce, { roughness: 0.3, metalness: 0.7 }));         // 不锈钢台面
-  block(12, 48, 84.9, 85.3, 242, 290, mat(0x7f8487, { roughness: 0.3, metalness: 0.8 }), { cast: false });   // 水槽
-  [190, 220].forEach(z => {                                                                   // 二口灶
+  block(0, 0.6, 85, H, ZA + 2, 287, greenM, { cast: false });
+  block(0, 56, 0, 8, 152, 282, mat(0x3a332d), { cast: false });
+  rblock(0, 60, 8, 82, 152, 282, cabM, 0.6);
+  block(0, 62, 82, 85, 152, 282, mat(0xc7cbce, { roughness: 0.3, metalness: 0.7 }));         // 不锈钢台面
+  block(12, 48, 84.9, 85.3, 222, 272, mat(0x7f8487, { roughness: 0.3, metalness: 0.8 }), { cast: false });   // 水槽
+  [170, 200].forEach(z => {                                                                   // 二口灶
     cyl(6, 6, 1, 30, 85.6, z, mat(0x1b1c1e, { roughness: 0.5 }));
     cyl(3, 3, 1.4, 30, 86.4, z, mat(0x2c2d30, { roughness: 0.4 }));
   });
-  [185, 235, 270].forEach(z => block(60, 61.4, 70, 72, z - 8, z + 8, steelM));               // 柜门拉手
+  [165, 215, 250].forEach(z => block(60, 61.4, 70, 72, z - 8, z + 8, steelM));               // 柜门拉手
   const kSpout = new THREE.Mesh(new THREE.TubeGeometry(new THREE.CatmullRomCurve3([
-    new THREE.Vector3(5, 85, 266), new THREE.Vector3(5, 99, 266), new THREE.Vector3(9, 103, 266), new THREE.Vector3(15, 100, 266),
-    new THREE.Vector3(16, 96, 266)]), 30, 0.9, 10), chromeM);
+    new THREE.Vector3(5, 85, 248), new THREE.Vector3(5, 99, 248), new THREE.Vector3(9, 103, 248), new THREE.Vector3(15, 100, 248),
+    new THREE.Vector3(16, 96, 248)]), 30, 0.9, 10), chromeM);
   kSpout.castShadow = true; scene.add(kSpout);
-  rblock(0, 34, 150, 214, 232, 300, cabM, 0.6);                                              // 吊柜
-  rblock(0, 52, 182, 200, 172, 228, mat(0xe9e9e6, { roughness: 0.4 }), 1);                  // 抽油烟机
-  bLabel('B 厨房', 30, 120, 235);
-  bLabel('B 冰箱位', 30, 20, 336);
+  rblock(0, 34, 150, 214, 214, 282, cabM, 0.6);                                              // 吊柜
+  rblock(0, 52, 182, 200, 155, 210, mat(0xe9e9e6, { roughness: 0.4 }), 1);                  // 抽油烟机
+  bLabel('B 厨房', 30, 120, 215);
+  bLabel('B 冰箱位', 30, 20, 312);
 
   /* 洗衣机位（防水盘 ＋ 止水栓） */
-  basinWall(172, 238, 310, 370, 0, 5, 3, 3, 4, mat(0xf4f4f2, { roughness: 0.5 }), 0.6);
-  cyl(1.6, 1.6, 7, 236, 118, 340, chromeM, { rz: Math.PI / 2 });
-  bLabel('B 洗衣机位', 205, 20, 340);
+  basinWall(172, 238, 280, 338, 0, 5, 3, 3, 4, mat(0xf4f4f2, { roughness: 0.5 }), 0.6);
+  cyl(1.6, 1.6, 7, 236, 118, 309, chromeM, { rz: Math.PI / 2 });
+  bLabel('B 洗衣机位', 205, 20, 309);
 
-  /* 收纳（洋室东北角，折叠门朝南） */
+  /* 收纳（洋室东北角，深 60，折叠门朝南） */
   [[166, 197], [198, 229], [230, 261], [262, BW - 1]].forEach(([a, b]) => {
-    block(a, b - 0.4, 0, 205, 440, 442.5, mat(0xf1eee7, { roughness: 0.5 }));
+    block(a, b - 0.4, 0, 205, ZR + 58, ZR + 60.5, mat(0xf1eee7, { roughness: 0.5 }));
   });
-  [[196, 200], [259, 263]].forEach(([a, b]) => block(a, b, 100, 102, 442.5, 443.6, leverM));
-  bLabel('B 收纳', 230, 120, 412);
+  [[196, 200], [259, 263]].forEach(([a, b]) => block(a, b, 100, 102, ZR + 60.5, ZR + 61.6, leverM));
+  bLabel('B 收纳', 230, 120, ZR + 30);
 
   /* 阳台推拉门（南墙，深色框）＋ 东墙窗 ＋ 南墙上的空调 */
   [[45, 126, BL + 3], [124, 205, BL + 6]].forEach(([a, b, z]) => {
@@ -2577,12 +2580,12 @@ const candG = collect(0, 0, () => {
   rl.userData.lightId = 'b-room';
   regLight('b-room', 'B 洋室灯', 'l-ceil', [spot(147, H - 8, 600, 90000, 1.2, 430)], [{ m: roomLampM, max: 0.9 }],
     { eff: () => LIGHTS['b-room'].on && candG.visible });
-  const hl = cyl(5.2, 5.2, 0.6, 110, H - 0.3, 260, hallLampM, { cast: false });
+  const hl = cyl(5.2, 5.2, 0.6, 110, H - 0.3, 240, hallLampM, { cast: false });
   hl.userData.lightId = 'b-hall';
-  regLight('b-hall', 'B 走廊灯', 'l-down', [spot(110, H - 3, 260, 50000, 1.0, 360)], [{ m: hallLampM, max: 1.3 }],
+  regLight('b-hall', 'B 走廊灯', 'l-down', [spot(110, H - 3, 240, 50000, 1.0, 360)], [{ m: hallLampM, max: 1.3 }],
     { eff: () => LIGHTS['b-hall'].on && candG.visible });
 
-  bLabel('B 洋室　标 9 帖（按总面积推算约 12㎡）', 100, 12, 600, 'room');
+  bLabel('B 洋室 9 帖（壁芯约 14.6㎡）', 100, 12, 600, 'room');
   bLabel('候选房 B · 1K 26.61㎡（尺寸按户型图估算）', BW / 2, H + 30, 420, 'room');
 });
 candG.position.set(CB.x0, 0, CB.z0);
@@ -3449,9 +3452,9 @@ const WALK_SPOTS = [
   ['卧室门口', 185, 32, Math.PI],
   ['书桌前', 150, 95, -Math.PI / 2, -0.42],
   ['窗边', 225, 285, -0.65],
-  ['B 玄关', CB.x0 + 60, CB.z0 + 120, Math.PI],
-  ['B 厨房', CB.x0 + 115, CB.z0 + 240, -Math.PI / 2, -0.15],
-  ['B 洋室', CB.x0 + 120, CB.z0 + 400, Math.PI, -0.1],
+  ['B 玄关', CB.x0 + 60, CB.z0 + 110, Math.PI],
+  ['B 厨房', CB.x0 + 115, CB.z0 + 220, -Math.PI / 2, -0.15],
+  ['B 洋室', CB.x0 + 120, CB.z0 + 375, Math.PI, -0.1],
   ['B 窗边', CB.x0 + 150, CB.z0 + 800, -0.25],
 ];
 const btnWalk = document.getElementById('btnWalk'), walkSpotsEl = document.getElementById('walkSpots');
