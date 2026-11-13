@@ -47,6 +47,7 @@
   .hint { color: #8a5a1f; font-size: 11px; line-height: 1.5; }
   .touch-tip { display: none; }
   #tabs { display: none; }
+  .grab { display: none; }
   /* 左侧操作台：「图 ＋ 名字」卡片网格（暖色纸感，选中 = 绿色描边 ＋ 浅绿底） */
   .sec > h2 { display: flex; align-items: center; justify-content: space-between; gap: 6px; margin: 14px 0 8px; font-size: 12.5px; letter-spacing: .03em; }
   .sec:first-of-type > h2:first-child { border-top: 0; padding-top: 0; margin-top: 10px; }
@@ -102,6 +103,17 @@
     .cable { padding: 8px 6px; }
     .touch-tip { display: block; }
     #help { display: none; }
+    /* 抽屉顶部：一条把手（点一下或往下滑收起），不再重复显示大标题 */
+    #top > h1 { display: none; }
+    .grab { display: block; position: sticky; top: -12px; z-index: 2; width: calc(100% + 28px); min-height: 0;
+      margin: -12px -14px 4px; padding: 0; height: 26px; border: 0; border-radius: 12px 12px 0 0;
+      background: rgba(255,255,255,.97); cursor: pointer; }
+    .grab::before { content: ""; display: block; width: 44px; height: 5px; margin: 0 auto; border-radius: 3px; background: #cfc8bb; }
+    /* 小屏标签：字小一点，太长的截断，[估算] 类的次要标签不显示 */
+    .lb { font-size: 10px; padding: 1px 5px; max-width: 46vw; overflow: hidden; text-overflow: ellipsis; }
+    .lb.room { font-size: 11px; }
+    .lb.est { display: none !important; }
+    body.far .lb:not(.room) { display: none !important; }
   }
 </style>
 </head>
@@ -110,6 +122,7 @@
 <div id="labels"></div>
 
 <div id="top" class="panel">
+  <button class="grab" aria-label="收起面板"></button>
   <h1>南麻布 202 · 3D 户型 <button class="fold" data-fold="top">收起</button></h1>
   <p class="intro">卧室 315 × 308 cm ＋ 阳台 · ErGear 160×80 主桌 ＋ 东墙 3×3 收纳格 · 桌面布线</p>
   <div class="sec" data-sec="view">
@@ -166,8 +179,8 @@
     <button id="btnAcc" class="on">配件高亮</button>
     <button id="btnTop">桌板透明</button>
   </div>
-  <div class="row" id="cats"><span>线缆类别（点右侧清单里的某一根可单独高亮）</span></div>
-  <div class="row"><span>桌面物品：直接用鼠标拖动，取消勾选就去掉</span>
+  <div class="row" id="cats"><span>线缆类别（点线缆清单里的某一根可单独高亮）</span></div>
+  <div class="row"><span>桌面物品：在画面里直接拖动，取消勾选就去掉</span>
     <div id="items" style="width:100%"></div>
     <span id="hitInfo" style="color:#a2401f"></span>
   </div>
@@ -189,6 +202,7 @@
 </div>
 
 <div id="right" class="panel">
+  <button class="grab" aria-label="收起面板"></button>
   <h1>线缆清单 <button class="fold" data-fold="right">收起</button></h1>
   <p>桌面上的东西挪动或去掉后，线和长度会跟着变。长度按模型里的走线量出来，留 25% 余量后取整；设备尺寸和接口位置是示意，以实物为准。</p>
   <div id="cableList"></div>
@@ -288,7 +302,7 @@ controls.enableDamping = true;
 controls.dampingFactor = 0.08;
 controls.maxPolarAngle = Math.PI / 2 - 0.03;
 controls.minDistance = 40;
-controls.maxDistance = 2500;
+controls.maxDistance = 4000;
 
 /* 有环境反射后，补光调低一些；白天 / 投影（夜间）两档 */
 const LIGHT = { hemiDay: 0.3, sunDay: 2.2, hemiNight: 0.08, sunNight: 0.1 };
@@ -2290,9 +2304,21 @@ const views = {
   back:    { p: [-200, 125, 85],   t: [16, 60, 85] },
 };
 let tween = null;
+/* 视角预设是按横屏（宽高比约 1.6）调的。竖屏时左右能看到的范围窄很多：
+   看全屋的视角按宽高比拉远；室内视角不拉远（一拉就会退进衣柜、墙里），只靠竖屏时放大视野角（见 resize） */
+const OUTSIDE_VIEWS = new Set(['iso', 'top', 'all', 'balcony']);
+function fitK(name) {
+  const a = camera.aspect;
+  if (a >= 1.2) return 1;
+  if (name === 'top') return 0.8;                           // 户型南北长，竖屏正好装得下，俯视反而拉近一点
+  if (!OUTSIDE_VIEWS.has(name)) return 1;
+  return Math.min(Math.pow(1.6 / a, 0.32), 1.5);
+}
 function go(name, instant) {
   const v = views[name];
-  const p = new THREE.Vector3(...v.p), t = new THREE.Vector3(...v.t);
+  const t = new THREE.Vector3(...v.t);
+  const p = new THREE.Vector3(...v.p).sub(t).multiplyScalar(fitK(name)).add(t);
+  if (name === 'top' && camera.aspect < 1.2) { p.x = t.x = W / 2; }   // 横屏俯视故意偏左给面板让位，竖屏没有侧边面板，居中
   if (instant) { camera.position.copy(p); controls.target.copy(t); controls.update(); return; }
   tween = { p0: camera.position.clone(), t0: controls.target.clone(), p1: p, t1: t, k: 0 };
   invalidate();
@@ -2371,7 +2397,32 @@ function setTab(tab, open) {
   document.body.dataset.tab = tab;
   document.body.classList.toggle('open', open);
   tabBtns.forEach(b => b.classList.toggle('on', open && b.dataset.tab === tab));
+  requestAnimationFrame(updateSheetOffset);
 }
+/* 窄屏：底部标签栏和打开的抽屉会盖住画面下半部分，把渲染画面往上移，让模型落在还能看到的那块区域中间 */
+function updateSheetOffset() {
+  const w = window.innerWidth, h = window.innerHeight;
+  let cover = 0;
+  if (NARROW.matches) {
+    cover = document.getElementById('tabs').getBoundingClientRect().height;
+    if (document.body.classList.contains('open')) {
+      const panel = document.getElementById(document.body.dataset.tab === 'list' ? 'right' : 'top');
+      cover = Math.max(cover, h - panel.getBoundingClientRect().top);
+    }
+  }
+  const dy = Math.round(cover / 2);
+  if (dy > 0) camera.setViewOffset(w, h, 0, dy, w, h); else camera.clearViewOffset();
+  invalidate();
+}
+document.querySelectorAll('.grab').forEach(g => {
+  g.addEventListener('click', () => setTab(document.body.dataset.tab, false));
+  let y0 = null;
+  g.addEventListener('touchstart', e => { y0 = e.touches[0].clientY; }, { passive: true });
+  g.addEventListener('touchend', e => {
+    if (y0 !== null && e.changedTouches[0].clientY - y0 > 30) setTab(document.body.dataset.tab, false);
+    y0 = null;
+  }, { passive: true });
+});
 tabBtns.forEach(b => b.addEventListener('click', () => {
   const same = document.body.dataset.tab === b.dataset.tab && document.body.classList.contains('open');
   setTab(b.dataset.tab, !same);
@@ -3091,7 +3142,10 @@ function resize() {
   renderer.setSize(w, h); labelRenderer.setSize(w, h);
   composer.setPixelRatio(pr); composer.setSize(w, h);
   if (fxaa) fxaa.material.uniforms.resolution.value.set(1 / (w * pr), 1 / (h * pr));
-  camera.aspect = w / h; camera.updateProjectionMatrix();
+  camera.aspect = w / h;
+  camera.fov = camera.aspect < 0.8 ? 55 : 38;               // 竖屏手机：视野角放大，左右能多看到一点
+  camera.updateProjectionMatrix();
+  updateSheetOffset();
   invalidate();
 }
 window.addEventListener('resize', resize);
@@ -3157,6 +3211,8 @@ function frame_() {
   if (Math.abs(accM.color.r - accT.r) + Math.abs(accM.color.g - accT.g) + Math.abs(accM.color.b - accT.b) < 0.004) accM.color.copy(accT);
   else busy = true;
   updateDeskLabels();
+  /* 窄屏又离得远（看全屋）时，只留房间级标签（卧室、阳台），其余标签挤成一团没法看，拉近了再显示 */
+  document.body.classList.toggle('far', NARROW.matches && camera.position.distanceTo(controls.target) > 700);
 
   /* 夜间 = 「日光」关掉，或者投影模式（投影照旧把日光压暗，但不碰室内灯） */
   const night = !LIGHTS.day.on || state.proj;
