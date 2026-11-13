@@ -155,7 +155,7 @@
   <p>[推算] 北墙 = 墙 135 ＋ 门框 8 ＋ 门洞 84 ＋ 门框 8 ＋ 墙 15 ＋ 衣柜 65 = 315，其中门框宽 8 是为凑齐总宽推算的。</p>
   <p>[估算] 卧室以北（走廊 / 整体浴室 / 厕所 / 厨房 / 玄关）按户型图比例估算，尺寸不准。西侧靠卧室的一间是整体浴室（浴缸 ＋ 洗手盆，没有马桶），靠玄关的一间是独立厕所。
     厕所宽（南北）75 cm 是按「马桶约 40 宽，左右各比马桶宽约 17.5 cm」估算的；腾出的南北空间都给了整体浴室（z -215..0）。
-    浴室：浴缸东西向沿南墙（约 118×64），洗手盆和镜子在西墙、正对东墙的折叠门（门洞 z -172..-108，约 64 宽）。
+    浴室：浴缸东西向沿南墙（约 118×64），洗手盆（宽约 48）和镜子（约 45×60）在西墙、靠浴缸北沿（从门口看偏左），东墙折叠门洞 z -172..-108，约 64 宽。玄关鞋柜在进门右手（西墙），沿整面墙，高约 210，两扇平开门。
     浴室、厕所、厨房、冰箱（约 120 高）＋ 微波炉、洗衣机（上开盖）的样子按实拍视频画，尺寸未实测。</p>
   <p>[待确认] 北墙网口和墙插的位置沿用以前布线图里的位置。东墙电视桌（电视、PS5）的电源没有画：不知道东墙附近有没有插座。</p>
 </div>
@@ -1759,7 +1759,7 @@ function casingX(xf, dx, a, b, top, m, nx) {
 }
 
 /* ---------- 整体浴室（南侧，靠卧室）：x 0–122，z -215..0（内净 z -207..-10）。全白日式整体浴室，里面没有马桶 ----------
-   浴缸东西向沿南墙；洗手盆 ＋ 镜子在西墙，正对东墙（走廊侧）的折叠门；门洞 z -172..-108 */
+   浴缸东西向沿南墙；洗手盆（宽 48）＋ 镜子（45×60）在西墙、靠浴缸北沿（从门口看偏左）；门洞 z -172..-108 */
 {
   const ubM = mat(0xf7f7f4, { roughness: 0.35 });
   const BZ0 = -207, BZ1 = -10;                                                         // 内净南北范围
@@ -1790,21 +1790,21 @@ function casingX(xf, dx, a, b, top, m, nx) {
   cyl(1.3, 1.6, 16, 5.5, 152, -71, hoseM);                                            // 花洒手柄
   cyl(3.6, 2.4, 3, 6.5, 161.5, -71, hoseM, { rz: -0.5 });                             // 花洒头
 
-  /* 西墙上的小型挂墙洗手盆 ＋ 龙头 ＋ 下水管（盆中心 z = 门洞中线 -140，开门正对） */
-  const SZ = (DZ0 + DZ1) / 2;
-  basinWall(1, 35.5, SZ - 17, SZ + 17, 64, 76, 3, 9, 7, ceramicM, 1);
-  rblock(3, 33.5, 64, 67, SZ - 15, SZ + 15, ceramicM, 1.5);                           // 盆底
-  rblock(1, 14, 56, 64, SZ - 11, SZ + 11, ceramicM, 2);                               // 盆下托
-  cyl(1.4, 1.4, 0.3, 20, 67.2, SZ, chromeM, { cast: false });                         // 下水口
+  /* 西墙挂墙洗手盆 ＋ 龙头 ＋ 下水管：盆宽 48，从门口看靠左（南、靠近浴缸北沿 z=-76，间隙 2） */
+  const SZ = -102;                                                                    // 盆中心；南沿 -78，北沿 -126
+  basinWall(1, 33, SZ - 24, SZ + 24, 64, 76, 3, 11, 8, ceramicM, 1);
+  rblock(3, 31, 64, 67, SZ - 21, SZ + 21, ceramicM, 1.5);                             // 盆底
+  rblock(1, 14, 56, 64, SZ - 14, SZ + 14, ceramicM, 2);                               // 盆下托
+  cyl(1.4, 1.4, 0.3, 18, 67.2, SZ, chromeM, { cast: false });                         // 下水口
   cyl(1.6, 1.6, 26, 6, 43, SZ, chromeM);                                              // 下水管
   cyl(1.2, 1.4, 6, 3, 79, SZ, chromeM);                                               // 龙头立柱
-  cyl(0.8, 0.8, 6, 6, 81.5, SZ, chromeM, { rz: Math.PI / 2 });                        // 出水嘴（朝东）
-  [SZ - 7, SZ + 7].forEach(z => cyl(1.6, 1.6, 2.5, 3, 77.4, z, chromeM));             // 冷热把手
-  /* 长方形镜子 ＋ 镜下小台 ＋ 几瓶洗漱用品（西墙，开门正对） */
-  block(1, 1.6, 110, 164, SZ - 12, SZ + 12, mat(0xdfe6ea, { metalness: 1, roughness: 0.04 }), { cast: false });
-  rblock(1, 9, 103, 105.5, SZ - 11, SZ + 11, ceramicM, 0.8);
-  [[SZ - 7, 0x1f2a44], [SZ - 3, 0x2b2b2e], [SZ + 6, 0xf2f2f2]].forEach(([z, c]) =>
-    cyl(1.6, 1.6, 12, 5, 111.5, z, mat(c, { roughness: 0.4 })));
+  cyl(0.8, 0.8, 7, 6.5, 81.5, SZ, chromeM, { rz: Math.PI / 2 });                      // 出水嘴（朝东）
+  [SZ - 10, SZ + 10].forEach(z => cyl(1.6, 1.6, 2.5, 3, 77.4, z, chromeM));           // 冷热把手
+  /* 镜子约 45×60 ＋ 镜下小台 ＋ 洗漱用品（与盆对齐，略靠浴缸一侧） */
+  block(1, 1.6, 110, 170, SZ - 22, SZ + 23, mat(0xdfe6ea, { metalness: 1, roughness: 0.04 }), { cast: false });
+  rblock(1, 9, 103, 105.5, SZ - 21, SZ + 22, ceramicM, 0.8);
+  [[SZ - 14, 0x1f2a44], [SZ - 5, 0x2b2b2e], [SZ + 6, 0xf2f2f2], [SZ + 15, 0xe8d9c4]].forEach(([z, c]) =>
+    cyl(1.8, 1.8, 13, 5, 112, z, mat(c, { roughness: 0.4 })));
   /* 西墙毛巾杆（浴缸上方，花洒南侧）＋ 两条浅灰毛巾 */
   cyl(1, 1, 48, 3.5, 178, -38, chromeM, { rx: Math.PI / 2 });
   [-60, -16].forEach(z => block(1, 4.5, 176, 180, z - 1, z + 1, chromeM));
@@ -2013,7 +2013,7 @@ function casingX(xf, dx, a, b, top, m, nx) {
   for (let i = 0; i < 6; i++) block(266, 269, 90.8, 91.1, -266 + i * 6, -263.5 + i * 6, mat(0xdadcdf), { cast: false });
 }
 
-/* ---------- 玄关：浅色入户门（顶上闭门器）＋ 低调的米木色鞋柜（x 275–315，不挡门） ---------- */
+/* ---------- 玄关：浅色入户门（顶上闭门器）＋ 西墙通壁鞋柜（进门右手，整面墙，两扇平开门） ---------- */
 {
   const doorM = mat(0xe9e5dc, { roughness: 0.5 }), metalM = mat(0xb8bcbf, { metalness: 0.8, roughness: 0.3 });
   fadable(block(150, 230, 0, 200, NZ - 6, NZ - 2, doorM, { cast: false }), 0, -1);     // 入户门
@@ -2021,12 +2021,26 @@ function casingX(xf, dx, a, b, top, m, nx) {
   block(156, 170, 94, 96.4, NZ + 3, NZ + 5, metalM);
   block(172, 198, 191, 197, NZ - 2, NZ + 4, metalM);                                   // 闭门器
   block(186, 212, 194, 196, NZ + 3, NZ + 5.5, metalM);
-  const shoeM = woodMat(40, 26, 84, { roughness: 0.6 }), shoeTopM = mat(0xf2f0eb, { roughness: 0.4 });
-  const z0 = NZ + 5, z1 = -300, zm = (z0 + z1) / 2;
-  block(279, W, 0, 6, z0 + 2, z1 - 2, mat(0xd8d4cc), { cast: false });               // 内收踢脚
-  block(277.5, W, 6, 97.5, z0, z1, shoeM);                                            // 柜体
-  rblock(276, W, 97.5, 100, z0, z1, shoeTopM, 0.6);                                   // 顶板
-  [[z0 + 0.4, zm - 0.3], [zm + 0.3, z1 - 0.4]].forEach(([a, b]) => block(276.6, 277.6, 6.5, 97, a, b, shoeM));   // 平板门（按压开）
+  /* 鞋柜：进门右手＝西墙（管井东侧 x=122）。沿玄关整面西墙（z NZ..-290，约 100 cm）；
+     进深 28 cm，收到入户门西框 x=150，不挡门。高度 210 cm（接近门高，不到层高 240）——
+     按「整面墙鞋柜」做成通高柜，而不是原来的 100 cm 矮柜。米木色，两扇平开门。 */
+  const x0 = 122, x1 = 150, zb = NZ + 1, zt = -291, mid = (zb + zt) / 2, shH = 210;
+  const shoeInM = woodMat(40, 22, 78, { roughness: 0.65 });
+  block(x0, x1, 0, 6, zb, zt, mat(0xd8d4cc), { cast: false });                        // 踢脚
+  block(x0, x0 + 2.5, 6, shH, zb, zt, shoeInM);                                       // 背板
+  block(x0, x1 - 2.5, 6, shH, zb, zb + 2.2, shoeInM);                                 // 北侧板
+  block(x0, x1 - 2.5, 6, shH, zt - 2.2, zt, shoeInM);                                 // 南侧板
+  block(x0, x1 - 2.5, shH - 3, shH, zb, zt, shoeInM);                                 // 顶板
+  block(x0 + 2.5, x1 - 2.5, 6, 7.2, zb + 2, zt - 2, shoeInM);                         // 底板
+  block(x0 + 2.5, x1 - 2.5, 104, 106, zb + 2, zt - 2, shoeInM);                       // 中隔板
+  const dw = mid - zb - 0.5, dh = shH - 8, dt = 2.4, open = 22 * Math.PI / 180;
+  const doorExtra = (put, w, h, t) => {
+    put(t + 0.2, h - 12, 0.3, 0, h / 2 + 0.5, 16, grooveM);                          // 竖向装饰缝
+    put(t + 3, 3.2, 3.2, 0, 105, w - 8, leverM);
+    [-1, 1].forEach(s => put(1.4, 1.4, 9, s * (t / 2 + 1.8), 105, w - 12, leverM));
+  };
+  swingDoor(x1 - 1.2, zb + 0.3, dw, dh, dt, open, beigeDoorM, doorExtra);             // 北扇：北侧铰链，向内开
+  swingDoor(x1 - 1.2, zt - 0.3, dw, dh, dt, Math.PI - open, beigeDoorM, doorExtra);    // 南扇：南侧铰链，向内开
 }
 
 label('[估算] 整体浴室', 61, 110, -110, 'est');
