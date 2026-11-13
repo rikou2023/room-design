@@ -2006,7 +2006,8 @@ const marbleTex = canvasTex(512, (g, S) => {
 });
 block(122, W, -6, 0, -290, 0, mat(0xffffff, { map: tiled(whiteFloorTex, W - 122, 290, 120), roughness: 0.5 }), { cast: false });   // 走廊 + 厨房：刷白浅木纹
 block(0, 122, -6, 0, -215, 0, mat(0xffffff, { map: tiled(ubFloorTex, 122, 215, 30), roughness: 0.6 }), { cast: false });            // 整体浴室：一体式防水白地
-block(0, 122, -6, 0, -290, -215, tileMat(122, 75, 0xf4f2ee), { cast: false });                                                    // 厕所：地砖
+block(0, 122, -6, 0, -290, -215, mat(0xd6d0c4, { roughness: 0.55 }), { cast: false });                                               // 厕所：浅灰米色软地板（实拍，没有砖缝）
+block(121.5, 130.5, 0, 0.8, -284, -221, woodMat(24, 40, 40, { roughness: 0.5 }), { cast: false });                                     // 厕所门口的木色门槛（实拍）
 block(122, W, -6, -3, NZ, -290, mat(0xffffff, { map: tiled(marbleTex, W - 122, 100, 80), roughness: 0.3 }), { cast: false });        // 玄关：浅色石纹地砖
 
 /* 走廊 / 玄关天花板 ＋ 一路圆形嵌入式筒灯。相机高过层高（俯视、斜俯视）时天花板自动淡出 */
@@ -2170,14 +2171,20 @@ function casingX(xf, dx, a, b, top, m, nx) {
   rblock(20.5, 23, 46, 84, ZC - 16, ZC + 16, mat(0xf6f5f2, { roughness: 0.3 }), 1.2);  // 竖起的盖子（靠着水箱）
   rblock(24, 42, 38, 44, ZC + 17, ZC + 22, ceramicM, 1.5);                             // 侧边操作面板
   [28, 32, 36].forEach(x => block(x, x + 2.4, 44, 44.3, ZC + 18.5, ZC + 20.5, mat(0x7fa6c4), { cast: false }));
-  /* 南墙（和浴室的隔墙）上的卷纸架 */
-  rblock(36, 52, 66, 71, -221, -215, chromeM, 1);
-  cyl(5.5, 5.5, 11, 44, 61, -220.5, mat(0xfbfbf9, { roughness: 0.9 }), { rz: Math.PI / 2 });
+  /* 北墙（从门口看右手边）上的卷纸架，在马桶前沿附近（实拍）：白色带盖的那种 */
+  rblock(56, 72, 64, 72, -290, -283, mat(0xf3f2ee, { roughness: 0.35 }), 1.5);
+  cyl(5.5, 5.5, 11, 64, 62, -284.5, mat(0xfbfbf9, { roughness: 0.9 }), { rz: Math.PI / 2 });
+  /* 马桶上方贯通整面西墙的搁板（实拍：高约 175，上面放着收纳箱）[估算] */
+  rblock(0, 30, 173, 175, -290, -215, mat(0xf2efe8, { roughness: 0.5 }), 0.4);
+  rblock(4, 28, 175, 191, -270, -238, mat(0x2a2b2e, { roughness: 0.5 }), 0.8);       // 收纳箱（深色）
+  rblock(5, 27, 191, 199, -268, -240, mat(0xe8e2d6, { roughness: 0.7 }), 0.6);       // 收纳箱（浅色纸盒）
+  rblock(6, 26, 199, 209, -263, -245, mat(0xb8432f, { roughness: 0.6 }), 0.6);       // 收纳箱（红色）
   /* 厕所天花板（新加，俯视时淡出）＋ 小圆吸顶灯（新加）：小房间，聚光 intensity 4.5 万 → 地面照度约 0.8，墙面更亮 */
   ceiling(0, 122, -290, -215);
-  const tl = new THREE.Mesh(new THREE.SphereGeometry(8, 24, 12, 0, Math.PI * 2, Math.PI / 2, Math.PI / 2),
+  const tl = new THREE.Mesh(new THREE.CylinderGeometry(11, 12, 3, 32),          // 扁圆吸顶灯（实拍）
     mat(0xffffff, { emissive: 0xfff6e8, emissiveIntensity: 0.9, roughness: 0.3 }));
-  tl.position.set(72, H, -252.5); scene.add(tl);
+  tl.position.set(80, H - 1.5, -252.5); scene.add(tl);
+  block(36, 54, H - 0.6, H, -262, -244, mat(0xe9e7e1, { roughness: 0.6 }), { cast: false });   // 换气口格栅
   tl.userData.lightId = 'toilet';
   regLight('toilet', '厕所灯', 'l-toilet', [spot(72, H - 6, -252.5, 45000, 0.95, 320)], [{ m: tl.material, max: 0.9 }]);
 
@@ -2189,6 +2196,7 @@ function casingX(xf, dx, a, b, top, m, nx) {
     put(t + 4, 4, 4, 0, 95, w - 6, leverM);                                           // 拉手底座
     [-1, 1].forEach(s => put(1.6, 1.6, 11, s * (t / 2 + 2), 95, w - 11, leverM));     // 拉手（两面，朝铰链方向）
   });
+  rblock(130, 131, 108, 120, -216, -208, mat(0xf7f6f2, { roughness: 0.4 }), 0.5);   // 门南侧墙上的开关面板（实拍）
   regDoor('toilet', '厕所门', 'dr-toilet', false, t => { td.rotation.y = t * 45 * Math.PI / 180; }, [td]);
 }
 
@@ -3222,6 +3230,7 @@ const WALK_SPOTS = [
   ['走廊', 190, -190, Math.PI],
   ['厨房', 178, -140, Math.PI / 2],
   ['浴室', 100, -140, -Math.PI / 2],
+  ['厕所', 150, -250, -Math.PI / 2, -0.3],                   // 站在门口往里看（厕所太小，站进去只能看到马桶）
   ['卧室门口', 185, 32, Math.PI],
   ['书桌前', 150, 95, -Math.PI / 2, -0.42],
   ['窗边', 225, 285, -0.65],
