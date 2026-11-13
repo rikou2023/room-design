@@ -2972,6 +2972,48 @@ const FT = {                                                // 家具类型（hx
 const CAT_ORDER = ['bed', 'desk', 'desk70', 'desk120', 'cubeshelf', 'tvdesk', 'tvset', 'ps5', 'chair', 'sofa', 'beanbag', 'rug', 'floorlamp', 'shelf', 'plant'];
 const MAIN_OF = { bed: 'bed', desk: 'desk', tv: 'tvdesk', chair: 'chair', cube: 'cubeshelf' };  // 这几个 id 只能是对应的类型
 const DEFAULT_FURN = ['bed', 'desk', 'cubeshelf', 'chair'].map(type => ({ type, id: FT[type].main, x: FT[type].def.x, z: FT[type].def.z, rotY: 0 }));
+
+/* ---------- 候选房 B：把现在的家具搬进去试摆（尺寸都按现在的家具，摆法是设计建议）----------
+   B 的洋室（局部坐标）：x 0..295，z 350..839；北墙门洞 x 86..160（门往屋里开）、东北角收纳 x 165..295 z 350..410、
+   东墙窗 z 640..725、东南角柱 x 210..295 z 740..839、南墙阳台门 x 45..205。
+   - 主桌 160×80 靠东墙北段（x 215..295，z 470..630）：坐着面朝东墙，窗在右手边，侧光、屏幕不反光；
+     这扇窗按户型图实际朝北，没有直射。桌子离收纳门留 60 cm，收纳能正常开
+   - 电竞椅在桌前；椅子和床错开（椅子在 x 150..215，床在 x 0..140），中间就是去阳台的过道，约 75 cm
+   - 床 140×195 贴西墙、床头朝南（x 0..140，z 575..770）：不挡阳台门；床头到南墙留约 69 cm，从床头那边去阳台
+   - 收纳格横放在床尾当电视柜（x 14..126，z 535..574），开口朝北（进门方向能用），40 寸电视和 PS5 放在上面、朝床
+   - 冰箱 ＋ 微波炉进冰箱位，洗衣机进洗衣机位
+   ---------- */
+const candFurn = collect(0, 0, () => {
+  const add = (g, x, z, ry = 0, y = 0) => { stripLabels(g); g.position.set(x, y, z); g.rotation.y = ry; scene.add(g); return g; };
+  const fl = (text, x, y, z) => { const o = label(text, x, y, z, 'est'); candLabels.push(o); return o; };
+  add(BED_PROTO.clone(), 70, 672.5, Math.PI / 2);                                         // 床：长边沿南北，床头朝南
+  add(simpleDesk(80, 160, DH, deskBlackM, false), 255, 550, Math.PI);                     // 主桌：后沿靠东墙
+  /* 桌上：27 寸屏（靠墙、朝西）、键盘、鼠标 */
+  block(287, 289, DH, DH + 14, 545, 555, dark);
+  block(276, 292, DH, DH + 1.2, 538, 562, dark);
+  addScreen(block(281, 283.5, DH + 14, DH + 50, 519.5, 580.5, dark), 'x', -1);
+  rblock(240, 253, DH, DH + 2, 528, 572, keyboardM, 0.8);
+  rblock(242, 252, DH, DH + 3.2, 585, 591, mouseM, 1.5);
+  add(gamingChair(), 182, 550, Math.PI);                                                   // 电竞椅：面朝东（书桌）
+  add(FT.cubeshelf.make(), 70, 554.5, -Math.PI / 2);                                      // 收纳格：横放在床尾，开口朝北
+  add(FT.tvset.make(), 56, 556, Math.PI / 2, 112);                                        // 40 寸电视：放在收纳格上，朝床
+  add(FT.ps5.make(), 113, 556, Math.PI / 2, 112);
+  /* 冰箱 ＋ 微波炉（冰箱位，门朝东）、洗衣机（洗衣机位）：外观按现在家里的简化 */
+  const whiteM = mat(0xf4f4f2, { roughness: 0.35 }), seam = mat(0xd5d6d3, { roughness: 0.5 });
+  rblock(2, 56, 0, 122, 287, 338, whiteM, 2);
+  block(56, 56.6, 76, 77, 289, 336, seam, { cast: false });
+  [[84, 112], [40, 68]].forEach(([y0, y1]) => block(56.2, 57.6, y0, y1, 330, 333, mat(0xbfc2c4, { roughness: 0.3 })));
+  rblock(6, 50, 122, 148, 292, 334, whiteM, 1.5);
+  block(50, 50.4, 127, 144, 296, 322, blackGlassM, { cast: false });
+  rblock(176, 234, 5, 86, 283, 335, mat(0xb8bbbe, { roughness: 0.35, metalness: 0.55 }), 3);
+  rblock(175.5, 234.5, 84, 90, 282.5, 335.5, mat(0x16171a, { roughness: 0.25, metalness: 0.2 }), 2);
+  fl('床 140×195（床头朝南）', 70, 72, 690);
+  fl('主桌 160×80（窗在右手边）', 255, 135, 550);
+  fl('收纳格当电视柜（开口朝北）', 70, 175, 545);
+  fl('过道约 75 cm', 178, 6, 655);
+  fl('阳台门前约 69 cm', 125, 6, 805);
+});
+scene.remove(candFurn); candG.add(candFurn);
 const FURN = [];
 let selId = null;
 function furnById(id) { return FURN.find(f => f.id === id) || null; }
@@ -3456,6 +3498,7 @@ const WALK_SPOTS = [
   ['B 厨房', CB.x0 + 115, CB.z0 + 220, -Math.PI / 2, -0.15],
   ['B 洋室', CB.x0 + 120, CB.z0 + 375, Math.PI, -0.1],
   ['B 窗边', CB.x0 + 150, CB.z0 + 800, -0.25],
+  ['B 书桌前', CB.x0 + 135, CB.z0 + 640, 0.75, -0.3],
 ];
 const btnWalk = document.getElementById('btnWalk'), walkSpotsEl = document.getElementById('walkSpots');
 /* 漫游用广角（接近手机超广角镜头）：横屏竖向 84°（横向约 110°），竖屏竖向 100°（横向约 57°） */
