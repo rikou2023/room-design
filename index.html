@@ -138,6 +138,10 @@
     <button class="card" data-view="under" data-ic="v-under"><span class="nm">桌下</span></button>
     <button class="card" data-view="bay" data-ic="v-bay"><span class="nm">北端设备</span></button>
     <button class="card" data-view="back" data-ic="v-back"><span class="nm">墙后看桌</span></button>
+    <button class="card" data-view="hall" data-ic="l-down"><span class="nm">走廊</span></button>
+    <button class="card" data-view="kitchen" data-ic="l-kitchen"><span class="nm">厨房</span></button>
+    <button class="card" data-view="bath" data-ic="l-bath"><span class="nm">浴室</span></button>
+    <button class="card" data-view="entry" data-ic="l-entry"><span class="nm">玄关</span></button>
   </div>
   <h2>显示 <small>东墙：电视 / 投影二选一</small></h2>
   <div class="grid">
@@ -392,28 +396,29 @@ function canvasTex(size, draw, srgb = true) {
 /* 同一张图按物体尺寸重复：tile = 贴图代表的边长（cm） */
 const tiled = (tex, w, h, tile) => { const t = tex.clone(); t.needsUpdate = true; t.repeat.set(w / tile, h / tile); return t; };
 const hsl = (h, s, l, a = 1) => `hsla(${h},${s}%,${l}%,${a})`;
-/* 木地板：一张图 = 120×120 cm，板宽 15 cm、板长约 90 cm 错缝；板沿 z（南北）方向铺 */
+/* 木地板：一张图 = 120×120 cm，板宽 15 cm、板长约 90 cm 错缝；板沿 z（南北）方向铺。
+   颜色按实拍：做旧的白色木纹（底色偏白，带灰褐色纹理），走廊一直铺进卧室 */
 const floorTex = canvasTex(1024, (g, S) => {
   const px = S / 120, pw = 15 * px;
   for (let c = 0; c < 8; c++) {
     let y = -rnd() * 90 * px;
     while (y < S) {
       const len = (70 + rnd() * 40) * px;
-      g.fillStyle = hsl(30 + rnd() * 6, 34 + rnd() * 10, 60 + rnd() * 9);
+      g.fillStyle = hsl(34 + rnd() * 8, 10 + rnd() * 7, 72 + rnd() * 9);
       g.fillRect(c * pw, y, pw, len);
       for (let k = 0; k < 26; k++) {                          // 木纹
-        g.strokeStyle = hsl(26, 35, 40 + rnd() * 15, 0.06 + rnd() * 0.08);
+        g.strokeStyle = hsl(30, 12, 44 + rnd() * 22, 0.12 + rnd() * 0.2);
         g.lineWidth = 0.6 + rnd() * 1.6;
         const x0 = c * pw + rnd() * pw;
         g.beginPath(); g.moveTo(x0, y);
         g.bezierCurveTo(x0 + (rnd() - 0.5) * 6, y + len * 0.33, x0 + (rnd() - 0.5) * 6, y + len * 0.66, x0 + (rnd() - 0.5) * 4, y + len);
         g.stroke();
       }
-      g.fillStyle = 'rgba(70,50,30,0.55)';                   // 板头接缝
+      g.fillStyle = 'rgba(95,86,76,0.6)';                   // 板头接缝
       g.fillRect(c * pw, y, pw, 1.2);
       y += len;
     }
-    g.fillStyle = 'rgba(70,50,30,0.6)';                      // 板与板之间的缝
+    g.fillStyle = 'rgba(95,86,76,0.7)';                    // 板与板之间的缝
     g.fillRect(c * pw, 0, 1.4, S);
   }
 });
@@ -504,7 +509,10 @@ function addScreen(m, axis = 'x', dir = 1, kind = 'pc') {
 }
 
 /* ---------- 基础工具 ---------- */
-const mat = (color, o = {}) => new THREE.MeshStandardMaterial({ color, roughness: 0.85, metalness: 0, ...o });
+/* 环境贴图（RoomEnvironment）整体偏暗，金属只靠反射环境才有颜色：金属度越高，环境反射加得越强，
+   否则镀铬龙头、不锈钢把手、镜子都会是一片黑 */
+const mat = (color, o = {}) => new THREE.MeshStandardMaterial({ color, roughness: 0.85, metalness: 0,
+  envMapIntensity: 1 + 2.4 * (o.metalness || 0), ...o });
 
 function block(x0, x1, y0, y1, z0, z1, material, o = {}) {
   const m = new THREE.Mesh(new THREE.BoxGeometry(x1 - x0, y1 - y0, z1 - z0), material);
@@ -628,7 +636,7 @@ block(0, W, -6, 0, 0, D, floorMat(W, D), { cast: false });                   // 
 /* 走廊 / 整体浴室 / 厕所 / 玄关的地面在后面「卧室以北」一节里（按实拍换了材质） */
 
 /* 踢脚线：卧室三面墙根（南面是落地窗，没有） */
-const skirtM = mat(0xfbfaf6, { roughness: 0.5 });
+const skirtM = mat(0xe9e0cc, { roughness: 0.5 });        // 踢脚线：浅米木色（实拍）
 fadable(block(0, 1.2, 0, 7, 0, D, skirtM, { cast: false }), -1, 0);
 fadable(block(0, 143, 0, 7, 0, 1.2, skirtM, { cast: false }), 0, -1);
 fadable(block(227, 250, 0, 7, 0, 1.2, skirtM, { cast: false }), 0, -1);
@@ -1570,7 +1578,8 @@ function hiddenByDesk(o) {
   return x > 0 && x < DD && z > 0 && z < DL;
 }
 function updateDeskLabels() {
-  const showW = showLabels && camera.position.distanceTo(DESK_C) < 340;
+  /* 相机在卧室以北的房间里时（隔着墙），不显示桌面布线标签；从屋顶上方往下看不受影响 */
+  const showW = showLabels && camera.position.distanceTo(DESK_C) < 340 && (camera.position.z > -5 || camera.position.y > H);
   _cl.copy(camera.position); deskG.worldToLocal(_cl);
   deskLabels.forEach(o => { o.visible = showW && (accOn || !accLabels.includes(o)); });
   underLabels.forEach(o => { o.visible = showW && accOn && !hiddenByDesk(o); });
@@ -2012,7 +2021,7 @@ function casingX(xf, dx, a, b, top, m, nx) {
   cyl(0.8, 0.8, 7, 6.5, 81.5, SZ, chromeM, { rz: Math.PI / 2 });                      // 出水嘴（朝东）
   [SZ - 10, SZ + 10].forEach(z => cyl(1.6, 1.6, 2.5, 3, 77.4, z, chromeM));           // 冷热把手
   /* 镜子约 45×60 ＋ 镜下小台 ＋ 洗漱用品（与盆对齐，略靠浴缸一侧） */
-  block(1, 1.6, 110, 170, SZ - 22, SZ + 23, mat(0xdfe6ea, { metalness: 1, roughness: 0.04 }), { cast: false });
+  block(1, 1.6, 110, 170, SZ - 22, SZ + 23, mat(0xd3d9d8, { metalness: 0.25, roughness: 0.06, envMapIntensity: 2.2 }), { cast: false });   // 镜面：不做真反射，用偏亮的冷灰加高光
   rblock(1, 9, 103, 105.5, SZ - 21, SZ + 22, ceramicM, 0.8);
   [[SZ - 14, 0x1f2a44], [SZ - 5, 0x2b2b2e], [SZ + 6, 0xf2f2f2], [SZ + 15, 0xe8d9c4]].forEach(([z, c]) =>
     cyl(1.8, 1.8, 13, 5, 112, z, mat(c, { roughness: 0.4 })));
@@ -2132,7 +2141,7 @@ function casingX(xf, dx, a, b, top, m, nx) {
   const ct = rrPath(new THREE.Shape(), 255.4, W - 0.4, -199.6, -90.4, 0.6);
   ct.holes.push(rrPath(new THREE.Path(), SX0 + 1, SX1 - 1, SZ0 + 1, SZ1 - 1, 4));
   extrudeUp(ct, 82, 85, ctM, 0.4);
-  const sinkM = mat(0x5a5e62, { roughness: 0.35, metalness: 0.8 });
+  const sinkM = mat(0xb4b9bd, { roughness: 0.34, metalness: 0.85 });   // 不锈钢水槽（实拍）
   basinWall(SX0, SX1, SZ0, SZ1, 64, 85.3, 1.2, 4, 5, sinkM, 0.3);
   block(SX0 + 1, SX1 - 1, 64, 65.5, SZ0 + 1, SZ1 - 1, sinkM, { cast: false });
   cyl(2.4, 2.4, 0.3, 283, 65.7, -123, plinthM, { cast: false });
@@ -2302,8 +2311,14 @@ const views = {
   under:   { p: [205, 40, 18],     t: [10, 36, 62] },
   bay:     { p: [135, 44, 46],     t: [16, 36, 12] },
   back:    { p: [-200, 125, 85],   t: [16, 60, 85] },
+  /* 卧室以北：相机站在屋里，和实拍视频的机位差不多 */
+  hall:    { p: [190, 150, -190],  t: [186, 100, 0],     fov: 62 },
+  kitchen: { p: [165, 150, -150],  t: [300, 100, -125],  fov: 62 },
+  bath:    { p: [112, 150, -140],  t: [10, 95, -80],     fov: 68 },
+  entry:   { p: [205, 155, -292],  t: [185, 95, -395],   fov: 70 },
 };
-let tween = null;
+let tween = null, viewFov = null;
+function baseFov() { return camera.aspect < 0.8 ? 55 : 38; }   // 竖屏手机：视野角放大，左右能多看到一点
 /* 视角预设是按横屏（宽高比约 1.6）调的。竖屏时左右能看到的范围窄很多：
    看全屋的视角按宽高比拉远；室内视角不拉远（一拉就会退进衣柜、墙里），只靠竖屏时放大视野角（见 resize） */
 const OUTSIDE_VIEWS = new Set(['iso', 'top', 'all', 'balcony']);
@@ -2319,8 +2334,13 @@ function go(name, instant) {
   const t = new THREE.Vector3(...v.t);
   const p = new THREE.Vector3(...v.p).sub(t).multiplyScalar(fitK(name)).add(t);
   if (name === 'top' && camera.aspect < 1.2) { p.x = t.x = W / 2; }   // 横屏俯视故意偏左给面板让位，竖屏没有侧边面板，居中
-  if (instant) { camera.position.copy(p); controls.target.copy(t); controls.update(); return; }
-  tween = { p0: camera.position.clone(), t0: controls.target.clone(), p1: p, t1: t, k: 0 };
+  viewFov = v.fov || null;                                   // 室内机位用广角（接近手机镜头），其余视角用默认视野角
+  const f1 = viewFov || baseFov();
+  if (instant) {
+    camera.position.copy(p); controls.target.copy(t);
+    camera.fov = f1; camera.updateProjectionMatrix(); controls.update(); return;
+  }
+  tween = { p0: camera.position.clone(), t0: controls.target.clone(), p1: p, t1: t, f0: camera.fov, f1, k: 0 };
   invalidate();
 }
 /* 视角卡片：点过的那张高亮，手动转视角后取消 */
@@ -3143,7 +3163,7 @@ function resize() {
   composer.setPixelRatio(pr); composer.setSize(w, h);
   if (fxaa) fxaa.material.uniforms.resolution.value.set(1 / (w * pr), 1 / (h * pr));
   camera.aspect = w / h;
-  camera.fov = camera.aspect < 0.8 ? 55 : 38;               // 竖屏手机：视野角放大，左右能多看到一点
+  camera.fov = viewFov || baseFov();
   camera.updateProjectionMatrix();
   updateSheetOffset();
   invalidate();
@@ -3167,6 +3187,7 @@ function frame_() {
     const e = tween.k < 0.5 ? 2 * tween.k * tween.k : 1 - Math.pow(-2 * tween.k + 2, 2) / 2;
     camera.position.lerpVectors(tween.p0, tween.p1, e);
     controls.target.lerpVectors(tween.t0, tween.t1, e);
+    if (tween.f0 !== tween.f1) { camera.fov = tween.f0 + (tween.f1 - tween.f0) * e; camera.updateProjectionMatrix(); }
     if (tween.k >= 1) tween = null;
     busy = true;
   }
