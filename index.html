@@ -111,7 +111,7 @@
 
 <div id="top" class="panel">
   <h1>南麻布 202 · 3D 户型 <button class="fold" data-fold="top">收起</button></h1>
-  <p class="intro">卧室 315 × 308 cm ＋ 阳台 · ErGear 160×80 主桌 ＋ 东墙 120×60 电视桌 · 桌面布线</p>
+  <p class="intro">卧室 315 × 308 cm ＋ 阳台 · ErGear 160×80 主桌 ＋ 东墙 3×3 收纳格 · 桌面布线</p>
   <div class="sec" data-sec="view">
   <h2>视角</h2>
   <div class="grid">
@@ -193,7 +193,8 @@
   <p>桌面上的东西挪动或去掉后，线和长度会跟着变。长度按模型里的走线量出来，留 25% 余量后取整；设备尺寸和接口位置是示意，以实物为准。</p>
   <div id="cableList"></div>
   <h2>尺寸说明</h2>
-  <p>[实测] 东墙第二张桌（原来的黑桌）桌面高 76.2。</p>
+  <p>[实测] 东墙侧桌（目录里可添加，不再作为默认）桌面高 76.2。</p>
+  <p>[占位] 东墙默认收纳格按 3×3 卡洛式格子柜 112×39×高 112（宽沿南北、贴东墙、南端靠柱）画，未实测。</p>
   <p>[占位] 层高 240、床高 45、落地窗高 200、门高 200、阳台栏杆高 110、键盘 44×13，均为常见值，未实测。
     主桌高 72 是 ErGear 升降桌的最低档（72～118 可调），不是实测值。
     主机 22×44×34、光猫、路由器、条形音响、USB 集线器、主机吊架、网络设备托架的尺寸是示意。</p>
@@ -204,7 +205,7 @@
     厕所宽（南北）75 cm 是按「马桶约 40 宽，左右各比马桶宽约 17.5 cm」估算的；腾出的南北空间都给了整体浴室（z -215..0）。
     浴室：浴缸东西向沿南墙（约 118×64），洗手盆（宽约 48）和镜子（约 45×60）在西墙、靠浴缸北沿（从门口看偏左），东墙折叠门洞 z -172..-108，约 64 宽。玄关鞋柜在进门右手（西墙），沿整面墙，高约 210，两扇平开门。
     浴室、厕所、厨房、冰箱（约 120 高）＋ 微波炉、洗衣机（上开盖）的样子按实拍视频画，尺寸未实测。</p>
-  <p>[待确认] 北墙网口和墙插的位置沿用以前布线图里的位置。东墙电视桌（电视、PS5）的电源没有画：不知道东墙附近有没有插座。</p>
+  <p>[待确认] 北墙网口和墙插的位置沿用以前布线图里的位置。东墙侧桌（目录里的电视、PS5）的电源没有画：不知道东墙附近有没有插座。</p>
 </div>
 <div id="help" class="panel">左键拖动：旋转　右键拖动：平移　滚轮：缩放　桌面物品可直接拖<br>
   点击门 / 灯具：开关　点击家具：选中，选中后可拖动，Delete 删除、R 旋转</div>
@@ -631,7 +632,7 @@ wall({ axis: 'x', at: D, from: 0, to: W, normal: [0, 1],
 fadable(block(255, W, 0, H, 253, D, mat(0xeeeae2, { roughness: 0.95, bumpMap: wallBump, bumpScale: 0.5 }), { cast: false }), 1, 1, 0.8);
 label('柱 60×55', 285, H + 12, 280);
 
-/* 东墙原来的收纳格（2×3）已拿走，位置给了第二张桌（见「东墙第二张桌」） */
+/* 东墙默认是 3×3 收纳格（见家具 cubeshelf）；原来的 120×60 侧桌改到目录里，可再加回来 */
 
 /* 南窗：左扇固定（内轨）、右扇可开（外轨，推拉）。原来跨两条轨的中竖框拆成「左扇的」和「右扇的」两根 */
 const glass = mat(0xbcd9e6, { transparent: true, opacity: 0.22, roughness: 0.04, metalness: 0.1 });
@@ -917,8 +918,8 @@ const seamTM = seamM.clone(); seamTM.transparent = true;
 }
 toDesk(label(`ErGear 升降桌 ${DL}×${DD}，高 ${DH}～118（离西墙 3 cm）`, 45, 152, 60));   // 放进 deskG：删桌时一起消失
 
-/* ---------- 东墙第二张桌 120×60（原收纳格的位置，南端贴柱子）：桌高 76.2（原黑桌实测），不放椅子 ----------
-   桌上放什么由「东墙模式」决定（电视模式：40 寸电视 ＋ 竖放 PS5；投影模式：电视收起、PS5 横放），见 rebuild() */
+/* ---------- 东墙侧桌 120×60（目录可添加，默认不再摆在这里）：桌高 76.2（原黑桌实测），不放椅子 ----------
+   若把这张桌加回来（id=tv），桌上放什么仍由「东墙模式」决定（电视 ＋ 竖放 PS5 / 投影时电视收起、PS5 横放），见 rebuild() */
 const EAST = { top: 76.2, z0: 133, z1: 253, x0: W - 60 };
 const ps5W = mat(0xf4f4f2, { roughness: 0.3 }), ps5B = mat(0x111214, { roughness: 0.35, metalness: 0.2 });
 const ps5Led = mat(0x5aa0ff, { emissive: 0x2a6fd6, emissiveIntensity: 0.6 });
@@ -2308,13 +2309,21 @@ const btnBed = document.getElementById('btnBed'), btnAO = document.getElementByI
 const setNm = (b, t) => { b.querySelector('.nm').textContent = t; };   // 卡片按钮只改名字，不动图标
 /* 东墙：电视模式 / 投影模式，互斥 */
 const eastInfo = document.getElementById('eastInfo');
+function eastHint() {
+  const hasTvDesk = !!furnById('tv');
+  eastInfo.textContent = state.proj
+    ? (hasTvDesk
+      ? '投影模式：电视收起，PS5 改横放，房间灯光调暗。电视在 y84–136，会挡住画面（y100–200）的下半，所以和投影只能二选一。主椅拉出时可能挡到光束一角。'
+      : '投影模式：房间灯光调暗，画面打在东墙。默认的收纳格高 112，会挡住画面下沿（画面从 y 100 起）。侧桌 / 电视 / PS5 可在「家具」里添加。')
+    : (hasTvDesk
+      ? '电视模式：东墙侧桌上放 40 寸电视和竖放的 PS5，投影关。电视会挡住投影画面的下半，所以两者只能二选一。'
+      : '当前没有电视桌。投影关。可在「家具」里添加侧桌 / 电视柜、40 寸电视或 PS5。');
+}
 function setEast(proj) {
   state.proj = proj;
   btnTV.classList.toggle('on', !proj);
   btnProj.classList.toggle('on', proj);
-  eastInfo.textContent = proj
-    ? '投影模式：电视收起，PS5 改横放，房间灯光调暗。电视在 y84–136，会挡住画面（y100–200）的下半，所以和投影只能二选一。主椅拉出时可能挡到光束一角。'
-    : '电视模式：东墙放 40 寸电视和竖放的 PS5，投影关。电视会挡住投影画面的下半，所以两者只能二选一。';
+  eastHint();
   rebuild();
 }
 btnTV.addEventListener('click', () => { if (state.proj) setEast(false); });
@@ -2393,9 +2402,10 @@ function setLowRes(on) {
 /* ===================================================================
    卧室家具：可删、可加、可在地板上拖，状态存 localStorage
    - 实例 FURN：{ id, type, x, z, rotY, group }。group 原点 = 占地中心（地面 y=0），group.position = (x, 0, z)
-   - 默认布局四件：床（bed，复用 bedG）、主桌（desk，就是 deskG）、东墙侧桌（tv，复用 tvG）、主椅（chair）
-   - 和 rebuild() 的关系：枕头 / 床上桌只放在 id='bed' 的床上，电视 / PS5 只放在 id='tv' 的侧桌上，
-     投影仪只在主桌在时放；主椅「拉出 / 收进」只挪 id='chair'（规则见 rebuild 里的注释）。每次增删家具都会 rebuild()
+   - 默认布局四件：床（bed，复用 bedG）、主桌（desk，就是 deskG）、东墙 3×3 收纳格（cube）、主椅（chair）。
+     东墙侧桌 / 40 寸电视 / PS5 改在目录里，加回来即可；把侧桌加回来（id=tv）时，rebuild() 仍会在桌上摆电视和 PS5
+   - 和 rebuild() 的关系：枕头 / 床上桌只放在 id='bed' 的床上，电视 / PS5 只在 id='tv' 的侧桌存在时放进该组，
+     侧桌不在就不生成（不会报错）；投影仪只在主桌在时放；主椅「拉出 / 收进」只挪 id='chair'。每次增删家具都会 rebuild()
    - 主桌 ErGear 和整套布线是一体的（北墙插座、网口也在 deskG 里），所以只能删 / 恢复（回默认位置），不能拖
    - 范围只在卧室：x 0–W、z 0–D，不能压到衣柜（x 250–W、z 0–57）和东南柱（x 255–W、z 253–D）
    =================================================================== */
@@ -2445,6 +2455,63 @@ const FT = {                                                // 家具类型（hx
   desk120: { name: '书桌 120×60', ic: 'f-desk120', hx: 30, hz: 60, make: () => simpleDesk(60, 120, 72, FM.oak, true) },
   tvdesk:  { name: '侧桌 / 电视柜', ic: 'f-tv', hx: 30, hz: 60, main: 'tv', def: { x: EAST.x0 + 30, z: (EAST.z0 + EAST.z1) / 2 },
              mainGroup: tvG, proto: TV_PROTO },
+  /* 3×3 卡洛式收纳格：宽 112（南北）× 深 39（东西）× 高 112，暖白，开口朝西。
+     贴东墙（x 276–315）、南端靠柱（z 141–253），正是原来电视桌的位置 */
+  cubeshelf: { name: '收纳格 112×39', ic: 'f-cube', hx: 19.5, hz: 56, main: 'cube', def: { x: W - 19.5, z: 253 - 56 },
+    make: () => {
+      const g = new THREE.Group();
+      const white = mat(0xf3efe7, { roughness: 0.62 });
+      const t = 2, dep = 39, ht = 112, len = 112;
+      const x0 = -dep / 2, x1 = dep / 2, z0 = -len / 2, z1 = len / 2;
+      const cell = (len - 4 * t) / 3;                                       // 每格内空约 34.7
+      lbox(g, x1 - t, x1, 0, ht, z0, z1, white);                            // 背板（靠东墙）
+      lbox(g, x0, x1, 0, t, z0, z1, white);                                 // 底板
+      lbox(g, x0, x1, ht - t, ht, z0, z1, white);                           // 顶板
+      lbox(g, x0, x1, 0, ht, z0, z0 + t, white);                            // 北侧板
+      lbox(g, x0, x1, 0, ht, z1 - t, z1, white);                            // 南侧板
+      for (let i = 1; i <= 2; i++) {
+        const zd = z0 + t + i * (cell + t), yd = t + i * (cell + t);
+        lbox(g, x0, x1, t, ht - t, zd, zd + t, white);                      // 竖隔
+        lbox(g, x0, x1, yd, yd + t, z0 + t, z1 - t, white);                 // 横隔
+      }
+      /* 几格里放一点东西，不要摆满：两个布盒、一排书、一个小花瓶 */
+      const box = (col, row, c) => {
+        const z = z0 + t + col * (cell + t), y = t + row * (cell + t);
+        rbox(g, x0 + 3, x1 - t - 2, y + 1, y + 16, z + 2, z + cell - 2, mat(c, { roughness: 0.8 }), 1);
+      };
+      box(0, 0, 0xc9d6c8); box(2, 0, 0xd9cbb0);
+      const zB = z0 + t + 1 * (cell + t), yB = t + 1 * (cell + t);
+      [[0xd9cbb0, 2, 22], [0x2f5d50, 5, 20], [0xece8df, 8, 24], [0x9a6b4f, 11, 19]].forEach(([c, dz, hh], i) =>
+        lbox(g, x0 + 6, x1 - t - 4, yB + 1, yB + 1 + hh, zB + 4 + dz, zB + 6.4 + dz, mat(c, { roughness: 0.7 })));
+      const vase = new THREE.Mesh(new THREE.CylinderGeometry(3.2, 4, 16, 20), FM.pot);
+      const zV = z0 + t + 0 * (cell + t) + cell / 2, yV = t + 2 * (cell + t);
+      vase.position.set(0, yV + 9, zV); vase.castShadow = true; g.add(vase);
+      const o = label('收纳格 112×39 · 高 112（3×3）', 0, ht + 10, 0);
+      scene.remove(o); g.add(o);
+      return g;
+    } },
+  /* 落地的 40 寸电视（带底座），朝 -x；加到侧桌（id=tv）上的那套仍由 rebuild() 负责 */
+  tvset: { name: '40 寸电视', ic: 'f-tvset', hx: 14, hz: 46, make: () => {
+    const g = new THREE.Group();
+    lbox(g, -8, 8, 0, 1.5, -12, 12, dark);                                  // 底座
+    lbox(g, -1.5, 1.5, 1.5, 10, -3, 3, dark);                               // 立柱
+    const scr = lbox(g, -3, 3, 10, 62, -45, 45, dark);
+    addScreen(scr, 'x', -1, 'tv');
+    const o = label('40 寸电视 [占位] 约 90×52', 0, 70, 0);
+    scene.remove(o); g.add(o);
+    return g;
+  } },
+  ps5: { name: 'PS5', ic: 'f-ps5', hx: 14, hz: 8, make: () => {              // 竖放约 39×10×26，带小底座
+    const g = new THREE.Group();
+    const base = new THREE.Mesh(new THREE.CylinderGeometry(5, 6, 1.5, 24), ps5B);
+    base.position.y = 0.75; base.castShadow = true; g.add(base);
+    rbox(g, -9, 9, 2, 37, -3.4, 3.4, ps5B, 1.2);
+    [-5, 5].forEach(z => rbox(g, -12, 12, 1.5, 40, z - 0.8, z + 0.8, ps5W, 3));
+    lbox(g, -9.2, -8.8, 10, 30, -2, 2, ps5Led).castShadow = false;
+    const o = label('PS5 [占位] 竖放', 0, 46, 0);
+    scene.remove(o); g.add(o);
+    return g;
+  } },
   chair:   { name: '电竞椅', ic: 'f-chair', hx: 30, hz: 30, main: 'chair', def: { x: 3 + DD + 35, z: 95 }, make: gamingChair },
   sofa:    { name: '双人沙发', ic: 'f-sofa', hx: 42, hz: 76, make: () => {           // 150×84，面朝 -x（西）
     const g = new THREE.Group(), L = FM.linen;
@@ -2522,9 +2589,9 @@ const FT = {                                                // 家具类型（hx
     return g;
   } },
 };
-const CAT_ORDER = ['bed', 'desk', 'desk70', 'desk120', 'tvdesk', 'chair', 'sofa', 'beanbag', 'rug', 'floorlamp', 'shelf', 'plant'];
-const MAIN_OF = { bed: 'bed', desk: 'desk', tv: 'tvdesk', chair: 'chair' };      // 这几个 id 只能是对应的类型
-const DEFAULT_FURN = ['bed', 'desk', 'tvdesk', 'chair'].map(type => ({ type, id: FT[type].main, x: FT[type].def.x, z: FT[type].def.z, rotY: 0 }));
+const CAT_ORDER = ['bed', 'desk', 'desk70', 'desk120', 'cubeshelf', 'tvdesk', 'tvset', 'ps5', 'chair', 'sofa', 'beanbag', 'rug', 'floorlamp', 'shelf', 'plant'];
+const MAIN_OF = { bed: 'bed', desk: 'desk', tv: 'tvdesk', chair: 'chair', cube: 'cubeshelf' };  // 这几个 id 只能是对应的类型
+const DEFAULT_FURN = ['bed', 'desk', 'cubeshelf', 'chair'].map(type => ({ type, id: FT[type].main, x: FT[type].def.x, z: FT[type].def.z, rotY: 0 }));
 const FURN = [];
 let selId = null;
 function furnById(id) { return FURN.find(f => f.id === id) || null; }
@@ -2635,7 +2702,7 @@ function applyFurnList(list) {
 }
 function afterFurnChange() {
   rebuild();                                                // 枕头 / 电视 / 投影仪跟着家具在不在重建（里面会 sceneChanged）
-  updateSel(); updateOverlays(); refreshRoomUI(); save();
+  eastHint(); updateSel(); updateOverlays(); refreshRoomUI(); save();
 }
 function addFurn(type) {
   const t = FT[type];
@@ -2680,10 +2747,23 @@ function updateSel() {
   }
   sceneChanged();
 }
-/* 「去阳台的通道」色块只在床和侧桌都在默认位置时成立 */
+/* 「去阳台的通道」色块：床在默认位置时显示；东界是默认收纳格或侧桌的前沿，两者都不在就到东墙 */
 function updateOverlays() {
   const at = (f, d) => !!f && Math.abs(f.x - d.x) < 1 && Math.abs(f.z - d.z) < 1 && !f.rotY;
-  const ok = at(furnById('bed'), FT.bed.def) && at(furnById('tv'), FT.tvdesk.def);
+  const bedOk = at(furnById('bed'), FT.bed.def);
+  let x1 = W;
+  const tv = furnById('tv');
+  if (tv && at(tv, FT.tvdesk.def)) x1 = Math.min(x1, EAST.x0);
+  const cube = furnById('cube');
+  if (cube && at(cube, FT.cubeshelf.def)) x1 = Math.min(x1, cube.x - FT.cubeshelf.hx);
+  const w0 = EAST.x0 - 195, w = x1 - 195;
+  const ok = bedOk && w > 20;
+  passStrip.scale.set(w / w0, 1, 1);
+  passStrip.position.set((195 + x1) / 2, 0.4, (168 + 308) / 2);
+  if (passLabel) {
+    passLabel.position.set((195 + x1) / 2, 6, 285);
+    if (passLabel.element) passLabel.element.textContent = `去阳台的通道 ${Math.round(w)} cm：不放椅子，畅通`;
+  }
   passStrip.visible = ok; passLabel.visible = ok && showLabels;
   invalidate();
 }
@@ -2774,7 +2854,7 @@ function setAllDoors(v) { Object.values(DOORS).forEach(d => { d.open = v; }); re
 
 /* ---------- 持久化：一个 localStorage key，存门、灯（含日光）、主椅拉出/收进、家具列表 ----------
    读的时候校验版本、类型、id、数值；任何一项不对就整份丢掉、用默认布局，保证坏数据不会把首屏弄崩 */
-const SAVE_KEY = 'minamiazabu202-room-v1', SAVE_V = 1;
+const SAVE_KEY = 'minamiazabu202-room-v2', SAVE_V = 2, SAVE_KEY_OLD = 'minamiazabu202-room-v1';
 let saveReady = false;                                       // 启动完成前不写，免得默认布局把存档盖掉
 function save() {
   if (!saveReady) return;
@@ -2788,9 +2868,19 @@ function save() {
     }));
   } catch (err) { /* 隐私模式 / 配额满：不存也不影响使用 */ }
 }
+function parseSaveDoorsLights(s) {
+  const obj = v => (v && typeof v === 'object' && !Array.isArray(v) ? v : {});
+  return { doors: obj(s.doors), lights: obj(s.lights), chair1: s.chair1 === 'in' ? 'in' : 'out' };
+}
 function readSaved() {
   try {
-    const s = JSON.parse(localStorage.getItem(SAVE_KEY) || 'null');
+    let s = JSON.parse(localStorage.getItem(SAVE_KEY) || 'null');
+    /* v1 存档（默认还是电视桌）只迁门 / 灯 / 椅子，家具用新默认，免得把收纳格盖掉 */
+    if (!s) {
+      const old = JSON.parse(localStorage.getItem(SAVE_KEY_OLD) || 'null');
+      if (old && typeof old === 'object') return { list: null, ...parseSaveDoorsLights(old) };
+      return null;
+    }
     if (!s || s.v !== SAVE_V || !Array.isArray(s.furn) || s.furn.length > 60) return null;
     const list = [], ids = new Set();
     for (const e of s.furn) {
@@ -2800,12 +2890,11 @@ function readSaved() {
       ids.add(e.id);
       list.push({ type: e.type, id: e.id, x: e.x, z: e.z, rotY: (((Math.round(e.rotY / (Math.PI / 2)) % 4) + 4) % 4) * Math.PI / 2 });
     }
-    const obj = v => (v && typeof v === 'object' && !Array.isArray(v) ? v : {});
-    return { list, doors: obj(s.doors), lights: obj(s.lights), chair1: s.chair1 === 'in' ? 'in' : 'out' };
+    return { list, ...parseSaveDoorsLights(s) };
   } catch (err) { return null; }
 }
-function applySaved(s) {
-  applyFurnList(s.list);
+function applySaved(s) { applyFurnList(s.list); applySavedPrefs(s); }
+function applySavedPrefs(s) {                                 // 只恢复门 / 灯 / 椅子（v1 迁移或与 applySaved 共用）
   for (const d of Object.values(DOORS)) {
     if (typeof s.doors[d.id] !== 'boolean') continue;
     d.open = s.doors[d.id]; d.t = d.open ? 1 : 0; d.apply(d.t);
@@ -2822,7 +2911,7 @@ function defaultDoorsLights(instant) {
   for (const L of Object.values(LIGHTS)) L.on = true;
   lamp.on = true;
 }
-/* 恢复默认：家具回默认四件原位，门和灯回默认，主椅拉出，写回存档。桌面小件不动（那是「桌面物品复位」的事） */
+/* 恢复默认：家具回默认四件（床、主桌、东墙收纳格、主椅）原位，门和灯回默认，主椅拉出，写回存档。桌面小件不动 */
 function resetRoom() {
   selId = null;
   applyFurnList(DEFAULT_FURN);
@@ -2873,6 +2962,9 @@ const IC = {
   'f-desk70': '<path class="a" d="M3 12h26v3.5H3z"/><path d="M3 12h26v3.5H3zM9 15.5v11M23 15.5v11M5 27h8M19 27h8"/>',
   'f-desk120': '<path class="a" d="M5 12h22v3.5H5z"/><path d="M5 12h22v3.5H5zM7 15.5V27M25 15.5V27M7 20h18"/>',
   'f-tv': '<rect x="8" y="3" width="16" height="10" rx="1.5"/><path class="a" d="M4 16h24v8H4z"/><path d="M4 16h24v8H4zM16 13v3M6 24v3M26 24v3M16 16v8"/>',
+  'f-tvset': '<rect class="a" x="4" y="6" width="24" height="16" rx="1.5"/><rect x="4" y="6" width="24" height="16" rx="1.5"/><path d="M14 22v3h4v-3M10 27h12"/>',
+  'f-ps5': '<path class="a" d="M11 3h6l3 26h-12z"/><path d="M11 3h6l3 26h-12zM10 29h12"/>',
+  'f-cube': '<rect class="a" x="5" y="5" width="22" height="22" rx="1"/><rect x="5" y="5" width="22" height="22" rx="1"/><path d="M5 12.3h22M5 19.7h22M12.3 5v22M19.7 5v22"/>',
   'f-chair': '<rect class="a" x="10" y="3" width="12" height="15" rx="3.5"/><rect x="10" y="3" width="12" height="15" rx="3.5"/><path d="M7 15v4h18v-4M16 19v5M9 28l7-4 7 4"/>',
   'f-sofa': '<path class="a" d="M7 17h18v6H7z"/><path d="M8 17v-6a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v6M4 15a2 2 0 0 1 4 0v8H4zM24 15a2 2 0 0 1 4 0v8h-4zM7 17h18v6H7zM6 23v3M26 23v3"/>',
   'f-bean': '<path class="a" d="M5 25c-2-7 3-15 11-15s13 8 11 15c-3 2.5-19 2.5-22 0z"/><path d="M5 25c-2-7 3-15 11-15s13 8 11 15c-3 2.5-19 2.5-22 0zM10 17c3 3 9 3 12 0"/>',
@@ -2966,8 +3058,10 @@ applyFurnList(DEFAULT_FURN);
 {
   const s = readSaved();
   if (s) {
-    try { applySaved(s); }
-    catch (err) {
+    try {
+      if (s.list) applySaved(s);                             // v2：整份恢复
+      else applySavedPrefs(s);                               // v1：家具已是新默认，只迁门 / 灯 / 椅子
+    } catch (err) {
       console.warn('房间存档读不了，改用默认布局', err);
       applyFurnList(DEFAULT_FURN); defaultDoorsLights(true); state.chair1 = chairDone = 'out';
     }
