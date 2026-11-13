@@ -932,6 +932,10 @@ const tvG = collect(EAST.x0 + 30, (EAST.z0 + EAST.z1) / 2, () => {
   label('第二张桌 120×60 · 高 76.2 [实测]（东墙）', x0 + 30, top + 6, z0 + 12);
 });
 const TV_PROTO = stripLabels(tvG.clone());
+/* collect() 会把组留在 scene 里。侧桌不再是默认家具，这里先撤下，免得和默认收纳格叠在一起；
+   从目录加回来（id=tv）时 createFurn 会复用这个组。CSS2D 标签的 DOM 不会随组离开场景自动消失，要自己摘掉。 */
+scene.remove(tvG);
+tvG.traverse(o => { if (o.isCSS2DObject) o.element.remove(); });
 /* 床东头（x=195）到桌子前沿之间：去阳台的通道（床或侧桌挪走 / 删掉后不再成立，见 updateOverlays） */
 let passStrip, passLabel;
 {
@@ -3189,6 +3193,7 @@ function frame_() {
   else if (!rafId) idle = true;
 }
 invalidate();
+window.__room = { scene, FURN, furnById, tvG, addFurn, removeFurn, resetRoom, setEast, go, camera, controls, invalidate, state, labelObjs };
 </script>
 </body>
 </html>
