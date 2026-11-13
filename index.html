@@ -153,7 +153,8 @@
   <p>[示意] 床占地 140×195 不变（软包床头板厚 4 cm 算在占地里，床垫按约 137×188 画在占地之内）。
     衣柜折门前留 30 cm 净空（地上的橙色色块）。</p>
   <p>[推算] 北墙 = 墙 135 ＋ 门框 8 ＋ 门洞 84 ＋ 门框 8 ＋ 墙 15 ＋ 衣柜 65 = 315，其中门框宽 8 是为凑齐总宽推算的。</p>
-  <p>[估算] 卧室以北（走廊 / 浴室 / 厕所 / 厨房 / 玄关）按户型图比例估算，尺寸不准；浴缸、洗手台、马桶、厨房台面、冰箱、洗衣机、鞋柜只按原来的占位画出外形，尺寸未实测。</p>
+  <p>[估算] 卧室以北（走廊 / 整体浴室 / 厕所 / 厨房 / 玄关）按户型图比例估算，尺寸不准。西侧靠卧室的一间是整体浴室（浴缸 ＋ 洗手盆，没有马桶），靠玄关的一间是独立厕所。
+    浴室、厕所、厨房、冰箱（约 120 高）＋ 微波炉、洗衣机（上开盖）的样子按实拍视频画，尺寸未实测。</p>
   <p>[待确认] 北墙网口和墙插的位置沿用以前布线图里的位置。东墙电视桌（电视、PS5）的电源没有画：不知道东墙附近有没有插座。</p>
 </div>
 <div id="help" class="panel">左键拖动：旋转　右键拖动：平移　滚轮：缩放　桌面物品可直接拖</div>
@@ -480,6 +481,12 @@ function fadable(mesh, nx, nz, threshold = 0.15) {
   faders.push({ mesh, n, threshold });
   return mesh;
 }
+/* 天花板：相机高于 yAbove 时淡出（从上往下看时不挡视线） */
+function fadableUp(mesh, yAbove) {
+  fadable(mesh, 0, 1);
+  faders[faders.length - 1].up = yAbove;
+  return mesh;
+}
 
 const wallMat = mat(0xf4f1ea, { roughness: 0.95, bumpMap: wallBump, bumpScale: 0.5 });
 
@@ -510,10 +517,7 @@ function wall({ axis, at, from, to, normal, openings = [], h = H, t = T, thresho
 const NZ = -390;                      // [估算] 房屋最北端
 block(-T, W + T, -12, -6, NZ - T, D + T, mat(0x8d877b), { cast: false });   // 底板
 block(0, W, -6, 0, 0, D, floorMat(W, D), { cast: false });                   // 卧室：木地板
-block(122, W, -6, 0, -290, 0, floorMat(W - 122, 290), { cast: false });       // 走廊 + 厨房
-block(0, 122, -6, 0, -125, 0, tileMat(122, 125), { cast: false });           // 厕所：瓷砖
-block(0, 122, -6, 0, -290, -125, tileMat(122, 165, 0xdfe9ee), { cast: false }); // 浴室
-block(122, W, -6, -3, NZ, -290, tileMat(W - 122, 100, 0xa8a49c), { cast: false }); // 玄关
+/* 走廊 / 整体浴室 / 厕所 / 玄关的地面在后面「卧室以北」一节里（按实拍换了材质） */
 
 /* 踢脚线：卧室三面墙根（南面是落地窗，没有） */
 const skirtM = mat(0xfbfaf6, { roughness: 0.5 });
@@ -556,7 +560,7 @@ const frame = mat(0x3d4246, { roughness: 0.35, metalness: 0.6 });
   rod.rotation.z = Math.PI / 2; rod.position.set(127.5, 212, 302); rod.castShadow = true; scene.add(rod);
   fadable(rod, 0, 1);
   [3, 252].forEach(x => fadable(block(x - 1, x + 1, 206, 214, 302, 308, rodM), 0, 1));     // 支架
-  const curtTex = fabricTex(30, 22, 78); curtTex.repeat.set(4, 6);
+  const curtTex = fabricTex(214, 17, 60); curtTex.repeat.set(4, 6);      // 灰蓝色（实拍）
   const curtM = new THREE.MeshStandardMaterial({ map: curtTex, roughness: 0.95, side: THREE.DoubleSide });
   const g = new THREE.PlaneGeometry(52, 208, 60, 1);
   const pos = g.attributes.position;
@@ -570,7 +574,7 @@ const frame = mat(0x3d4246, { roughness: 0.35, metalness: 0.6 });
 
 /* 卧室门：东侧铰链，向内开 90° */
 /* 北墙分段：墙 135 ｜ 门框 8 ｜ 门洞 84 ｜ 门框 8 ｜ 墙 15 ｜ 衣柜 65 ＝ 315（门框宽 8 为推算） */
-const casing = woodMat(34, 32, 72);
+const casing = woodMat(40, 28, 80);                                       // 米木色门框（实拍）
 [
   block(135, 143, 0, 200, -T - 0.6, 0.6, casing, { cast: false }),
   block(227, 235, 0, 200, -T - 0.6, 0.6, casing, { cast: false }),
@@ -579,13 +583,31 @@ const casing = woodMat(34, 32, 72);
 /* 门扇：绕东侧铰链转，0 = 关上，90° = 向内开到底 */
 const doorPivot = new THREE.Group();
 doorPivot.position.set(227, 0, -2);
+/* 米木色门扇 ＋ 一条又高又窄的竖向磨砂玻璃缝（实拍）＋ 镀铬拉手 */
 {
-  const leaf = new THREE.Mesh(new THREE.BoxGeometry(84, 200, 4), woodMat(36, 28, 84, { roughness: 0.6 }));
-  leaf.position.set(-42, 100, 0);
-  leaf.castShadow = true; leaf.receiveShadow = true;
-  const knob = new THREE.Mesh(new THREE.BoxGeometry(12, 3, 7), mat(0x8f969a, { metalness: 0.5, roughness: 0.4 }));
-  knob.position.set(-76, 100, 2);
-  doorPivot.add(leaf, knob);
+  const leafM = woodMat(40, 30, 82, { roughness: 0.6 });
+  const GX0 = -47, GX1 = -37, GY0 = 48, GY1 = 178;                        // 玻璃缝（门扇局部坐标，铰链 x = 0）
+  const piece = (x0, x1, y0, y1) => {
+    const m = new THREE.Mesh(new THREE.BoxGeometry(x1 - x0, y1 - y0, 4), leafM);
+    m.position.set((x0 + x1) / 2, (y0 + y1) / 2, 0);
+    m.castShadow = true; m.receiveShadow = true;
+    doorPivot.add(m);
+  };
+  piece(-84, GX0, 0, 200); piece(GX1, 0, 0, 200);
+  piece(GX0, GX1, 0, GY0); piece(GX0, GX1, GY1, 200);
+  const slit = new THREE.Mesh(new THREE.BoxGeometry(GX1 - GX0, GY1 - GY0, 0.8),
+    mat(0xdce6e8, { transparent: true, opacity: 0.4, roughness: 0.12, metalness: 0.1 }));
+  slit.position.set((GX0 + GX1) / 2, (GY0 + GY1) / 2, 0);
+  doorPivot.add(slit);
+  const leverM = mat(0xd6d9db, { metalness: 0.9, roughness: 0.2 });
+  const rose = new THREE.Mesh(new THREE.CylinderGeometry(2.6, 2.6, 7, 20), leverM);
+  rose.rotation.x = Math.PI / 2; rose.position.set(-77, 100, 0);
+  doorPivot.add(rose);
+  [-1, 1].forEach(s => {
+    const lever = new THREE.Mesh(new THREE.BoxGeometry(12, 1.8, 1.8), leverM);
+    lever.position.set(-71.5, 100, s * 4.2); lever.castShadow = true;
+    doorPivot.add(lever);
+  });
 }
 scene.add(doorPivot);
 let doorOpen = true;
@@ -1590,15 +1612,13 @@ wall({ axis: 'x', at: NZ, from: 0, to: W, normal: [0, -1],
 wall({ axis: 'z', at: 122, from: -290, to: -T, normal: [1, 0], t: 8,
        openings: [{ a: -235, b: -170, top: 200 }, { a: -95, b: -30, top: 200 }] });
 wall({ axis: 'x', at: -125, from: 0, to: 122, normal: [0, -1], t: 8 });
-fadable(block(150, 230, 0, 200, NZ - 6, NZ - 2, mat(0x6f6a62), { cast: false }), 0, -1);   // 玄关门
 fadable(block(0, 122, 0, H, NZ, -290, mat(0xcfcac0), { cast: false }), -1, -1, 0.3);       // MS / PS 管井
 
-/* 洁具和电器：外轮廓（平面占地、高度）沿用原来的占位盒子，只在里面加细节。尺寸仍是 [估算] */
+/* 洁具和电器：房间外壳不变，样子按实拍照片画。尺寸仍是 [估算] */
 const ceramicM = mat(0xfbfbf9, { roughness: 0.16 });                      // 陶瓷 / 亚克力：亮白
 const chromeM = mat(0xe4e6e8, { roughness: 0.12, metalness: 1 });          // 镀铬（龙头）
-const steelM = mat(0xc4c8cb, { roughness: 0.32, metalness: 0.9 });         // 不锈钢（水槽、把手）
-const blackGlassM = mat(0x0e0f11, { roughness: 0.08, metalness: 0.3 });    // 黑玻璃（IH 炉面、洗衣机门）
-const applianceM = mat(0xeceae6, { roughness: 0.38, metalness: 0.1 });     // 家电外壳：暖白烤漆
+const steelM = mat(0xc4c8cb, { roughness: 0.32, metalness: 0.9 });         // 不锈钢（把手、厨具）
+const blackGlassM = mat(0x0e0f11, { roughness: 0.08, metalness: 0.3 });    // 黑玻璃（微波炉观察窗、显示屏）
 const plinthM = mat(0x2a2826, { roughness: 0.8 });
 /* 平面里的圆角矩形（房间坐标 x、z）→ Shape / Path。Shape 的第二个坐标 = -z，配合 extrudeUp() 的旋转 */
 function rrPath(path, x0, x1, z0, z1, r) {
@@ -1646,38 +1666,172 @@ const cyl = (r0, r1, h, x, y, z, m, o = {}) => {
   return c;
 };
 
-/* 浴缸：x 8–80，z -280..-150，高 50。一圈圆角缸壁（顶沿倒圆）＋ 缸底 ＋ 下水口；龙头装在北头缸壁内侧（不高出缸沿） */
-basinWall(8, 80, -280, -150, 0, 50, 7, 14, 6, ceramicM, 1.5);
-rblock(14, 74, 0, 12, -274, -156, ceramicM, 3);                                  // 缸底（缸深约 38）
-cyl(2.6, 2.6, 0.4, 44, 12.2, -262, chromeM, { cast: false });                   // 下水口
-cyl(1.2, 1.2, 9, 44, 43, -268.5, chromeM, { rx: Math.PI / 2 });                  // 出水嘴：从北头缸壁伸出来
-cyl(2.2, 2.2, 1.2, 44, 43, -272.6, chromeM, { rx: Math.PI / 2 });                // 出水嘴底座
-cyl(2.4, 2.4, 1.2, 34, 43, -272.6, chromeM, { rx: Math.PI / 2 });                // 冷热把手
-block(33.4, 34.6, 43, 47, -272.4, -270.6, chromeM);
-cyl(2.6, 2.6, 0.8, 44, 30, -272.6, chromeM, { rx: Math.PI / 2, cast: false });   // 溢水口
+/* ===== 按实拍（2026-11 视频）重画：走廊 / 整体浴室 / 厕所 / 厨房 / 冰箱 / 洗衣机凹室 / 玄关。尺寸仍是 [估算] ===== */
+/* 走廊地板：刷白的浅木纹（板沿南北铺，和走廊同向）；一张图 = 120×120 cm */
+const whiteFloorTex = canvasTex(1024, (g, S) => {
+  const px = S / 120, pw = 15 * px;
+  for (let c = 0; c < 8; c++) {
+    let y = -rnd() * 90 * px;
+    while (y < S) {
+      const len = (70 + rnd() * 40) * px;
+      g.fillStyle = hsl(36 + rnd() * 10, 5 + rnd() * 6, 85 + rnd() * 7);
+      g.fillRect(c * pw, y, pw, len);
+      for (let k = 0; k < 22; k++) {                          // 淡淡的灰色木纹
+        g.strokeStyle = hsl(30, 8, 56 + rnd() * 18, 0.06 + rnd() * 0.1);
+        g.lineWidth = 0.6 + rnd() * 1.4;
+        const x0 = c * pw + rnd() * pw;
+        g.beginPath(); g.moveTo(x0, y);
+        g.bezierCurveTo(x0 + (rnd() - 0.5) * 6, y + len * 0.33, x0 + (rnd() - 0.5) * 6, y + len * 0.66, x0 + (rnd() - 0.5) * 4, y + len);
+        g.stroke();
+      }
+      g.fillStyle = 'rgba(120,112,104,0.45)';                // 板头接缝
+      g.fillRect(c * pw, y, pw, 1.2);
+      y += len;
+    }
+    g.fillStyle = 'rgba(120,112,104,0.5)';                   // 板与板之间的缝
+    g.fillRect(c * pw, 0, 1.4, S);
+  }
+});
+/* 整体浴室一体式防水地面：白色，细密的防滑方格；一张图 = 30×30 cm */
+const ubFloorTex = canvasTex(256, (g, S) => {
+  g.fillStyle = '#f1f1ed'; g.fillRect(0, 0, S, S);
+  const n = 16, c = S / n;
+  for (let i = 0; i < n; i++) for (let j = 0; j < n; j++) {
+    g.fillStyle = 'rgba(0,0,0,0.05)'; g.fillRect(i * c + 3, j * c + 3, c - 6, c - 6);
+    g.fillStyle = 'rgba(255,255,255,0.6)'; g.fillRect(i * c + 3, j * c + 3, c - 6, 1.5);
+  }
+});
+/* 玄关：浅色石纹地砖，40 cm 一块；一张图 = 80×80 cm */
+const marbleTex = canvasTex(512, (g, S) => {
+  g.fillStyle = '#ecebe7'; g.fillRect(0, 0, S, S);
+  for (let i = 0; i < 6000; i++) { g.fillStyle = `rgba(120,120,125,${rnd() * 0.05})`; g.fillRect(rnd() * S, rnd() * S, 2, 2); }
+  for (let k = 0; k < 18; k++) {                              // 灰色石纹
+    g.strokeStyle = `rgba(110,112,118,${0.12 + rnd() * 0.25})`; g.lineWidth = 0.6 + rnd() * 1.8;
+    let x = rnd() * S, y = rnd() * S;
+    g.beginPath(); g.moveTo(x, y);
+    for (let s = 0; s < 6; s++) { x += (rnd() - 0.3) * 60; y += (rnd() - 0.5) * 50; g.lineTo(x, y); }
+    g.stroke();
+  }
+  g.fillStyle = '#c9c6c0';
+  for (let i = 0; i <= 2; i++) { g.fillRect(i * S / 2 - 1.5, 0, 3, S); g.fillRect(0, i * S / 2 - 1.5, S, 3); }
+});
+block(122, W, -6, 0, -290, 0, mat(0xffffff, { map: tiled(whiteFloorTex, W - 122, 290, 120), roughness: 0.5 }), { cast: false });   // 走廊 + 厨房：刷白浅木纹
+block(0, 122, -6, 0, -125, 0, mat(0xffffff, { map: tiled(ubFloorTex, 122, 125, 30), roughness: 0.6 }), { cast: false });            // 整体浴室：一体式防水白地
+block(0, 122, -6, 0, -290, -125, tileMat(122, 165, 0xf4f2ee), { cast: false });                                                   // 厕所：地砖
+block(122, W, -6, -3, NZ, -290, mat(0xffffff, { map: tiled(marbleTex, W - 122, 100, 80), roughness: 0.3 }), { cast: false });        // 玄关：浅色石纹地砖
 
-/* 洗手台：x 90–118，z -180..-145。悬空的木纹浴室柜（y 28–58，柜门朝西）＋ 白瓷台盆（盆沿高 68）＋ 东侧台面上的小龙头（到 75） */
+/* 走廊 / 玄关天花板 ＋ 一路圆形嵌入式筒灯。相机高过层高（俯视、斜俯视）时天花板自动淡出 */
+fadableUp(block(122, W, H, H + 2, NZ, -T, mat(0xf7f6f2, { roughness: 0.95 }), { cast: false }), H - 2);
 {
-  const vanityM = woodMat(32, 30, 66, { roughness: 0.55 });
-  rblock(91, 118, 28, 58, -179.5, -145.5, vanityM, 1.2);                       // 柜体
-  block(90.2, 91.2, 30, 56, -178.8, -146.2, vanityM);                          // 柜门
-  block(90.05, 90.25, 43, 43.4, -178.8, -146.2, plinthM, { cast: false });     // 柜门上的拉手槽
-  basinWall(90, 118, -180, -145, 58, 68, 3, 8, 4, ceramicM, 1);                 // 台盆：一圈盆沿
-  rblock(92, 116, 58, 61, -178, -147, ceramicM, 1);                            // 盆底（盆深约 7）
-  cyl(1.6, 1.6, 0.3, 104, 61.2, -162.5, chromeM, { cast: false });              // 下水口
-  /* 东边盆沿上的龙头：立柱 ＋ 朝西的出水嘴 ＋ 顶上的把手 */
-  cyl(1.1, 1.3, 6.5, 116.2, 71.2, -162.5, chromeM);
-  cyl(0.8, 0.8, 6, 113.5, 73.6, -162.5, chromeM, { rz: Math.PI / 2 });
-  block(115.6, 116.8, 74.2, 75, -165, -160, chromeM);
+  const trimM = mat(0xf4f4f2, { roughness: 0.4 });
+  const lampM = mat(0xffffff, { emissive: 0xfff2dc, emissiveIntensity: 1.3, roughness: 0.4 });
+  [-55, -150, -245, -335].forEach(z => {
+    cyl(7, 7, 0.8, 192, H - 0.4, z, trimM, { cast: false });
+    cyl(5.2, 5.2, 0.4, 192, H - 0.95, z, lampM, { cast: false });
+  });
 }
 
-/* 马桶：水箱 x 4–22（高 75，靠西墙），座 x 22–62（高 40），朝东。
-   水箱 ＋ 盖（顶上冲水按钮）＋ 下面接到座便的后身 ＋ D 形、底部收窄的座便 ＋ 打开的马桶圈 ＋ 一圈水面 ＋ 侧面的温水洗净遥控 */
+/* 米木色门（厕所门、洗衣机凹室门和卧室门是一种颜色）和通用平开门：门扇局部 z 0..w 是门宽方向，铰链在 z = 0 */
+const beigeDoorM = woodMat(40, 30, 82, { roughness: 0.6 });
+const beigeCasingM = woodMat(40, 26, 80, { roughness: 0.55 });
+const leverM = mat(0xd6d9db, { metalness: 0.9, roughness: 0.2 });
+const grooveM = mat(0xb4ab9a, { roughness: 0.7 });
+function swingDoor(px, pz, w, h, t, ang, leafM, extra) {
+  const g = new THREE.Group();
+  g.position.set(px, 0, pz); g.rotation.y = ang;
+  const put = (sx, sy, sz, x, y, z, m) => {
+    const k = new THREE.Mesh(new THREE.BoxGeometry(sx, sy, sz), m);
+    k.position.set(x, y, z); k.castShadow = true; k.receiveShadow = true; g.add(k); return k;
+  };
+  if (leafM) put(t, h, w, 0, h / 2 + 0.5, w / 2, leafM);                // leafM = null：门扇自己在 extra 里拼
+  if (extra) extra(put, w, h, t);
+  scene.add(g);
+  return g;
+}
+/* 门套：贴在 x = xf 的墙面上（dx = 往外凸的方向 ±1），门洞 z a..b，高 top；nx = 跟着哪面墙淡出 */
+function casingX(xf, dx, a, b, top, m, nx) {
+  const x0 = Math.min(xf, xf + dx * 1.4), x1 = Math.max(xf, xf + dx * 1.4);
+  [block(x0, x1, 0, top + 4, a - 4, a, m, { cast: false }),
+   block(x0, x1, 0, top + 4, b, b + 4, m, { cast: false }),
+   block(x0, x1, top, top + 4, a, b, m, { cast: false })].forEach(k => fadable(k, nx, 0));
+}
+
+/* ---------- 整体浴室（南侧，靠卧室）：x 0–122，z -125..-10。全白日式整体浴室，里面没有马桶 ---------- */
 {
-  rblock(4, 20, 30, 71.5, -91, -49, ceramicM, 3);                                // 水箱
-  rblock(4, 21.5, 71.3, 74.5, -92, -48, ceramicM, 1.4);                          // 水箱盖
-  cyl(2.2, 2.2, 0.6, 12.5, 74.7, -70, chromeM, { cast: false });                  // 冲水按钮
-  rblock(8, 26, 0, 32, -84, -56, ceramicM, 4);                                   // 后身
+  const ubM = mat(0xf7f7f4, { roughness: 0.35 });
+  /* 白色墙板（贴在四面墙内侧，高到 220 的浴室天花）。内墙不参与自动隐藏，否则从门口看会穿到卧室 */
+  block(0, 1, 0, 220, -125, -10, ubM, { cast: false });
+  block(0, 122, 0, 220, -11, -10, ubM, { cast: false });
+  block(0, 122, 0, 220, -125, -124, ubM, { cast: false });
+  block(121, 122, 0, 220, -124, -95, ubM, { cast: false });
+  block(121, 122, 0, 220, -30, -11, ubM, { cast: false });
+  block(121, 122, 200, 220, -95, -30, ubM, { cast: false });
+  fadableUp(block(0, 122, 220, 221.5, -125, -10, ubM, { cast: false }), 222);         // 浴室天花板（俯视时淡出）
+
+  /* 浴缸：沿西墙，x 2–68，z -122..-13，高 52 */
+  basinWall(2, 68, -122, -13, 0, 52, 7, 14, 6, ceramicM, 1.5);
+  rblock(8, 62, 0, 14, -116, -19, ceramicM, 3);                                      // 缸底
+  cyl(2.6, 2.6, 0.4, 35, 14.2, -26, chromeM, { cast: false });                        // 下水口
+  /* 南墙上、浴缸南头上方的混水龙头 ＋ 白色花洒软管 ＋ 花洒挂座 */
+  cyl(1.6, 1.6, 20, 35, 68, -14, chromeM, { rz: Math.PI / 2 });
+  [26, 44].forEach(x => cyl(2.4, 2.4, 3, x, 68, -14, chromeM, { rz: Math.PI / 2 }));
+  cyl(1.1, 1.1, 8, 35, 66, -18, chromeM, { rx: Math.PI / 2 });
+  const hoseM = mat(0xf2f2f0, { roughness: 0.4 });
+  const hose = new THREE.Mesh(new THREE.TubeGeometry(new THREE.CatmullRomCurve3([
+    new THREE.Vector3(45, 68, -15), new THREE.Vector3(52, 57, -18), new THREE.Vector3(60, 78, -18),
+    new THREE.Vector3(62, 120, -16.5), new THREE.Vector3(61, 144, -16.5)]), 40, 0.8, 8), hoseM);
+  hose.castShadow = true; scene.add(hose);
+  rblock(58, 64, 146, 153, -15, -11, hoseM, 1);                                     // 花洒挂座
+  cyl(1.3, 1.6, 16, 61, 152, -16.5, hoseM);                                         // 花洒手柄
+  cyl(3.6, 2.4, 3, 61, 161.5, -17.5, hoseM, { rx: -0.5 });                           // 花洒头
+
+  /* 南墙上的小型挂墙洗手盆 ＋ 龙头 ＋ 下水管 */
+  basinWall(78, 112, -46, -11.5, 64, 76, 3, 9, 7, ceramicM, 1);
+  rblock(80, 110, 64, 67, -44, -13.5, ceramicM, 1.5);                                // 盆底
+  rblock(84, 106, 56, 64, -24, -11.5, ceramicM, 2);                                  // 盆下托
+  cyl(1.4, 1.4, 0.3, 95, 67.2, -30, chromeM, { cast: false });                        // 下水口
+  cyl(1.6, 1.6, 26, 95, 43, -16, chromeM);                                            // 下水管
+  cyl(1.2, 1.4, 6, 95, 79, -13, chromeM);                                             // 龙头立柱
+  cyl(0.8, 0.8, 6, 95, 81.5, -16, chromeM, { rx: Math.PI / 2 });                      // 出水嘴（朝北）
+  [88, 102].forEach(x => cyl(1.6, 1.6, 2.5, x, 77.4, -13, chromeM));                  // 冷热把手
+  /* 长方形镜子 ＋ 镜下小台 ＋ 几瓶洗漱用品 */
+  block(83, 107, 110, 164, -11.6, -11, mat(0xdfe6ea, { metalness: 1, roughness: 0.04 }), { cast: false });
+  rblock(84, 106, 103, 105.5, -19, -11, ceramicM, 0.8);
+  [[88, 0x1f2a44], [92, 0x2b2b2e], [101, 0xf2f2f2]].forEach(([x, c]) =>
+    cyl(1.6, 1.6, 12, x, 111.5, -15, mat(c, { roughness: 0.4 })));
+  /* 西墙毛巾杆（浴缸上方）＋ 两条浅灰毛巾 */
+  cyl(1, 1, 72, 3.5, 178, -70, chromeM, { rx: Math.PI / 2 });
+  [-107, -33].forEach(z => block(1, 4.5, 176, 180, z - 1, z + 1, chromeM));
+  const towelM = fabricMat(210, 4, 74, 3);
+  [[-98, -78, 118], [-62, -44, 128]].forEach(([z0, z1, yb]) => rblock(1.2, 5.8, yb, 180, z0, z1, towelM, 1));
+  /* 圆形吸顶灯 ＋ 换气扇（装在浴室天花板下面） */
+  const bl = new THREE.Mesh(new THREE.SphereGeometry(9, 24, 12, 0, Math.PI * 2, Math.PI / 2, Math.PI / 2),
+    mat(0xffffff, { emissive: 0xfff6e8, emissiveIntensity: 0.9, roughness: 0.3 }));
+  bl.position.set(95, 220, -60); scene.add(bl);
+  rblock(28, 56, 218.6, 220, -108, -84, ubM, 0.6, { cast: false });
+  for (let i = 0; i < 6; i++) block(31, 53, 218.4, 218.6, -105 + i * 3.6, -103.6 + i * 3.6, mat(0xc9ccce), { cast: false });
+  cyl(5, 5, 0.3, 100, 0.15, -70, steelM, { cast: false });                            // 地漏
+
+  /* 浴室门：白色门框 ＋ 磨砂板 ＋ 长白拉手（实拍）；北侧铰链，向走廊开约 70° */
+  const frameM = mat(0xf4f4f1, { roughness: 0.35 });
+  casingX(130, 1, -95, -30, 200, frameM, 1);
+  block(122, 130, 0, 4, -95, -30, frameM, { cast: false });                           // 防水门槛
+  const panelM = mat(0xe9edec, { transparent: true, opacity: 0.8, roughness: 0.3 });
+  swingDoor(128.5, -94, 62, 198, 3, 70 * Math.PI / 180, null, (put, w, h, t) => {
+    put(t - 1, h - 14, w - 6, 0, h / 2 + 0.5, w / 2, panelM);                       // 磨砂板
+    put(t + 0.4, h, 4, 0, h / 2 + 0.5, 2, frameM); put(t + 0.4, h, 4, 0, h / 2 + 0.5, w - 2, frameM);   // 白框
+    put(t + 0.4, 8, w, 0, 4.5, w / 2, frameM); put(t + 0.4, 8, w, 0, h - 3.5, w / 2, frameM);
+    [-1, 1].forEach(s => put(1.8, 48, 2.2, s * 3.6, 105, w - 7, frameM));             // 长白拉手（两面）
+  });
+}
+
+/* ---------- 独立厕所（北侧，靠玄关）：x 0–122，z -290..-125。白色日式马桶 ＋ 温水洗净便座，靠西墙、朝东（门口） ---------- */
+{
+  const ZC = -180;                                                                    // 马桶中心线
+  rblock(4, 20, 30, 71.5, ZC - 21, ZC + 21, ceramicM, 3);                              // 水箱
+  rblock(4, 21.5, 71.3, 74.5, ZC - 22, ZC + 22, ceramicM, 1.4);                        // 水箱盖
+  cyl(2.2, 2.2, 0.6, 12.5, 74.7, ZC, chromeM, { cast: false });                        // 冲水按钮
+  rblock(8, 26, 0, 32, ZC - 14, ZC + 14, ceramicM, 4);                                 // 后身
   /* 座便：平面是后平前圆的 D 形，往下逐渐收窄成底座 */
   const dShape = (path, xb, xf, zc, hw) => {
     const xm = xf - hw * 1.1, syc = -zc;
@@ -1686,115 +1840,192 @@ cyl(2.6, 2.6, 0.8, 44, 30, -272.6, chromeM, { rx: Math.PI / 2, cast: false });  
     path.lineTo(xb, syc + hw); path.lineTo(xb, syc - hw);
     return path;
   };
-  extrudeUp(dShape(new THREE.Shape(), 24, 60, -70, 16), 0, 37, ceramicM, 2, { warp: (x, y, z) => {
+  extrudeUp(dShape(new THREE.Shape(), 24, 60, ZC, 16), 0, 37, ceramicM, 2, { warp: (x, y, z) => {
     const k = Math.min(1, Math.max(0, y / 30)), s = k * k * (3 - 2 * k);
-    return [22 + (x - 22) * (0.72 + 0.28 * s), y, -70 + (z + 70) * (0.62 + 0.38 * s)];
+    return [22 + (x - 22) * (0.72 + 0.28 * s), y, ZC + (z - ZC) * (0.62 + 0.38 * s)];
   } });
-  /* 马桶圈：D 形一圈，中间椭圆开口 */
-  const seat = dShape(new THREE.Shape(), 23.6, 61.2, -70, 17.6);
-  seat.holes.push(new THREE.Path().absellipse(44, 70, 13.6, 11.6, 0, Math.PI * 2, false));
+  /* 温水洗净便座：D 形座圈 ＋ 后部的洗净机身 ＋ 竖起的盖子 ＋ 南侧的操作面板 */
+  const seat = dShape(new THREE.Shape(), 23.6, 61.2, ZC, 17.6);
+  seat.holes.push(new THREE.Path().absellipse(45, -ZC, 13, 11.6, 0, Math.PI * 2, false));
   extrudeUp(seat, 37, 40, mat(0xf6f5f2, { roughness: 0.3 }), 0.8);
-  /* 座便开口：盖在座便顶面上的一块椭圆（深一点的水色），从马桶圈中间看下去像水面 */
   const water = new THREE.Mesh(new THREE.CircleGeometry(1, 40), mat(0x8fadb8, { roughness: 0.05, metalness: 0.1 }));
-  water.rotation.x = -Math.PI / 2; water.scale.set(12.5, 10.5, 1);
-  water.position.set(44, 37.15, -70); water.receiveShadow = true; scene.add(water);
-  rblock(22, 31, 32, 40, -95, -88, ceramicM, 1.5);                               // 温水洗净便座的侧边遥控
-  block(31, 31.2, 35, 38, -93.5, -89.5, plinthM, { cast: false });
-}
+  water.rotation.x = -Math.PI / 2; water.scale.set(12, 10.5, 1);
+  water.position.set(45, 37.15, ZC); water.receiveShadow = true; scene.add(water);
+  rblock(20, 31, 37, 46, ZC - 17, ZC + 17, ceramicM, 3);                               // 洗净机身
+  rblock(20.5, 23, 46, 84, ZC - 16, ZC + 16, mat(0xf6f5f2, { roughness: 0.3 }), 1.2);  // 竖起的盖子（靠着水箱）
+  rblock(24, 42, 38, 44, ZC + 17, ZC + 22, ceramicM, 1.5);                             // 侧边操作面板
+  [28, 32, 36].forEach(x => block(x, x + 2.4, 44, 44.3, ZC + 18.5, ZC + 20.5, mat(0x7fa6c4), { cast: false }));
+  /* 南墙上的卷纸架 */
+  rblock(36, 52, 66, 71, -139, -133, chromeM, 1);
+  cyl(5.5, 5.5, 11, 44, 61, -139.5, mat(0xfbfbf9, { roughness: 0.9 }), { rz: Math.PI / 2 });
 
-/* 厨房台面：x 255–315，z -200..-90，台面高 85，柜门朝西（走廊一侧）。
-   内收踢脚 ＋ 柜体 ＋ 三组柜门 / 抽屉（不锈钢长把手）＋ 开了水槽洞的人造石台面 ＋ 不锈钢水槽和鹅颈龙头 ＋ 两口 IH 黑玻璃炉面 */
-{
-  const cabM = mat(0xf1efe9, { roughness: 0.55 }), topM2 = mat(0xdedad3, { roughness: 0.35 });
-  const SZ0 = -139, SZ1 = -97, SX0 = 263, SX1 = 307;                           // 水槽开口
-  block(259, W, 0, 9, -199, -91, plinthM, { cast: false });                    // 内收踢脚
-  block(257, W, 9, 63, -200, -90, cabM);                                       // 柜体（下半，顶在水槽底下面）
-  block(257, W, 63, 82, -200, SZ0, cabM);                                      // 柜体（上半，让开水槽）
-  block(257, W, 63, 82, SZ1, -90, cabM);
-  block(257, SX0, 63, 82, SZ0, SZ1, cabM);
-  block(SX1, W, 63, 82, SZ0, SZ1, cabM);
-  /* 柜门：北段（炉下）两个抽屉，中段、南段（水槽下）各一扇门 */
-  const front = (y0, y1, z0, z1, hy) => {
-    rblock(255.8, 257.2, y0, y1, z0 + 0.3, z1 - 0.3, cabM, 0.5);
-    rblock(255, 255.9, hy - 0.6, hy + 0.6, z0 + 6, z1 - 6, steelM, 0.4);       // 横向长把手
-  };
-  front(10, 45, -200, -163, 41); front(46, 81.5, -200, -163, 78);
-  front(10, 81.5, -163, -126.5, 78); front(10, 81.5, -126.5, -90, 78);
-  const ct = rrPath(new THREE.Shape(), 255.4, W - 0.4, -199.6, -90.4, 0.6);     // 倒角会往外长 0.4
-  ct.holes.push(rrPath(new THREE.Path(), SX0 + 1, SX1 - 1, SZ0 + 1, SZ1 - 1, 4));
-  extrudeUp(ct, 82, 85, topM2, 0.4);                                           // 台面（开水槽洞）
-  basinWall(SX0, SX1, SZ0, SZ1, 64, 85.3, 1.2, 4, 5, steelM, 0.3);              // 水槽壁（沿高出台面 0.3）
-  block(SX0 + 1, SX1 - 1, 64, 65.5, SZ0 + 1, SZ1 - 1, steelM, { cast: false }); // 槽底
-  cyl(2.4, 2.4, 0.3, 285, 65.7, -118, plinthM, { cast: false });                // 下水口
-  /* 鹅颈龙头：靠东墙的立柱 ＋ 半圈弯管 ＋ 朝下的出水口 */
-  cyl(1.5, 1.7, 22, 310, 96, -118, chromeM);
-  const neck = new THREE.Mesh(new THREE.TorusGeometry(6, 1.1, 10, 24, Math.PI), chromeM);
-  neck.position.set(304, 107, -118); neck.castShadow = true; scene.add(neck);
-  cyl(1.2, 1.2, 3, 298, 105.5, -118, chromeM);
-  block(311, 313.5, 99, 100, -119.5, -116.5, chromeM);                         // 把手
-  /* IH 炉面：黑玻璃 ＋ 两圈加热区 ＋ 前沿一排触控标记 */
-  rblock(262, 308, 85, 85.8, -194, -150, blackGlassM, 0.4);
-  [-183, -161].forEach(z => {
-    const ring = new THREE.Mesh(new THREE.RingGeometry(8, 8.6, 48), mat(0x7a7f84, { roughness: 0.4 }));
-    ring.rotation.x = -Math.PI / 2; ring.position.set(287, 85.83, z); scene.add(ring);
+  /* 厕所门：米木色（和卧室门、洗衣机门一样），北侧铰链，向走廊开约 45° */
+  casingX(130, 1, -235, -170, 200, beigeCasingM, 1);
+  casingX(122, -1, -235, -170, 200, beigeCasingM, 1);
+  swingDoor(126, -234, 63, 198, 3.5, 45 * Math.PI / 180, beigeDoorM, (put, w, h, t) => {
+    put(t + 0.2, h - 12, 0.3, 0, h / 2 + 0.5, 21, grooveM);                          // 竖向装饰缝
+    put(t + 4, 4, 4, 0, 95, w - 6, leverM);                                           // 拉手底座
+    [-1, 1].forEach(s => put(1.6, 1.6, 11, s * (t / 2 + 2), 95, w - 11, leverM));     // 拉手（两面，朝铰链方向）
   });
-  for (let i = 0; i < 5; i++) block(264.5, 265.5, 85.8, 85.86, -188 + i * 6, -186 + i * 6, mat(0xd8dcdf), { cast: false });
 }
 
-/* 冰箱：x 255–315，z -80..-15，高 170，门朝西。上面冷藏门、下面冷冻抽屉，竖 / 横两根不锈钢把手，门上一块小显示屏 */
+/* ---------- 厨房（东墙一线，柜门朝西）：x 255–315，z -200..-90，台面高 85 ----------
+   浅木色下柜门；炉下左侧（北）一扇小黑门；白色台面；南段水槽；两口煤气灶；白色抽油烟机；
+   水槽上方浅木色吊柜，吊柜下挂杆挂着平底锅、汤勺、漏勺、锅铲 */
 {
-  rblock(258.5, W, 0.8, 170, -80, -15, applianceM, 2.5);                        // 箱体
-  block(259, W - 3, 0, 1.2, -78, -17, plinthM, { cast: false });               // 底部
-  rblock(255.8, 258.8, 62, 169.6, -79.6, -15.4, applianceM, 1.2);              // 冷藏门
-  rblock(255.8, 258.8, 2, 61, -79.6, -15.4, applianceM, 1.2);                   // 冷冻抽屉
-  rblock(255, 256, 95, 145, -23, -20.5, steelM, 0.4);                           // 冷藏门竖把手（南侧）
-  rblock(255, 256, 54.5, 56.5, -70, -25, steelM, 0.4);                          // 冷冻抽屉横把手
-  rblock(255.6, 255.9, 140, 147, -74, -66, blackGlassM, 0.1);                   // 显示屏
+  const kWoodM = woodMat(28, 42, 64, { roughness: 0.5 });                             // 浅木色（偏暖的枫木色）
+  const carcM = mat(0xeeece6, { roughness: 0.55 }), ctM = mat(0xf6f6f3, { roughness: 0.3 });
+  const darkDoorM = mat(0x1b1c1e, { roughness: 0.35 });
+  const SZ0 = -146, SZ1 = -100, SX0 = 263, SX1 = 303;                                 // 水槽开口
+  block(259, W, 0, 9, -199, -91, mat(0xd9d5cc), { cast: false });                    // 内收踢脚
+  block(257, W, 9, 63, -200, -90, carcM);                                             // 柜体
+  block(257, W, 63, 82, -200, SZ0, carcM);
+  block(257, W, 63, 82, SZ1, -90, carcM);
+  block(257, SX0, 63, 82, SZ0, SZ1, carcM);
+  block(SX1, W, 63, 82, SZ0, SZ1, carcM);
+  /* 柜门：北段（炉下）上面一扇小黑门、下面一扇木门；南段（水槽下）一整扇木门 */
+  rblock(255.8, 257.2, 57, 81.5, -199.7, -170.3, darkDoorM, 0.5);
+  rblock(255.1, 255.9, 77, 78, -196, -188, steelM, 0.3);
+  rblock(255.8, 257.2, 10, 56.4, -199.7, -170.3, kWoodM, 0.5);
+  rblock(255, 255.9, 51.5, 52.7, -196, -184, steelM, 0.4);
+  rblock(255.8, 257.2, 10, 81.5, -169.7, -90.3, kWoodM, 0.5);
+  rblock(255, 255.9, 76.5, 77.7, -165, -149, steelM, 0.4);
+  /* 白色台面（开水槽洞）＋ 偏暗的不锈钢水槽 ＋ 单把手龙头 */
+  const ct = rrPath(new THREE.Shape(), 255.4, W - 0.4, -199.6, -90.4, 0.6);
+  ct.holes.push(rrPath(new THREE.Path(), SX0 + 1, SX1 - 1, SZ0 + 1, SZ1 - 1, 4));
+  extrudeUp(ct, 82, 85, ctM, 0.4);
+  const sinkM = mat(0x5a5e62, { roughness: 0.35, metalness: 0.8 });
+  basinWall(SX0, SX1, SZ0, SZ1, 64, 85.3, 1.2, 4, 5, sinkM, 0.3);
+  block(SX0 + 1, SX1 - 1, 64, 65.5, SZ0 + 1, SZ1 - 1, sinkM, { cast: false });
+  cyl(2.4, 2.4, 0.3, 283, 65.7, -123, plinthM, { cast: false });
+  cyl(1.6, 1.8, 16, 308, 93, -123, chromeM);
+  cyl(1, 1, 12, 302.5, 99.5, -123, chromeM, { rz: Math.PI / 2 });
+  block(306, 312, 101, 102.5, -124, -122, chromeM);
+  fadable(block(313, W, 85, 150, -200, -90, mat(0xf5f4f0, { roughness: 0.3 }), { cast: false }), 1, 0);   // 白色墙板
+  /* 两口煤气灶：白色珐琅机身 ＋ 黑色前面板和旋钮 ＋ 黑色锅架 */
+  rblock(260, 311, 85, 93, -198, -154, mat(0xe9e8e4, { roughness: 0.35, metalness: 0.2 }), 1.2);
+  block(259.4, 260.2, 86, 92, -196, -156, darkDoorM, { cast: false });
+  const grateM = mat(0x161718, { roughness: 0.6 });
+  [-187, -165].forEach(z => {
+    cyl(4.2, 4.6, 1.6, 287, 93.8, z, mat(0x2a2b2d, { roughness: 0.5 }));
+    const gr = new THREE.Mesh(new THREE.TorusGeometry(8, 0.6, 6, 24), grateM);
+    gr.rotation.x = Math.PI / 2; gr.position.set(287, 95.2, z); gr.castShadow = true; scene.add(gr);
+    block(286.4, 287.6, 93, 95.8, z - 9, z - 5.5, grateM); block(286.4, 287.6, 93, 95.8, z + 5.5, z + 9, grateM);
+    block(278, 281.5, 93, 95.8, z - 0.6, z + 0.6, grateM); block(292.5, 296, 93, 95.8, z - 0.6, z + 0.6, grateM);
+    cyl(1.6, 1.6, 1.8, 259, 89, z, darkDoorM, { rz: Math.PI / 2 });                   // 旋钮
+  });
+  /* 白色抽油烟机（炉上方）＋ 到顶的排烟管罩 */
+  const hoodM = mat(0xf3f3f0, { roughness: 0.4, metalness: 0.1 });
+  rblock(270, W, 166, 198, -200, -152, hoodM, 1.5);
+  block(269.6, 270.3, 186, 191, -183, -169, mat(0xc9ccce), { cast: false });
+  block(288, W, 198, H, -194, -158, hoodM, { cast: false });
+  /* 浅木色吊柜（水槽上方）＋ 下沿拉手 ＋ 白色底板 */
+  rblock(280, W, 150, 232, -151, -91, kWoodM, 1);
+  block(281, W - 1, 149.4, 150.2, -150, -92, mat(0xf2f1ec), { cast: false });
+  rblock(279, 280.2, 155, 156.4, -146, -132, steelM, 0.4);
+  /* 吊柜下的黑色挂杆 ＋ S 钩，挂平底锅、汤勺、漏勺、锅铲 */
+  const rackM = mat(0x1c1c1e, { roughness: 0.5, metalness: 0.4 });
+  const utM = mat(0xc4c8cb, { roughness: 0.32, metalness: 0.9, side: THREE.DoubleSide });
+  block(287, 288.2, 145, 146.2, -149, -94, rackM);
+  [-147, -96].forEach(z => block(287, 288.2, 146, 149.4, z - 0.6, z + 0.6, rackM));
+  const hook = (z, yb) => block(287.3, 287.9, yb, 145, z - 0.3, z + 0.3, steelM);
+  hook(-140, 139);
+  block(286.8, 288.8, 123, 139.5, -141.2, -138.8, rackM);                              // 平底锅柄
+  const pan = new THREE.Mesh(new THREE.CylinderGeometry(12, 11, 3, 32), rackM);
+  pan.rotation.z = Math.PI / 2; pan.position.set(288, 111.5, -140); pan.castShadow = true; scene.add(pan);
+  const panRim = new THREE.Mesh(new THREE.TorusGeometry(12, 0.8, 8, 32), rackM);
+  panRim.rotation.y = Math.PI / 2; panRim.position.set(288, 111.5, -140); scene.add(panRim);
+  [[-128, 3.6], [-120, 4.6]].forEach(([z, r]) => {                                    // 汤勺、漏勺
+    hook(z, 142);
+    cyl(0.5, 0.5, 26, 287.6, 129, z, utM);
+    const bowl = new THREE.Mesh(new THREE.SphereGeometry(r, 16, 8, 0, Math.PI * 2, Math.PI / 2, Math.PI / 2), utM);
+    bowl.position.set(287.6, 116 + r * 0.3, z); bowl.castShadow = true; scene.add(bowl);
+  });
+  hook(-111, 142);                                                                     // 锅铲
+  cyl(0.5, 0.5, 22, 287.6, 131, -111, utM);
+  block(287.2, 288, 110, 120, -114.5, -107.5, utM);
 }
 
-/* 洗衣机：x 255–315，z -282..-215，放在白色防水盘里；滚筒式，门朝西。
-   机身 ＋ 顶部操作面板（旋钮、显示条、洗衣液抽屉）＋ 圆门（镀铬圈 ＋ 黑玻璃） */
+/* ---------- 冰箱（厨房南侧，靠卧室）：白色双门小冰箱，高 120，门朝走廊；顶上一台白色微波炉 ---------- */
 {
+  const fM = mat(0xf4f3ef, { roughness: 0.35, metalness: 0.05 });
+  rblock(262, 314, 1, 120, -77, -19, fM, 2.5);                                        // 箱体
+  block(263, 312, 0, 1.2, -75, -21, plinthM, { cast: false });
+  rblock(259.2, 262.4, 80, 119.4, -76.6, -19.4, fM, 1.2);                             // 上门（冷冻）
+  rblock(259.2, 262.4, 2, 79.2, -76.6, -19.4, fM, 1.2);                               // 下门（冷藏）
+  block(258.9, 259.4, 82, 96, -76, -73.5, mat(0xd2d1cc), { cast: false });           // 门边的竖向拉手凹位
+  block(258.9, 259.4, 60, 77, -76, -73.5, mat(0xd2d1cc), { cast: false });
+  block(258.9, 259.3, 110, 112, -50, -42, mat(0xa8aaac), { cast: false });           // 小铭牌
+  /* 微波炉：门朝西，观察窗在北、操作面板在南 */
+  const mwM = mat(0xf6f6f4, { roughness: 0.35 });
+  rblock(268, 312, 120, 148, -72, -24, mwM, 1.5);
+  rblock(267.2, 268.4, 121.5, 146.5, -71.4, -37, mwM, 0.6);                           // 门
+  block(266.9, 267.3, 126, 142, -67, -42, blackGlassM, { cast: false });              // 观察窗
+  block(267.5, 268.1, 138, 142, -34, -27, blackGlassM, { cast: false });              // 显示屏
+  for (let i = 0; i < 4; i++) block(267.5, 268.1, 124 + i * 3.4, 126 + i * 3.4, -34, -27, mat(0xbfc2c4), { cast: false });
+  for (let i = 0; i < 6; i++) block(285, 305, 127 + i * 2.6, 128 + i * 2.6, -24.15, -23.85, mat(0x9a9c9e), { cast: false });   // 侧面散热格栅
+}
+
+/* ---------- 洗衣机凹室（厨房北侧、靠玄关）：x 252–315，z -290..-200，米木色门（开着一半）＋ 墙上水龙头 ---------- */
+{
+  fadable(block(252, W, 0, H, -290, -286, wallMat, { cast: false }), 0, -1);         // 北隔墙
+  fadable(block(252, W, 0, H, -204, -200, wallMat, { cast: false }), 0, 1);          // 南隔墙（和厨房之间）
+  fadable(block(252, 255, 0, H, -286, -280, wallMat, { cast: false }), -1, 0);       // 门洞两侧
+  fadable(block(252, 255, 0, H, -210, -204, wallMat, { cast: false }), -1, 0);
+  fadable(block(252, 255, 200, H, -280, -210, wallMat, { cast: false }), -1, 0);     // 门洞上方
+  casingX(252, -1, -280, -210, 200, beigeCasingM, -1);
+  /* 米木色门：北侧铰链，向走廊拉开约 65°（实拍里手正拉着这扇门） */
+  swingDoor(253.5, -279, 68, 198, 3, -65 * Math.PI / 180, beigeDoorM, (put, w, h, t) => {
+    put(t + 0.2, h - 12, 0.3, 0, h / 2 + 0.5, 22, grooveM);
+    [-1, 1].forEach(s => put(2.2, 7, 2, s * (t / 2 + 1), 100, w - 5, leverM));        // 小拉手（两面）
+  });
+  /* 东墙上的洗衣机水龙头 ＋ 进水软管；南隔墙上的插座 */
+  cyl(1.4, 1.4, 6, 312, 118, -246, chromeM, { rz: Math.PI / 2 });
+  cyl(2, 2, 6, 308.5, 117, -246, chromeM);
+  block(307, 310, 120.5, 121.5, -250, -242, chromeM);
+  block(307.9, 309.1, 120.5, 121.5, -246.5, -245.5, chromeM);
+  cyl(1, 1, 5, 308.5, 111.5, -246, chromeM);
+  const inHose = new THREE.Mesh(new THREE.TubeGeometry(new THREE.CatmullRomCurve3([
+    new THREE.Vector3(308.5, 109, -246), new THREE.Vector3(309, 100, -244), new THREE.Vector3(306, 92, -240)]), 16, 0.8, 8),
+    mat(0xf2f2f0, { roughness: 0.5 }));
+  scene.add(inHose);
+  block(300, 308, 118, 130, -204.6, -204, mat(0xf6f5f1, { roughness: 0.4 }), { cast: false });
+  /* 洗衣机：上开盖波轮式，银色机身 ＋ 黑色顶盖，放在白色防水盘里 */
   basinWall(255, W, -282, -215, 0, 5, 3, 3, 4, mat(0xf4f4f2, { roughness: 0.5 }), 0.6);   // 防水盘
   block(258, W - 3, 0, 1.5, -279, -218, mat(0xe9e9e6), { cast: false });
-  rblock(258.5, 313, 5, 90, -280, -217, applianceM, 3);                         // 机身
-  rblock(257.4, 259, 76, 88, -279, -218, mat(0xf6f6f4, { roughness: 0.3 }), 1); // 操作面板
-  rblock(256.4, 257.6, 79, 85, -278, -264, applianceM, 0.5);                    // 洗衣液抽屉
-  rblock(256.9, 257.5, 80, 84, -257, -240, blackGlassM, 0.3);                   // 显示条
-  cyl(3, 3, 2, 257, 82, -229, steelM, { rz: Math.PI / 2 });                      // 旋钮
-  const doorRing = new THREE.Mesh(new THREE.TorusGeometry(15, 2.2, 14, 48), chromeM);
-  doorRing.rotation.y = -Math.PI / 2; doorRing.position.set(257.4, 44, -248.5);
-  doorRing.castShadow = true; scene.add(doorRing);
-  const doorGlass = new THREE.Mesh(new THREE.CircleGeometry(13.4, 48), blackGlassM);
-  doorGlass.rotation.y = -Math.PI / 2; doorGlass.position.set(257.6, 44, -248.5);
-  scene.add(doorGlass);
+  const silverM = mat(0xb8bbbe, { roughness: 0.35, metalness: 0.55 });
+  const lidM = mat(0x16171a, { roughness: 0.25, metalness: 0.2 });
+  rblock(262, 311, 5, 86, -273, -224, silverM, 3);                                    // 银色机身
+  rblock(261.5, 311.5, 84, 90, -273.5, -223.5, lidM, 2);                              // 黑色顶框
+  rblock(275, 309, 89.5, 91.6, -270, -227, lidM, 1.5);                                // 上开盖
+  block(279, 287, 91.5, 91.9, -259, -238, mat(0x2c2d31), { cast: false });           // 盖上的把手凹槽
+  rblock(263, 273, 89.5, 90.8, -270, -227, mat(0x24252a, { roughness: 0.3 }), 0.3);   // 前沿操作面板
+  for (let i = 0; i < 6; i++) block(266, 269, 90.8, 91.1, -266 + i * 6, -263.5 + i * 6, mat(0xdadcdf), { cast: false });
 }
 
-/* 鞋柜：x 275–315，z NZ+5..-300，高 100，门朝西。木纹柜体 ＋ 内收踢脚 ＋ 两扇竖条纹（长虹）柜门（按压开，无把手）＋ 稍深一点的顶板 */
+/* ---------- 玄关：浅色入户门（顶上闭门器）＋ 低调的米木色鞋柜（x 275–315，不挡门） ---------- */
 {
-  const shoeM = woodMat(34, 30, 70, { roughness: 0.55 }), shoeTopM = woodMat(30, 34, 52, { roughness: 0.45 });
+  const doorM = mat(0xe9e5dc, { roughness: 0.5 }), metalM = mat(0xb8bcbf, { metalness: 0.8, roughness: 0.3 });
+  fadable(block(150, 230, 0, 200, NZ - 6, NZ - 2, doorM, { cast: false }), 0, -1);     // 入户门
+  cyl(2.2, 2.2, 6, 157, 95, NZ + 1, metalM, { rx: Math.PI / 2 });                      // 拉手
+  block(156, 170, 94, 96.4, NZ + 3, NZ + 5, metalM);
+  block(172, 198, 191, 197, NZ - 2, NZ + 4, metalM);                                   // 闭门器
+  block(186, 212, 194, 196, NZ + 3, NZ + 5.5, metalM);
+  const shoeM = woodMat(40, 26, 84, { roughness: 0.6 }), shoeTopM = mat(0xf2f0eb, { roughness: 0.4 });
   const z0 = NZ + 5, z1 = -300, zm = (z0 + z1) / 2;
-  block(279, W, 0, 6, z0 + 2, z1 - 2, plinthM, { cast: false });              // 内收踢脚
-  block(277.5, W, 6, 97.5, z0, z1, shoeM);                                     // 柜体
-  rblock(275, W, 97.5, 100, z0, z1, shoeTopM, 0.6);                            // 顶板
-  [[z0 + 0.4, zm - 0.3], [zm + 0.3, z1 - 0.4]].forEach(([a, b]) => {
-    block(276.4, 277.6, 6.5, 97, a, b, shoeM);                                 // 门板
-    const n = Math.floor((b - a) / 4.6);
-    for (let i = 0; i < n; i++) {
-      const s0 = a + (b - a - n * 4.6) / 2 + i * 4.6;
-      rblock(275, 276.6, 7, 96.5, s0 + 0.35, s0 + 4.25, shoeM, 0.7);           // 竖条
-    }
-  });
+  block(279, W, 0, 6, z0 + 2, z1 - 2, mat(0xd8d4cc), { cast: false });               // 内收踢脚
+  block(277.5, W, 6, 97.5, z0, z1, shoeM);                                            // 柜体
+  rblock(276, W, 97.5, 100, z0, z1, shoeTopM, 0.6);                                   // 顶板
+  [[z0 + 0.4, zm - 0.3], [zm + 0.3, z1 - 0.4]].forEach(([a, b]) => block(276.6, 277.6, 6.5, 97, a, b, shoeM));   // 平板门（按压开）
 }
 
-label('[估算] 浴室', 61, 70, -210, 'est');
-label('[估算] 厕所', 61, 70, -65, 'est');
+label('[估算] 整体浴室', 61, 90, -68, 'est');
+label('[估算] 厕所', 70, 110, -250, 'est');
 label('[估算] 走廊', 185, 10, -150, 'est');
-label('[估算] 厨房', 285, 110, -145, 'est');
-label('[估算] 冰箱位', 285, 185, -48, 'est');
-label('[估算] 洗衣机位', 285, 105, -248, 'est');
+label('[估算] 厨房', 285, 110, -125, 'est');
+label('[估算] 冰箱 ＋ 微波炉', 285, 165, -48, 'est');
+label('[估算] 洗衣机凹室', 285, 120, -248, 'est');
 label('[估算] 玄关', 200, 10, -340, 'est');
-
 /* ---------- 视角 ---------- */
 const views = {
   iso:     { p: [-520, 650, 800],  t: [90, 20, 150] },
@@ -1952,7 +2183,8 @@ function frame_() {
   if (horiz > 1e-3) dir.divideScalar(horiz);
   const lerpK = 1 - Math.exp(-dt * 10);
   for (const f of faders) {
-    const hide = autoHide && flat > 0.2 && f.n.dot(dir) > f.threshold;
+    const hide = f.up !== undefined ? camera.position.y > f.up                  // 天花板：相机比它高就淡出
+                                    : autoHide && flat > 0.2 && f.n.dot(dir) > f.threshold;
     const m = f.mesh.material;
     const target = hide ? 0.05 : f.mesh.userData.base;
     m.opacity = approach(m.opacity, target, lerpK, 0.004);
