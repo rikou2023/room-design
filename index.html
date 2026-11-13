@@ -49,8 +49,25 @@
   #tabs { display: none; }
   .grab { display: none; }
   /* 编辑开关：默认浏览模式，家具和桌面物品都不能动；点了「编辑」才放开 */
-  #btnEdit { position: fixed; top: 14px; left: 50%; transform: translateX(-50%); z-index: 4; padding: 8px 18px;
-    border-radius: 999px; font-size: 13px; box-shadow: 0 2px 8px rgba(70,55,30,.18); }
+  #modeBar { position: fixed; top: 14px; left: 50%; transform: translateX(-50%); z-index: 4; display: flex; gap: 8px; }
+  #modeBar button { padding: 8px 18px; border-radius: 999px; font-size: 13px; white-space: nowrap; min-height: 0;
+    box-shadow: 0 2px 8px rgba(70,55,30,.18); }
+  /* 室内漫游：站位按钮、前进后退、提示；漫游时不显示标签，电脑端收起两侧面板 */
+  #walkSpots, #walkPad, #walkTip { display: none; position: fixed; z-index: 4; }
+  #walkSpots { top: 58px; left: 50%; transform: translateX(-50%); gap: 6px; padding: 4px;
+    max-width: calc(100vw - 16px); overflow-x: auto; scrollbar-width: none; }
+  #walkSpots button { flex: none; padding: 6px 13px; border-radius: 999px; min-height: 0; background: rgba(255,255,255,.92); }
+  #walkPad { left: 14px; bottom: 20px; flex-direction: column; gap: 8px; }
+  #walkPad button { width: 66px; height: 56px; border-radius: 14px; font-size: 13px; padding: 0; background: rgba(255,255,255,.92);
+    touch-action: none; user-select: none; -webkit-user-select: none; -webkit-touch-callout: none; }
+  #walkTip { bottom: 18px; left: 50%; transform: translateX(-50%); margin: 0; padding: 6px 14px; border-radius: 999px;
+    font-size: 11px; color: #5c584f; background: rgba(255,255,255,.88); white-space: nowrap; max-width: calc(100vw - 180px);
+    overflow: hidden; text-overflow: ellipsis; }
+  body.walk #walkSpots, body.walk #walkPad { display: flex; }
+  body.walk #walkTip { display: block; }
+  body.walk .lb { display: none !important; }
+  body.walk #btnEdit { display: none; }
+  @media (min-width: 900px) { body.walk #top, body.walk #right, body.walk #help { display: none; } }
   body:not(.editing) .edit-only { opacity: .42; pointer-events: none; }
   body.editing .view-only { display: none; }
   /* 左侧操作台：「图 ＋ 名字」卡片网格（暖色纸感，选中 = 绿色描边 ＋ 浅绿底） */
@@ -108,6 +125,8 @@
     .cable { padding: 8px 6px; }
     .touch-tip { display: block; }
     #help { display: none; }
+    #walkPad { bottom: calc(72px + env(safe-area-inset-bottom)); }
+    #walkTip { bottom: calc(76px + env(safe-area-inset-bottom)); left: auto; right: 10px; transform: none; max-width: calc(100vw - 110px); }
     /* 抽屉顶部：一条把手（点一下或往下滑收起），不再重复显示大标题 */
     #top > h1 { display: none; }
     .grab { display: block; position: sticky; top: -12px; z-index: 2; width: calc(100% + 28px); min-height: 0;
@@ -232,7 +251,10 @@
     浴室、厕所、厨房、冰箱（约 120 高）＋ 微波炉、洗衣机（上开盖）的样子按实拍视频画，尺寸未实测。</p>
   <p>[待确认] 北墙网口和墙插的位置沿用以前布线图里的位置。东墙侧桌（目录里的电视、PS5）的电源没有画：不知道东墙附近有没有插座。</p>
 </div>
-<button id="btnEdit" aria-pressed="false">编辑</button>
+<div id="modeBar"><button id="btnWalk" aria-pressed="false">室内漫游</button><button id="btnEdit" aria-pressed="false">编辑</button></div>
+<div id="walkSpots"></div>
+<div id="walkPad"><button data-walk="f">前进</button><button data-walk="b">后退</button></div>
+<p id="walkTip">拖动转头 · 点地面走过去 · 点门开关 · 电脑可用 W A S D</p>
 <div id="help" class="panel">左键拖动：旋转　右键拖动：平移　滚轮：缩放　点「编辑」后可拖动家具和桌面物品<br>
   点击门 / 灯具：开关　编辑时点击家具：选中，可拖动，Delete 删除、R 旋转</div>
 <nav id="tabs">
@@ -576,6 +598,15 @@ function fadableUp(mesh, yAbove) {
   fadable(mesh, 0, 1);
   faders[faders.length - 1].up = yAbove;
   return mesh;
+}
+/* 整块白色天花板。天花板朝下，直射光照不到，实际是靠墙面、地面的反光才亮的：
+   这里用一点自发光冒充反光（白天亮、关灯看投影时压暗，见 frame_），不然在屋里抬头是一片黑 */
+const ceilMats = [];
+function ceiling(x0, x1, z0, z1) {
+  const m = fadableUp(block(x0, x1, H, H + 2, z0, z1,
+    mat(0xf7f6f2, { roughness: 0.95, emissive: 0xfff6ea, emissiveIntensity: 0.4 }), { cast: false }), H - 2);
+  ceilMats.push(m.material);
+  return m;
 }
 
 /* ---------- 门注册表：每扇（或联动的一组）门登记一次，面板卡片、点击门扇、frame_ 动画、localStorage 都只认这里 ----------
@@ -1957,7 +1988,8 @@ block(0, 122, -6, 0, -290, -215, tileMat(122, 75, 0xf4f2ee), { cast: false });  
 block(122, W, -6, -3, NZ, -290, mat(0xffffff, { map: tiled(marbleTex, W - 122, 100, 80), roughness: 0.3 }), { cast: false });        // 玄关：浅色石纹地砖
 
 /* 走廊 / 玄关天花板 ＋ 一路圆形嵌入式筒灯。相机高过层高（俯视、斜俯视）时天花板自动淡出 */
-fadableUp(block(122, W, H, H + 2, NZ, -T, mat(0xf7f6f2, { roughness: 0.95 }), { cast: false }), H - 2);
+ceiling(122, W, NZ, -T);
+ceiling(0, W, 0, D);                                          // 卧室天花板（原来没画，在屋里抬头会看到背景色）
 {
   const trimM = mat(0xf4f4f2, { roughness: 0.4 });
   /* 走廊三盏（z -55 / -150 / -245）共用一盏真实聚光（放在中间那盏的位置），玄关一盏单独一组 */
@@ -2116,7 +2148,7 @@ function casingX(xf, dx, a, b, top, m, nx) {
   rblock(36, 52, 66, 71, -221, -215, chromeM, 1);
   cyl(5.5, 5.5, 11, 44, 61, -220.5, mat(0xfbfbf9, { roughness: 0.9 }), { rz: Math.PI / 2 });
   /* 厕所天花板（新加，俯视时淡出）＋ 小圆吸顶灯（新加）：小房间，聚光 intensity 4.5 万 → 地面照度约 0.8，墙面更亮 */
-  fadableUp(block(0, 122, H, H + 2, -290, -215, mat(0xf7f6f2, { roughness: 0.95 }), { cast: false }), H - 2);
+  ceiling(0, 122, -290, -215);
   const tl = new THREE.Mesh(new THREE.SphereGeometry(8, 24, 12, 0, Math.PI * 2, Math.PI / 2, Math.PI / 2),
     mat(0xffffff, { emissive: 0xfff6e8, emissiveIntensity: 0.9, roughness: 0.3 }));
   tl.position.set(72, H, -252.5); scene.add(tl);
@@ -2336,6 +2368,9 @@ const views = {
   entry:   { p: [205, 155, -292],  t: [185, 95, -395],   fov: 70 },
 };
 let tween = null, viewFov = null;
+/* 室内漫游：人站在屋里，眼睛高度固定；yaw = 朝向（0 朝北，π/2 朝东，π 朝南），pitch = 抬头（正）/ 低头（负） */
+const EYE = 150, WALK_SPEED = 130;                            // 眼高 cm [占位]、步行速度 cm/s
+const walk = { on: false, x: 0, z: 0, yaw: 0, pitch: 0, keys: {}, goto: null, fly: null };
 function baseFov() { return camera.aspect < 0.8 ? 55 : 38; }   // 竖屏手机：视野角放大，左右能多看到一点
 /* 视角预设是按横屏（宽高比约 1.6）调的。竖屏时左右能看到的范围窄很多：
    看全屋的视角按宽高比拉远；室内视角不拉远（一拉就会退进衣柜、墙里），只靠竖屏时放大视野角（见 resize） */
@@ -2348,6 +2383,7 @@ function fitK(name) {
   return Math.min(Math.pow(1.6 / a, 0.32), 1.5);
 }
 function go(name, instant) {
+  if (walk.on) setWalk(false, true);                         // 漫游中点了视角卡片：先退出漫游
   const v = views[name];
   const t = new THREE.Vector3(...v.t);
   const p = new THREE.Vector3(...v.p).sub(t).multiplyScalar(fitK(name)).add(t);
@@ -2923,6 +2959,7 @@ function clickScene(e) {
   const h = pickScene(e);
   if (h && h.door) { toggleDoor(h.door); return; }
   if (h && h.light) toggleLight(h.light);
+  if (walk.on) { if (!h || !h.light) walkTap(e); return; }   // 漫游：没点到门 / 灯，就看是不是点了地面
   if (!editMode) return;                                     // 浏览模式：家具不能选中
   if (h && h.furn && furnById(h.furn)) { if (selId !== h.furn) select(h.furn); }
   else if (!h || !h.light) select(null);                     // 点空地 = 取消选中
@@ -3144,6 +3181,178 @@ function setEdit(on) {
   invalidate();
 }
 btnEdit.addEventListener('click', () => setEdit(!editMode));
+
+/* ===================================================================
+   室内漫游
+   - 进入：相机落到「进门」站位，视野角放大；视角控制器停用，拖动 = 原地转头
+   - 走动：W A S D / 方向键、屏幕上的「前进 / 后退」、滚轮、点地面走过去
+   - 碰撞：在膝盖和胸口两个高度往前打射线，前面 24 cm 内有墙 / 门扇 / 家具就不走（会先试着贴着滑）
+   - 门和灯照常点；墙体自动隐藏停用（人在屋里，墙必须都在）
+   =================================================================== */
+const WALK_SPOTS = [
+  ['进门', 190, -352, Math.PI],
+  ['走廊', 190, -190, Math.PI],
+  ['厨房', 178, -140, Math.PI / 2],
+  ['浴室', 100, -140, -Math.PI / 2],
+  ['卧室门口', 185, 32, Math.PI],
+  ['书桌前', 150, 95, -Math.PI / 2, -0.42],
+  ['窗边', 225, 285, -0.65],
+];
+const btnWalk = document.getElementById('btnWalk'), walkSpotsEl = document.getElementById('walkSpots');
+const walkFov = () => (camera.aspect < 0.8 ? 80 : 70);
+function walkFly(x, z, yaw, pitch = -0.06, instant) {       // 换站位：0.7 秒滑过去（不做碰撞）
+  if (instant) { walk.x = x; walk.z = z; walk.yaw = yaw; walk.pitch = pitch; walk.fly = null; }
+  else {
+    const dy = Math.atan2(Math.sin(yaw - walk.yaw), Math.cos(yaw - walk.yaw));   // 走最短的转向
+    walk.fly = { x0: walk.x, z0: walk.z, y0: walk.yaw, p0: walk.pitch, x1: x, z1: z, y1: walk.yaw + dy, p1: pitch, k: 0 };
+  }
+  walk.goto = null;
+  invalidate();
+}
+WALK_SPOTS.forEach(([name, x, z, yaw, pitch]) => {
+  const b = document.createElement('button');
+  b.textContent = name;
+  b.addEventListener('click', () => walkFly(x, z, yaw, pitch));
+  walkSpotsEl.appendChild(b);
+});
+function setWalk(on, silent) {                               // silent：由 go() 调用，退出后的视角它自己定
+  if (walk.on === on) return;
+  walk.on = on;
+  document.body.classList.toggle('walk', on);
+  btnWalk.classList.toggle('on', on);
+  btnWalk.textContent = on ? '退出漫游' : '室内漫游';
+  btnWalk.setAttribute('aria-pressed', on ? 'true' : 'false');
+  walk.keys = {}; walk.goto = null; walk.fly = null;
+  if (on) {
+    setEdit(false);
+    tween = null;
+    controls.enabled = false;
+    viewBtns.forEach(v => v.classList.remove('on'));
+    if (NARROW.matches) setTab(document.body.dataset.tab, false);
+    viewFov = walkFov();
+    camera.fov = viewFov; camera.updateProjectionMatrix();
+    const [, x, z, yaw] = WALK_SPOTS[1];                      // 从走廊开始：一进来就能看到厨房、浴室和卧室门
+    walkFly(x, z, yaw, -0.06, true);
+  } else {
+    controls.enabled = true;
+    camera.rotation.order = 'XYZ';
+    viewFov = null;
+    if (!silent) go('iso');
+  }
+  invalidate();
+}
+btnWalk.addEventListener('click', () => setWalk(!walk.on));
+
+const wray = new THREE.Raycaster(), _wo = new THREE.Vector3(), _wd = new THREE.Vector3();
+const walkSolid = o => o.isMesh && !o.userData.noPick && !Array.isArray(o.material) && shownIn(o) &&
+  !(o.material.transparent && o.material.opacity < 0.12);
+/* 从 (x, z) 沿单位方向 (dx, dz) 走 dist，会不会撞上东西 */
+function walkBlocked(x, z, dx, dz, dist) {
+  _wd.set(dx, 0, dz);
+  for (const y of [35, 105]) {
+    wray.set(_wo.set(x, y, z), _wd);
+    wray.near = 0; wray.far = dist + 24;
+    if (wray.intersectObject(scene, true).some(h => walkSolid(h.object))) return true;
+  }
+  return false;
+}
+function walkMove(mx, mz, step) {                            // 走一步；撞了就试着只沿一个方向滑。返回有没有动
+  if (!walkBlocked(walk.x, walk.z, mx, mz, step)) { walk.x += mx * step; walk.z += mz * step; return true; }
+  if (Math.abs(mx) > 0.05 && !walkBlocked(walk.x, walk.z, Math.sign(mx), 0, Math.abs(mx) * step)) { walk.x += mx * step; return true; }
+  if (Math.abs(mz) > 0.05 && !walkBlocked(walk.x, walk.z, 0, Math.sign(mz), Math.abs(mz) * step)) { walk.z += mz * step; return true; }
+  return false;
+}
+function walkStep(dt) {                                      // 每帧：算位置和朝向，摆相机。返回还在不在动
+  let moving = false;
+  if (walk.fly) {
+    const f = walk.fly;
+    f.k = Math.min(1, f.k + dt / 0.7);
+    const e = f.k < 0.5 ? 2 * f.k * f.k : 1 - Math.pow(-2 * f.k + 2, 2) / 2;
+    walk.x = f.x0 + (f.x1 - f.x0) * e; walk.z = f.z0 + (f.z1 - f.z0) * e;
+    walk.yaw = f.y0 + (f.y1 - f.y0) * e; walk.pitch = f.p0 + (f.p1 - f.p0) * e;
+    if (f.k >= 1) walk.fly = null;
+    moving = true;
+  } else {
+    const K = walk.keys, fwd = (K.f ? 1 : 0) - (K.b ? 1 : 0), str = (K.r ? 1 : 0) - (K.l ? 1 : 0);
+    const sn = Math.sin(walk.yaw), cs = Math.cos(walk.yaw);
+    let mx = 0, mz = 0, step = WALK_SPEED * dt;
+    if (fwd || str) { mx = sn * fwd + cs * str; mz = -cs * fwd + sn * str; walk.goto = null; }
+    else if (walk.goto) {
+      mx = walk.goto.x - walk.x; mz = walk.goto.z - walk.z;
+      const d = Math.hypot(mx, mz);
+      if (d < 3) { walk.goto = null; mx = mz = 0; } else step = Math.min(step, d);
+    }
+    const len = Math.hypot(mx, mz);
+    if (len > 1e-6) {
+      if (walkMove(mx / len, mz / len, step)) moving = true; else walk.goto = null;
+    }
+  }
+  camera.position.set(walk.x, EYE, walk.z);
+  camera.rotation.set(walk.pitch, -walk.yaw, 0, 'YXZ');
+  /* 视角控制器虽然停用，别处还会读它的目标点（标签远近等），让它一直在视线前方 1 m */
+  controls.target.set(walk.x + Math.sin(walk.yaw) * 100, EYE + Math.sin(walk.pitch) * 100, walk.z - Math.cos(walk.yaw) * 100);
+  return moving;
+}
+/* 点地面走过去：点中的第一个实体如果是朝上的面、而且在脚边高度，就把它当目的地 */
+function walkTap(e) {
+  setRay(e);
+  const h = ray.intersectObject(scene, true).find(q => walkSolid(q.object));
+  if (!h || h.point.y > 6 || !h.face) return;
+  walk.goto = { x: h.point.x, z: h.point.z };
+  invalidate();
+}
+/* 拖动 = 原地转头（画面跟着手指走） */
+let look = null;
+renderer.domElement.addEventListener('pointerdown', e => {
+  if (!walk.on || !e.isPrimary || e.button !== 0) return;
+  look = { id: e.pointerId, x: e.clientX, y: e.clientY };
+  renderer.domElement.setPointerCapture(e.pointerId);
+});
+renderer.domElement.addEventListener('pointermove', e => {
+  if (!look || e.pointerId !== look.id || !walk.on) return;
+  const k = THREE.MathUtils.degToRad(camera.fov) / window.innerHeight;
+  walk.yaw -= (e.clientX - look.x) * k;
+  walk.pitch = clampR(walk.pitch + (e.clientY - look.y) * k, -1.2, 1.2);
+  look.x = e.clientX; look.y = e.clientY;
+  if (walk.fly) walk.fly = null;
+  invalidate();
+});
+['pointerup', 'pointercancel'].forEach(t => renderer.domElement.addEventListener(t, e => {
+  if (!look || e.pointerId !== look.id) return;
+  look = null;
+  if (renderer.domElement.hasPointerCapture(e.pointerId)) renderer.domElement.releasePointerCapture(e.pointerId);
+}));
+/* 滚轮：往前 / 往后走一小步 */
+renderer.domElement.addEventListener('wheel', e => {
+  if (!walk.on) return;
+  e.preventDefault();
+  const s = e.deltaY < 0 ? 1 : -1;
+  walkMove(Math.sin(walk.yaw) * s, -Math.cos(walk.yaw) * s, 22);
+  walk.goto = null;
+  invalidate();
+}, { passive: false });
+/* 键盘：W A S D / 方向键走动，Esc 退出 */
+const WALK_KEYS = { w: 'f', arrowup: 'f', s: 'b', arrowdown: 'b', a: 'l', arrowleft: 'l', d: 'r', arrowright: 'r' };
+window.addEventListener('keydown', e => {
+  if (!walk.on) return;
+  const t = e.target;
+  if (t && (t.isContentEditable || /^(INPUT|TEXTAREA|SELECT)$/.test(t.tagName))) return;
+  if (e.key === 'Escape') { setWalk(false); return; }
+  const k = WALK_KEYS[e.key.toLowerCase()];
+  if (!k || e.ctrlKey || e.metaKey || e.altKey) return;
+  e.preventDefault();
+  walk.keys[k] = true;
+  invalidate();
+});
+window.addEventListener('keyup', e => { const k = WALK_KEYS[e.key.toLowerCase()]; if (k) walk.keys[k] = false; });
+window.addEventListener('blur', () => { walk.keys = {}; });
+/* 屏幕上的前进 / 后退：按住就走 */
+document.querySelectorAll('#walkPad [data-walk]').forEach(b => {
+  const k = b.dataset.walk;
+  b.addEventListener('pointerdown', e => { e.preventDefault(); b.setPointerCapture(e.pointerId); walk.keys[k] = true; invalidate(); });
+  ['pointerup', 'pointercancel', 'lostpointercapture'].forEach(t => b.addEventListener(t, () => { walk.keys[k] = false; }));
+  b.addEventListener('contextmenu', e => e.preventDefault());
+});
 furnRotEl.addEventListener('click', rotateSel);
 furnDelEl.addEventListener('click', deleteSel);
 document.getElementById('btnRoomReset').addEventListener('click', resetRoom);
@@ -3195,7 +3404,7 @@ function resize() {
   composer.setPixelRatio(pr); composer.setSize(w, h);
   if (fxaa) fxaa.material.uniforms.resolution.value.set(1 / (w * pr), 1 / (h * pr));
   camera.aspect = w / h;
-  camera.fov = viewFov || baseFov();
+  camera.fov = walk.on ? walkFov() : (viewFov || baseFov());
   camera.updateProjectionMatrix();
   updateSheetOffset();
   invalidate();
@@ -3223,7 +3432,8 @@ function frame_() {
     if (tween.k >= 1) tween = null;
     busy = true;
   }
-  if (controls.update()) busy = true;                       // 阻尼还在动
+  if (walk.on) { if (walkStep(dt)) busy = true; }           // 漫游：自己管相机，不走视角控制器
+  else if (controls.update()) busy = true;                  // 阻尼还在动
 
   dir.set(camera.position.x - controls.target.x, camera.position.z - controls.target.z);
   const horiz = dir.length();
@@ -3232,7 +3442,7 @@ function frame_() {
   const lerpK = 1 - Math.exp(-dt * 10);
   for (const f of faders) {
     const hide = f.up !== undefined ? camera.position.y > f.up                  // 天花板：相机比它高就淡出
-                                    : autoHide && flat > 0.2 && f.n.dot(dir) > f.threshold;
+                                    : !walk.on && autoHide && flat > 0.2 && f.n.dot(dir) > f.threshold;   // 漫游时墙都显示
     const m = f.mesh.material;
     const target = hide ? 0.05 : f.mesh.userData.base;
     m.opacity = approach(m.opacity, target, lerpK, 0.004);
@@ -3290,6 +3500,7 @@ function frame_() {
     for (const s of L.mats) s.m.emissiveIntensity = s.max * L.cur;
   }
   const bgT = night ? BG_DARK : BG_DAY;
+  ceilMats.forEach(m => { m.emissiveIntensity = night ? 0.04 : 0.4; });
   scene.background.lerp(bgT, k2);
   if (Math.abs(scene.background.r - bgT.r) + Math.abs(scene.background.g - bgT.g) + Math.abs(scene.background.b - bgT.b) < 0.003) scene.background.copy(bgT);
   else busy = true;
