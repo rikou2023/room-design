@@ -2107,7 +2107,7 @@ function casingX(xf, dx, a, b, top, m, nx) {
   const l2 = leaf(XD - PW * Math.sin(FA), DZ0 + 0.5 + PW * Math.cos(FA), FA, false); // 第二扇：折回门轨
   /* 开合：角度 a = FA·t。第一扇绕北门框转 -a；第二扇的铰链跟着第一扇的自由边走，自己转 +a（自由边始终在门轨 x=XD 上）。
      a = 0 时两扇共面封住门洞 */
-  regDoor('bath', '浴室折门', 'dr-bath', true, t => {
+  regDoor('bath', '浴室折门', 'dr-bath', false, t => {
     const a = FA * t;
     l1.rotation.y = -a;
     l2.position.set(XD - PW * Math.sin(a), 0, DZ0 + 0.5 + PW * Math.cos(a)); l2.rotation.y = a;
@@ -2163,7 +2163,7 @@ function casingX(xf, dx, a, b, top, m, nx) {
     put(t + 4, 4, 4, 0, 95, w - 6, leverM);                                           // 拉手底座
     [-1, 1].forEach(s => put(1.6, 1.6, 11, s * (t / 2 + 2), 95, w - 11, leverM));     // 拉手（两面，朝铰链方向）
   });
-  regDoor('toilet', '厕所门', 'dr-toilet', true, t => { td.rotation.y = t * 45 * Math.PI / 180; }, [td]);
+  regDoor('toilet', '厕所门', 'dr-toilet', false, t => { td.rotation.y = t * 45 * Math.PI / 180; }, [td]);
 }
 
 /* ---------- 厨房（东墙一线，柜门朝西）：x 255–315，z -200..-90，台面高 85 ----------
@@ -2280,7 +2280,7 @@ function casingX(xf, dx, a, b, top, m, nx) {
     put(t + 0.2, h - 12, 0.3, 0, h / 2 + 0.5, 22, grooveM);
     [-1, 1].forEach(s => put(2.2, 7, 2, s * (t / 2 + 1), 100, w - 5, leverM));        // 小拉手（两面）
   });
-  regDoor('washer', '洗衣机门', 'dr-washer', true, t => { wd.rotation.y = -t * 65 * Math.PI / 180; }, [wd]);   // 关 = 0 封住凹室口
+  regDoor('washer', '洗衣机门', 'dr-washer', false, t => { wd.rotation.y = -t * 65 * Math.PI / 180; }, [wd]);   // 关 = 0 封住凹室口
   /* 东墙上的洗衣机水龙头 ＋ 进水软管；南隔墙上的插座 */
   cyl(1.4, 1.4, 6, 312, 118, -246, chromeM, { rz: Math.PI / 2 });
   cyl(2, 2, 6, 308.5, 117, -246, chromeM);
@@ -2339,7 +2339,7 @@ function casingX(xf, dx, a, b, top, m, nx) {
   const sn = swingDoor(x1 - 1.2, zb + 0.3, dw, dh, dt, open, beigeDoorM, doorExtra);  // 北扇：北侧铰链，向内开
   const ss = swingDoor(x1 - 1.2, zt - 0.3, dw, dh, dt, Math.PI - open, beigeDoorM, doorExtra);   // 南扇：南侧铰链，向内开
   /* 两扇联动：关 = 北扇 0、南扇 π（共面封住柜口），开 = 现在的 22°（再大会挡路 / 挡镜头） */
-  regDoor('shoe', '鞋柜', 'dr-shoe', true, t => { sn.rotation.y = open * t; ss.rotation.y = Math.PI - open * t; }, [sn, ss]);
+  regDoor('shoe', '鞋柜', 'dr-shoe', false, t => { sn.rotation.y = open * t; ss.rotation.y = Math.PI - open * t; }, [sn, ss]);
 }
 
 label('[估算] 整体浴室', 61, 110, -110, 'est');
@@ -2986,12 +2986,14 @@ function setAllDoors(v) { Object.values(DOORS).forEach(d => { d.open = v; }); re
 /* ---------- 持久化：一个 localStorage key，存门、灯（含日光）、主椅拉出/收进、家具列表 ----------
    读的时候校验版本、类型、id、数值；任何一项不对就整份丢掉、用默认布局，保证坏数据不会把首屏弄崩 */
 const SAVE_KEY = 'minamiazabu202-room-v2', SAVE_V = 2, SAVE_KEY_OLD = 'minamiazabu202-room-v1';
+/* 门的默认状态改过一次（现在只有卧室门默认开）：存档里门的版本对不上就不用旧的门状态，改用新默认；灯、椅子、家具照常恢复 */
+const DOOR_DEF_V = 2;
 let saveReady = false;                                       // 启动完成前不写，免得默认布局把存档盖掉
 function save() {
   if (!saveReady) return;
   try {
     localStorage.setItem(SAVE_KEY, JSON.stringify({
-      v: SAVE_V,
+      v: SAVE_V, dv: DOOR_DEF_V,
       doors: Object.fromEntries(Object.values(DOORS).map(d => [d.id, d.open])),
       lights: Object.fromEntries(Object.values(LIGHTS).map(L => [L.id, isOn(L)])),
       chair1: state.chair1,
@@ -3001,7 +3003,7 @@ function save() {
 }
 function parseSaveDoorsLights(s) {
   const obj = v => (v && typeof v === 'object' && !Array.isArray(v) ? v : {});
-  return { doors: obj(s.doors), lights: obj(s.lights), chair1: s.chair1 === 'in' ? 'in' : 'out' };
+  return { doors: s.dv === DOOR_DEF_V ? obj(s.doors) : {}, lights: obj(s.lights), chair1: s.chair1 === 'in' ? 'in' : 'out' };
 }
 function readSaved() {
   try {
