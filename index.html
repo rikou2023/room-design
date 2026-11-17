@@ -26,11 +26,6 @@
   button:hover { background: #f3f0ea; }
   button:disabled { opacity: .45; cursor: default; }
   button.on { background: #2f5d50; border-color: #2f5d50; color: #fff; }
-  label.cat { display: flex; align-items: center; gap: 6px; width: 100%; cursor: pointer; }
-  label.cat:has(input:disabled) { color: #b3ada2; cursor: default; }
-  .sw { width: 22px; height: 6px; border-radius: 3px; flex: none; }
-  input[type=range] { width: 100%; }
-  #armInfo.warn { color: #a2401f; }
   .cable { display: flex; gap: 8px; align-items: baseline; padding: 4px 6px; border-radius: 6px; cursor: pointer; }
   .cable:hover { background: #f3f0ea; }
   .cable.sel { background: #e4efe9; outline: 1px solid #2f5d50; }
@@ -48,7 +43,7 @@
   .touch-tip { display: none; }
   #tabs { display: none; }
   .grab { display: none; }
-  /* 编辑开关：默认浏览模式，家具和桌面物品都不能动；点了「编辑」才放开 */
+  /* 编辑开关：默认浏览模式，家具不能动；点了「编辑」才放开 */
   #modeBar { position: fixed; top: 14px; left: 50%; transform: translateX(-50%); z-index: 4; display: flex; gap: 8px; }
   #modeBar button { padding: 8px 18px; border-radius: 999px; font-size: 13px; white-space: nowrap; min-height: 0;
     box-shadow: 0 2px 8px rgba(70,55,30,.18); }
@@ -98,8 +93,10 @@
   .acts { display: flex; gap: 4px; }
   #furnBar { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin-top: 8px; }
   #furnInfo { color: #6b675e; font-size: 11px; flex: 1 1 100%; }
-  #items { display: grid; grid-template-columns: 1fr 1fr; gap: 2px 8px; }
-  /* 手机 / 窄屏（< 900px）：两块面板改成底部抽屉，默认收起；底部一排标签页切换「视角/显示 · 房间 · 布线 · 清单」 */
+  ul.kit { margin: 0 0 8px; padding-left: 16px; color: #6b675e; }
+  ul.kit li { margin-bottom: 4px; }
+  ul.kit b { color: #2b2a27; font-weight: 600; margin-right: 4px; }
+  /* 手机 / 窄屏（< 900px）：两块面板改成底部抽屉，默认收起；底部一排标签页切换「视角/显示 · 房间 · 桌搭 · 清单」 */
   @media (max-width: 899.98px) {
     #tabs { display: flex; position: fixed; left: 0; right: 0; bottom: 0; z-index: 6; gap: 6px;
       padding: 6px 8px calc(6px + env(safe-area-inset-bottom)); background: rgba(255,255,255,.95);
@@ -119,9 +116,6 @@
     .card { min-height: 66px; padding: 8px 4px 7px; font-size: 12px; }
     .card:hover { transform: none; }
     .mini { min-height: 34px; padding: 4px 12px; }
-    label.cat { min-height: 36px; }
-    input[type=checkbox] { width: 20px; height: 20px; }
-    input[type=range] { height: 36px; }
     .cable { padding: 8px 6px; }
     .touch-tip { display: block; }
     #help { display: none; }
@@ -149,7 +143,7 @@
 <div id="top" class="panel">
   <button class="grab" aria-label="收起面板"></button>
   <h1>南麻布 202 · 3D 户型 <button class="fold" data-fold="top">收起</button></h1>
-  <p class="intro">卧室 315 × 308 cm ＋ 阳台 · ErGear 160×80 主桌 ＋ 东墙 3×3 收纳格 · 桌面布线</p>
+  <p class="intro">卧室 315 × 308 cm ＋ 阳台 · 宜家 UTESPELARE 160×80 主桌 ＋ 兰雍主机推车 ＋ 东墙 3×3 收纳格 · VDSL 进户</p>
   <div class="sec" data-sec="view">
   <h2>视角</h2>
   <div class="grid">
@@ -161,10 +155,8 @@
     <button class="card" data-view="all" data-ic="v-all"><span class="nm">全屋</span></button>
     <button class="card" data-view="seat" data-ic="v-seat"><span class="nm">座位</span></button>
     <button class="card" data-view="under" data-ic="v-under"><span class="nm">桌下</span></button>
-    <button class="card" data-view="bay" data-ic="v-bay"><span class="nm">北端设备</span></button>
+    <button class="card" data-view="bay" data-ic="v-bay"><span class="nm">主机推车</span></button>
     <button class="card" data-view="back" data-ic="v-back"><span class="nm">墙后看桌</span></button>
-    <button class="card" data-view="compare" data-ic="v-all"><span class="nm">两套对比</span></button>
-    <button class="card" data-view="cand" data-ic="v-iso"><span class="nm">候选房 B</span></button>
     <button class="card" data-view="hall" data-ic="l-down"><span class="nm">走廊</span></button>
     <button class="card" data-view="kitchen" data-ic="l-kitchen"><span class="nm">厨房</span></button>
     <button class="card" data-view="bath" data-ic="l-bath"><span class="nm">浴室</span></button>
@@ -179,11 +171,9 @@
     <button class="card" id="btnBed" data-ic="d-bedtable"><span class="nm">床上桌：关</span></button>
     <button class="card on" id="btnTV" data-ic="d-tv"><span class="nm">电视模式</span></button>
     <button class="card" id="btnProj" data-ic="d-proj"><span class="nm">投影模式</span></button>
-    <button class="card on" id="btnCand" data-ic="v-all"><span class="nm">候选房 B</span></button>
   </div>
   <p id="eastInfo" class="hint" style="margin-top:6px"></p>
-  <p class="touch-tip">触屏：单指拖动转视角，双指捏合缩放、双指拖动平移；桌面物品可以按住直接拖。
-    「按住 Shift 拖屏幕调高低」在触屏上做不到，请用「布线」里的「屏幕底边离桌面」滑块。</p>
+  <p class="touch-tip">触屏：单指拖动转视角，双指捏合缩放、双指拖动平移。</p>
   </div>
 
   <div class="sec" data-sec="room">
@@ -206,46 +196,38 @@
   </div>
 
   <div class="sec" data-sec="wire">
-  <h2>桌面布线</h2>
+  <h2>桌搭 <small>宜家 UTESPELARE 160×80</small></h2>
   <div class="row"><span>显示</span>
-    <button id="btnWire" class="on">线缆</button>
-    <button id="btnAcc" class="on">配件高亮</button>
+    <button id="btnWire">走线高亮</button>
     <button id="btnTop">桌板透明</button>
   </div>
-  <div class="row" id="cats"><span>线缆类别（点线缆清单里的某一根可单独高亮）</span></div>
-  <p class="hint view-only" style="margin-top:8px">现在是浏览模式。点画面上方的「编辑」后，才能拖动或增减桌面物品、调主屏。</p>
-  <div class="row edit-only"><span>桌面物品：在画面里直接拖动，取消勾选就去掉</span>
-    <div id="items" style="width:100%"></div>
-    <span id="hitInfo" style="color:#a2401f"></span>
-  </div>
-  <div class="row edit-only"><span>主屏</span>
-    <label class="cat"><input type="checkbox" id="useArm" checked> 用悬臂（取消就是用自带支架）</label>
-    <span>屏幕底边离桌面 <b id="monHv">14</b> cm</span>
-    <input type="range" id="monH" min="0" max="30" step="1" value="14">
-    <span>俯仰（往后仰为正）<b id="tiltV">0</b>°</span>
-    <input type="range" id="tilt" min="-20" max="30" step="1" value="0">
-    <span>左右转（往左手边转为正）<b id="yawV">0</b>°</span>
-    <input type="range" id="yaw" min="-45" max="45" step="1" value="0">
-    <span id="armInfo"></span>
-    <span id="deskInfo"></span>
-    <span>拖动屏幕：前后左右平移；按住 Shift 再拖：上下调高低。拖动桌夹：沿后沿前后移动</span>
-    <span class="touch-tip hint">触屏上没有 Shift：屏幕高低请用上面的滑块调。</span>
-  </div>
-  <div class="row edit-only"><button id="btnReset">桌面物品复位</button></div>
+  <p class="hint" style="margin-top:8px">桌面物品按桌搭方案静态摆放，不能拖。「桌板透明」看桌下的收纳槽和主机推车；「走线高亮」把藏在支架臂、金属网下、收纳槽里的线也显示出来，「线缆」清单里点一根可以单独看。主桌整套在「房间 → 家具」里删除 / 恢复。</p>
   </div>
 </div>
 
 <div id="right" class="panel">
   <button class="grab" aria-label="收起面板"></button>
-  <h1>线缆清单 <button class="fold" data-fold="right">收起</button></h1>
-  <p>桌面上的东西挪动或去掉后，线和长度会跟着变。长度按模型里的走线量出来，留 25% 余量后取整；设备尺寸和接口位置是示意，以实物为准。</p>
+  <h1>桌搭清单 <button class="fold" data-fold="right">收起</button></h1>
+  <p>主桌是宜家 UTESPELARE 160×80（黑，前 60 cm 木板 ＋ 后 20 cm 金属网，A 字腿），桌腿装在 76 cm。桌面上的东西按桌搭方案静态摆放。</p>
+  <ul class="kit">
+    <li><b>桌面</b>KOORUI 27 寸（单屏支架夹在金属网北侧第二根框架上）、OOWOLF 挂灯 41 cm、条形音箱、80 cm 胡桃增高架（还没定款）＋ 两头的小手办、vivo Pad3 Pro ＋ 折叠支架（键盘左前方，往后仰）、LÅNESPELARE 鼠标垫 90×40、键盘、鼠标、胡桃托盘（还没定款）、KALKSTUFF 理线夹</li>
+    <li><b>南端</b>拼手办区：白色洞洞板 ＋ 工具、A3 切割垫 ＋ 拼到一半的套件、KAI LED 手办展示盒</li>
+    <li><b>桌下</b>收纳槽（金属网下，北端开口）＋ 10 口插排 ＋ 两个 USB 充电头 [占位]、木板下自带的布线兜、网下暖光灯带（还没定款）</li>
+    <li><b>桌下北端</b>兰雍两层主机推车（黑）：下层是 S100 白色机箱（玻璃侧朝南、背面朝西墙），北边立放 VDSL 光猫和路由器；顶层空着</li>
+    <li><b>地上</b>SALLOUS 透明椅子地垫 120×100；黑色电竞椅照旧</li>
+  </ul>
+  <h2>线缆 <small>点一根单独高亮</small></h2>
+  <p>进户是 VDSL：北墙电话口（RJ11）→ 电话线 → 光猫 → 路由器 → S100，网线都在推车里。插排电源线和电话线一起套在黑色缠绕线套里，从墙插附近斜拉到北边的后桌腿，魔术贴绑在腿上往上进收纳槽，地上不拖线。光猫、路由器、S100 的电源都顺着推车后面上到收纳槽里的插排。
+    长度按模型里的走线量出来，留 25% 余量后取整；接口位置是示意，以实物为准。</p>
   <div id="cableList"></div>
   <h2>尺寸说明</h2>
   <p>[实测] 东墙侧桌（目录里可添加，不再作为默认）桌面高 76.2。</p>
   <p>[占位] 东墙默认收纳格按 3×3 卡洛式格子柜 112×39×高 112（宽沿南北、贴东墙、南端靠柱）画，未实测。</p>
-  <p>[占位] 层高 240、床高 45、落地窗高 200、门高 200、阳台栏杆高 110、键盘 44×13，均为常见值，未实测。
-    主桌高 72 是 ErGear 升降桌的最低档（72～118 可调），不是实测值。
-    主机 22×44×34、光猫、路由器、条形音响、USB 集线器、主机吊架、网络设备托架的尺寸是示意。</p>
+  <p>[占位] 层高 240、床高 45、落地窗高 200、门高 200、阳台栏杆高 110，均为常见值，未实测。</p>
+  <p>[桌搭] 主桌高 76 是 UTESPELARE 六档（68～78）里选的一档。主桌沿用原来的位置：离西墙 3 cm、北端贴北墙（桌搭方案页里是离两面墙各 5 cm）。
+    桌面物品、收纳槽、插排、增高架、托盘、展示盒、洞洞板的尺寸照搬桌搭方案页，未实测。S100 机箱 宽 22 × 高 41 × 深 41。</p>
+  <p>[估算] 兰雍主机推车：宽调到最大（外 36 / 内 34）、深 外 45 / 内 42，轮子离地 6，下层内高约 44，顶层台面离地约 53，顶层后、左、右三面 5 cm 护栏，总高约 58。</p>
+  <p>[占位] VDSL 光猫 厚 4 × 深 17 × 高 19（白，正面 4 颗绿灯）、路由器 厚 3.5 × 深 16 × 高 20（深灰，2 颗白灯），未实测；收纳槽里两个 USB 充电头、各设备背面接口的位置也是示意。</p>
   <p>[示意] 床占地 140×195 不变（软包床头板厚 4 cm 算在占地里，床垫按约 137×188 画在占地之内）。
     衣柜折门前留 30 cm 净空（地上的橙色色块）。</p>
   <p>[推算] 北墙 = 墙 135 ＋ 门框 8 ＋ 门洞 84 ＋ 门框 8 ＋ 墙 15 ＋ 衣柜 65 = 315，其中门框宽 8 是为凑齐总宽推算的。</p>
@@ -253,19 +235,18 @@
     厕所宽（南北）75 cm 是按「马桶约 40 宽，左右各比马桶宽约 17.5 cm」估算的；腾出的南北空间都给了整体浴室（z -215..0）。
     浴室：浴缸东西向沿南墙（约 118×64），洗手盆（宽约 48）和镜子（约 45×60）在西墙、靠浴缸北沿（从门口看偏左），东墙折叠门洞 z -172..-108，约 64 宽。玄关鞋柜在进门右手（西墙），沿整面墙，高约 210，两扇平开门。
     浴室、厕所、厨房、冰箱（约 120 高）＋ 微波炉、洗衣机（上开盖）的样子按实拍视频画，尺寸未实测。</p>
-  <p>[估算] 候选房 B（东边那套，麻布十番 1K 26.61㎡）：按广告户型图的布局做，总面积 26.61㎡、洋室 9 帖两个数都满足——洋室内净约 295 × 489（壁芯约 14.6㎡，含东南角的柱子），剩下的面积给玄关、整体浴室（约 180 × 135）、走廊厨房、厕所（约 125 × 80）、洗衣机位。层高按 240。户型图的指北针朝右，实际阳台朝东；为了和现在的房子并排对比，模型里摆成阳台朝南。</p>
-  <p>[待确认] 北墙网口和墙插的位置沿用以前布线图里的位置。东墙侧桌（目录里的电视、PS5）的电源没有画：不知道东墙附近有没有插座。</p>
+  <p>[待确认] 北墙电话口（RJ11，以前标成「网口」）和墙插的位置沿用以前布线图里的位置。东墙侧桌（目录里的电视、PS5）的电源没有画：不知道东墙附近有没有插座。</p>
 </div>
 <div id="modeBar"><button id="btnWalk" aria-pressed="false">室内漫游</button><button id="btnEdit" aria-pressed="false">编辑</button></div>
 <div id="walkSpots"></div>
 <div id="walkPad"><button data-walk="f">前进</button><button data-walk="b">后退</button></div>
 <p id="walkTip">拖动转头 · 点地面走过去 · 点门开关 · 电脑可用 W A S D</p>
-<div id="help" class="panel">左键拖动：旋转　右键拖动：平移　滚轮：缩放　点「编辑」后可拖动家具和桌面物品<br>
+<div id="help" class="panel">左键拖动：旋转　右键拖动：平移　滚轮：缩放　点「编辑」后可拖动家具<br>
   点击门 / 灯具：开关　编辑时点击家具：选中，可拖动，Delete 删除、R 旋转</div>
 <nav id="tabs">
   <button data-tab="view">视角 / 显示</button>
   <button data-tab="room">房间</button>
-  <button data-tab="wire">布线</button>
+  <button data-tab="wire">桌搭</button>
   <button data-tab="list">清单</button>
 </nav>
 <div id="err"></div>
@@ -392,7 +373,7 @@ const SKY_DAY = new THREE.Color(0xffffff), SKY_NIGHT = new THREE.Color(0x10141f)
   const cam = sun.shadow.camera, tmp = new THREE.OrthographicCamera();
   tmp.position.copy(sun.position); tmp.lookAt(sun.target.position); tmp.updateMatrixWorld(true);
   const lo = new THREE.Vector3(Infinity, Infinity, Infinity), hi = new THREE.Vector3(-Infinity, -Infinity, -Infinity), v = new THREE.Vector3();
-  for (const x of [-T - 4, 470 + 295 + T + 4]) for (const y of [-6, H + 6]) for (const z of [-545, D + 150]) {   // x 到候选房 B 东墙，z 到 B 的北墙
+  for (const x of [-T - 4, W + T + 4]) for (const y of [-6, H + 6]) for (const z of [-400 - T - 4, D + 150]) {   // -400：比房屋最北端（NZ = -390）再多一点
     v.set(x, y, z).applyMatrix4(tmp.matrixWorldInverse);
     lo.min(v); hi.max(v);
   }
@@ -435,7 +416,7 @@ gtao.enabled = !MOBILE;                                    // 手机默认关，
       scene.traverse(o => { if (o.isMesh && o.material && !Array.isArray(o.material) && o.material.transparent) cand.push(o); });
       aoDirty = false;
     }
-    for (const o of cand) if (o.visible && o.material.opacity < 0.6) { o.visible = false; hidden.push(o); }
+    for (const o of cand) if (o.visible && (o.material.opacity < 0.6 || o.userData.noAO)) { o.visible = false; hidden.push(o); }
     try { baseRender(...a); } finally { for (const o of hidden) o.visible = true; hidden.length = 0; }
   };
 }
@@ -945,74 +926,455 @@ const bedG = collect(97.5, 238, () => {
 const stripLabels = g => { const ls = []; g.traverse(o => { if (o.isCSS2DObject) ls.push(o); }); ls.forEach(o => o.parent.remove(o)); return g; };
 const BED_PROTO = stripLabels(bedG.clone());
 
-/* ---------- 桌子、桌面物品、桌面布线 ---------- */
+/* ---------- 桌子、桌面物品、桌下、走线 ---------- */
 const deskM = woodMat(30, 42, 52, { roughness: 0.45 });                 // 原木色（床上桌）
 const dark = mat(0x2b2f33, { roughness: 0.42, metalness: 0.35 });
-const deskBlackM = woodMat(30, 6, 13, { roughness: 0.55 });              // 黑色桌面（三聚氰胺，隐约木纹）
-const seamM = mat(0x050505, { roughness: 0.9 });
+const deskBlackM = woodMat(30, 6, 13, { roughness: 0.55 });              // 黑色桌面（三聚氰胺，隐约木纹）：东墙侧桌、目录里的 160×70 桌
 const legBlackM = mat(0x161618, { roughness: 0.38, metalness: 0.55 });
-const pcM = mat(0xf2f2f0, { roughness: 0.32 });                           // 白色机箱
-/* 键盘：浅灰底 ＋ 一排排键帽（贴图沿键盘长边，长边在 z 方向） */
-const keyboardM = mat(0xffffff, { roughness: 0.6, map: canvasTex(512, (g, S) => {
-  g.fillStyle = '#c9ccd0'; g.fillRect(0, 0, S, S);
-  const rows = 6, cols = 18, cw = S / cols, rh = S / rows;
-  for (let r = 0; r < rows; r++) for (let c = 0; c < cols; c++) {
-    const wide = r === 5 && c > 5 && c < 12;                              // 空格键那一排
-    if (wide && c !== 6) continue;
-    g.fillStyle = '#eef0f2';
-    g.fillRect(c * cw + 3, r * rh + 4, (wide ? cw * 6 : cw) - 6, rh - 8);
-  }
-}) });
-keyboardM.map.rotation = Math.PI / 2; keyboardM.map.center.set(0.5, 0.5);
-const mouseM = mat(0xf0f1f2, { roughness: 0.35 });
-const pcGlassM = mat(0x1a2026, { roughness: 0.08, metalness: 0.2, transparent: true, opacity: 0.75 });
 const leatherM = mat(0x18181a, { roughness: 0.42 });                       // 电竞椅：黑色皮面
 const leatherSideM = mat(0x232326, { roughness: 0.5 });
 const printerM = mat(0xeceae5, { roughness: 0.5 });
-const grey = mat(0xd7d9dc, { roughness: 0.6 });
 const itemWhite = mat(0xf2f1ee, { roughness: 0.5 });
 const disposeTree = o => o.traverse(c => { if (c.geometry) c.geometry.dispose(); });
+/* 往组 g 里加盒子 / 圆角盒子（组内坐标，家具生成函数也用） */
+function lbox(g, x0, x1, y0, y1, z0, z1, m) {
+  const o = new THREE.Mesh(new THREE.BoxGeometry(x1 - x0, y1 - y0, z1 - z0), m);
+  o.position.set((x0 + x1) / 2, (y0 + y1) / 2, (z0 + z1) / 2);
+  o.castShadow = true; o.receiveShadow = true;
+  g.add(o);
+  return o;
+}
+function rbox(g, x0, x1, y0, y1, z0, z1, m, r = 1) {
+  const w = x1 - x0, h = y1 - y0, d = z1 - z0;
+  const o = new THREE.Mesh(new RoundedBoxGeometry(w, h, d, 4, Math.min(r, w / 2 - 0.01, h / 2 - 0.01, d / 2 - 0.01)), m);
+  o.position.set((x0 + x1) / 2, (y0 + y1) / 2, (z0 + z1) / 2);
+  o.castShadow = true; o.receiveShadow = true;
+  g.add(o);
+  return o;
+}
 
-/* 桌子局部坐标（桌子和布线都写在这个坐标里，数值和以前的桌面布线模型一致）：
+/* 桌子局部坐标（deskG：桌子、桌下推车、走线都挂在这里，删主桌时整组一起拿走）：
    原点 = 桌子后沿北端正下方的地面；x 向东（离桌子后沿的距离），z 向南（沿桌长），y 向上。
-   桌子离西墙 3 cm（后沿和墙之间的缝用来走线），北端贴北墙。换算到房间坐标：x + 3，y、z 不变 */
-const DL = 160, DD = 80, DH = 72, WALL_X = -3, WALL_Z = 0;
+   桌子离西墙 3 cm，北端贴北墙（沿用原来主桌的位置）。换算到房间坐标：x + 3，y、z 不变 */
+const DL = 160, DD = 80, DH = 76;                                        // 宜家 UTESPELARE 160×80，桌腿装在 76（68～78 六档）
 const deskG = new THREE.Group();
 deskG.position.x = 3;
 scene.add(deskG);
 deskG.updateMatrixWorld(true);
-const DESK_C = new THREE.Vector3(3 + DD / 2, 50, DL / 2);                // 相机离这里近时才显示布线标签
-const toDesk = o => { scene.remove(o); deskG.add(o); return o; };
-const db = (...a) => toDesk(block(...a));
-const drb = (...a) => toDesk(rblock(...a));
-const dcyl = (rt, rb, h, x, y, z, m, seg = 24) => {
-  const c = new THREE.Mesh(new THREE.CylinderGeometry(rt, rb, h, seg), m);
-  c.position.set(x, y, z); c.castShadow = true; c.receiveShadow = true;
-  deskG.add(c); return c;
+const DESK_C = new THREE.Vector3(3 + DD / 2, 50, DL / 2);                // 相机离这里近时才显示桌子标签
+const deskLabels = [];                                                   // 桌子、桌下、墙上插口的标签（under = 在桌板下面）
+const dlabel = (text, x, y, z, cls = '', under = false) => {
+  const o = label(text, x, y, z, cls);
+  scene.remove(o); deskG.add(o);
+  o.userData.under = under;
+  deskLabels.push(o);
+  return o;
 };
-const deskLabels = [];                                                   // 桌子和布线的标签
-const dlabel = (...a) => { const o = toDesk(label(...a)); deskLabels.push(o); return o; };
 
-/* ---------- ErGear 电动升降桌 160×80：黑色桌面（四块拼）、T 形钢腿、前沿控制器、两侧挂钩 ---------- */
-const topM = deskBlackM.clone(); topM.transparent = true;                // 桌板单独一份材质，可切换透明看桌下
-const seamTM = seamM.clone(); seamTM.transparent = true;
-{
-  const u = DH - 3, xc = DD / 2 - 6;                                     // 立柱略偏后
-  drb(0, DD, u, DH, 0, DL, topM, 1.2);
-  db(DD / 2 - 0.15, DD / 2 + 0.15, DH, DH + 0.05, 0, DL, seamTM, { cast: false });   // 前后拼缝
-  db(0, DD, DH, DH + 0.05, DL / 2 - 0.15, DL / 2 + 0.15, seamTM, { cast: false });   // 左右拼缝
-  [26, DL - 26].forEach(z => {
-    db(xc - 4, xc + 4, 4, u - 6, z - 4, z + 4, legBlackM);              // 外柱
-    db(xc - 3.2, xc + 3.2, u - 14, u - 2, z - 3.2, z + 3.2, legBlackM);  // 内柱（升降段）
-    db(4, DD - 4, 0.8, 4.8, z - 3.5, z + 3.5, legBlackM);               // 脚：T 形横脚
-    [6, DD - 6].forEach(x => dcyl(2.2, 2.4, 0.8, x, 0.4, z, dark, 12)); // 调平脚垫
-    db(4, DD - 4, u - 4.5, u, z - 2.5, z + 2.5, legBlackM);             // 桌面下的支撑臂
+/* ===================================================================
+   桌搭（照搬桌搭方案页的 three.js 版）：宜家 UTESPELARE 160×80（前 60 木板 ＋ 后 20 金属网、A 字腿）、
+   KOORUI 27 寸 ＋ 单屏支架、OOWOLF 挂灯、条形音箱、80 cm 胡桃增高架、平板支架、洞洞板、展示盒、切割垫等。
+   这一组内部沿用方案页的单位和坐标（米）：原点 = 桌面后沿中点，y = 桌面上表面，x 沿桌长（+x 朝北墙），
+   z 从后沿朝座位。整组放大 100 倍、转 90° 放进 deskG：
+     deskG.x = 100·z，deskG.y = DH + 100·y，deskG.z = DL/2 − 100·x
+   桌下的主机推车、光猫、路由器、墙上插口和走线是新方案，直接用 deskG 的厘米坐标写在后面
+   =================================================================== */
+const kit = new THREE.Group();
+kit.position.set(0, DH, DL / 2);
+kit.rotation.y = Math.PI / 2;
+kit.scale.setScalar(100);
+deskG.add(kit);
+const KIT = (() => {
+  const km = (c, o = {}) => new THREE.MeshStandardMaterial(Object.assign({ color: c, roughness: 0.6, metalness: 0 }, o));
+  const metal = km(0x2b2e32, { roughness: 0.38, metalness: 0.65, envMapIntensity: 2.2 });
+  const black = km(0x1b1d20, { roughness: 0.42, metalness: 0.3, envMapIntensity: 1.6 });
+  const blackMatte = km(0x1e2023, { roughness: 0.85 });
+  const white = km(0xf2f1ee, { roughness: 0.5 });
+  const silver = km(0xb9bdc3, { roughness: 0.28, metalness: 0.75, envMapIntensity: 2.6 });
+  const glow = (c, i = 1.5) => new THREE.MeshStandardMaterial({ color: 0x111111, emissive: c, emissiveIntensity: i, roughness: 0.5 });
+  function box(w, h, d, m, x, y, z, parent = kit) {
+    const o = new THREE.Mesh(new THREE.BoxGeometry(w, h, d), m);
+    o.position.set(x, y, z); o.castShadow = true; o.receiveShadow = true; parent.add(o); return o;
+  }
+  const UP = new THREE.Vector3(0, 1, 0);
+  function rod(a, b, r, m, parent = kit, seg = 12) {
+    const dir = new THREE.Vector3().subVectors(b, a); const L = dir.length();
+    const o = new THREE.Mesh(new THREE.CylinderGeometry(r, r, L, seg), m);
+    o.position.copy(a).addScaledVector(dir, 0.5);
+    o.quaternion.setFromUnitVectors(UP, dir.normalize());
+    o.castShadow = true; parent.add(o); return o;
+  }
+  const V = (x, y, z) => new THREE.Vector3(x, y, z);
+  /* 方案页的贴图用各自的种子，不动房间贴图的随机数序列 */
+  function ctex(w, h, draw, srgb = true) {
+    const c = document.createElement('canvas'); c.width = w; c.height = h;
+    draw(c.getContext('2d'), w, h);
+    const t = new THREE.CanvasTexture(c); if (srgb) t.colorSpace = THREE.SRGBColorSpace; t.anisotropy = MAX_ANISO; return t;
+  }
+  function rng(seed) { let s = seed; return () => (s = (s * 16807) % 2147483647) / 2147483647; }
+  function rrect(w, d, r) {
+    const s = new THREE.Shape(), x = -w / 2, y = -d / 2;
+    s.moveTo(x + r, y); s.lineTo(x + w - r, y); s.quadraticCurveTo(x + w, y, x + w, y + r);
+    s.lineTo(x + w, y + d - r); s.quadraticCurveTo(x + w, y + d, x + w - r, y + d);
+    s.lineTo(x + r, y + d); s.quadraticCurveTo(x, y + d, x, y + d - r);
+    s.lineTo(x, y + r); s.quadraticCurveTo(x, y, x + r, y);
+    return s;
+  }
+  /* 圆角板：俯视是圆角矩形，边缘倒一点角。w 沿 x，h 是厚度（y），d 沿 z */
+  function slab(w, h, d, r, bev, m, x, y, z, parent = kit) {
+    const geo = new THREE.ExtrudeGeometry(rrect(w - 2 * bev, d - 2 * bev, Math.max(0.0005, r - bev)), { depth: Math.max(0.0005, h - 2 * bev), bevelEnabled: true, bevelThickness: bev, bevelSize: bev, bevelSegments: 3, curveSegments: 8 });
+    geo.rotateX(-Math.PI / 2); geo.translate(0, -(h - 2 * bev) / 2, 0);
+    const o = new THREE.Mesh(geo, m); o.position.set(x, y, z); o.castShadow = true; o.receiveShadow = true; parent.add(o); return o;
+  }
+
+  /* ---------- 贴图 ---------- */
+  const gameTex = ctex(1024, 576, (g, w, h) => {
+    const sky = g.createLinearGradient(0, 0, 0, h * .7);
+    sky.addColorStop(0, '#0d1b3d'); sky.addColorStop(.55, '#3a2c6e'); sky.addColorStop(1, '#e9814f');
+    g.fillStyle = sky; g.fillRect(0, 0, w, h);
+    g.fillStyle = '#ffd38a'; g.beginPath(); g.arc(w * .68, h * .52, 48, 0, Math.PI * 2); g.fill();
+    const layers = [['#4b2f63', .55], ['#2b1f45', .62], ['#151227', .72]];
+    layers.forEach(([c, base], i) => { g.fillStyle = c; g.beginPath(); g.moveTo(0, h); const r = rng(9 + i);
+      for (let x = 0; x <= w; x += 64) g.lineTo(x, h * base - r() * 90 * (1 - i * .2)); g.lineTo(w, h); g.fill(); });
+    g.fillStyle = '#0b0a14'; g.fillRect(0, h * .82, w, h * .18);
+    g.strokeStyle = 'rgba(255,255,255,.85)'; g.lineWidth = 3; g.beginPath(); g.moveTo(w / 2 - 14, h / 2); g.lineTo(w / 2 + 14, h / 2); g.moveTo(w / 2, h / 2 - 14); g.lineTo(w / 2, h / 2 + 14); g.stroke();
+    g.fillStyle = 'rgba(0,0,0,.45)'; g.fillRect(28, h - 62, 260, 30); g.fillStyle = '#4ee08a'; g.fillRect(32, h - 58, 190, 22);
+    g.strokeStyle = 'rgba(255,255,255,.7)'; g.lineWidth = 2; g.beginPath(); g.arc(w - 90, 90, 60, 0, Math.PI * 2); g.stroke();
+    g.fillStyle = '#ff5a5a'; g.beginPath(); g.arc(w - 70, 72, 6, 0, Math.PI * 2); g.fill();
+    g.fillStyle = 'rgba(255,255,255,.9)'; g.font = '600 26px monospace'; g.fillText('200 Hz', w - 170, h - 34);
   });
-  db(xc - 2.5, xc + 2.5, u - 7, u - 2, 26, DL - 26, legBlackM);         // 两柱之间的横梁
-  db(DD - 7, DD + 0.6, u - 3.2, u, DL / 2 - 30, DL / 2 - 14, dark);     // 控制器（右手边）
-  [1.5, DL - 1.5].forEach(z => db(DD - 6, DD - 3.5, u - 9, u, z - 1, z + 1, dark));   // 挂钩
+  const tabTex = ctex(1024, 640, (g, w, h) => {
+    g.fillStyle = '#16171b'; g.fillRect(0, 0, w, h);
+    g.fillStyle = '#1f2126'; g.fillRect(0, 0, 300, h);
+    const r = rng(17);
+    for (let i = 0; i < 9; i++) { g.fillStyle = i === 2 ? '#3b3f8f' : '#2a2d33'; g.fillRect(16, 20 + i * 66, 268, 52); g.fillStyle = '#8c90a0'; g.fillRect(32, 36 + i * 66, 120 + r() * 100, 9); g.fillRect(32, 54 + i * 66, 60 + r() * 120, 7); }
+    g.fillStyle = '#20262b'; g.fillRect(320, 20, w - 340, 380);
+    g.strokeStyle = '#3b7a57'; g.lineWidth = 3;
+    for (let i = 0; i < 7; i++) { g.beginPath(); g.moveTo(330 + r() * 600, 30 + r() * 360); g.lineTo(330 + r() * 600, 30 + r() * 360); g.lineTo(330 + r() * 600, 30 + r() * 360); g.stroke(); }
+    g.fillStyle = '#e9b44c'; for (let i = 0; i < 6; i++) { g.beginPath(); g.arc(360 + r() * 580, 50 + r() * 330, 7, 0, Math.PI * 2); g.fill(); }
+    g.fillStyle = '#ff5a5a'; g.beginPath(); g.arc(640, 210, 10, 0, Math.PI * 2); g.fill();
+    for (let i = 0; i < 4; i++) { g.fillStyle = i % 2 ? '#2c3e66' : '#2a2d33'; g.fillRect(320 + (i % 2) * 180, 420 + i * 52, 480, 40); }
+  });
+  const keysTex = ctex(736, 270, (g, w, h) => {
+    g.fillStyle = '#17181b'; g.fillRect(0, 0, w, h);
+    const rows = [[1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1], [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2], [1.5, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1.5], [1.75, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2.25], [2.25, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2.75], [1.25, 1.25, 1.25, 6.25, 1.25, 1.25, 1.25, 1.25]];
+    const u = (w - 150) / 15.2; let y = 10;
+    rows.forEach((row, ri) => { let x = 10; const kh = ri === 0 ? u * .8 : u; row.forEach(k => { g.fillStyle = '#2b2d32'; g.fillRect(x + 2, y + 2, k * u - 4, kh - 4); g.fillStyle = '#34373d'; g.fillRect(x + 4, y + 3, k * u - 8, 3); x += k * u; }); y += kh + (ri === 0 ? 6 : 0); });
+    for (let i = 0; i < 3; i++) for (let j = 0; j < 5; j++) { if (j === 1 || (j === 3 && i !== 1)) continue; g.fillStyle = '#2b2d32'; g.fillRect(w - 130 + i * u + 2, 10 + j * u + 2, u - 4, u - 4); }
+  });
+  const pegTex = ctex(600, 400, (g, w, h) => {
+    g.fillStyle = '#efeeea'; g.fillRect(0, 0, w, h);
+    for (let x = 15; x < w; x += 25) for (let y = 15; y < h; y += 25) { g.fillStyle = '#b9b6ae'; g.beginPath(); g.arc(x, y, 5, 0, Math.PI * 2); g.fill(); }
+  });
+  const cutTex = ctex(675, 450, (g, w, h) => {
+    g.fillStyle = '#1c2221'; g.fillRect(0, 0, w, h);
+    for (let x = 0; x <= w; x += 15) { g.strokeStyle = x % 75 === 0 ? 'rgba(160,190,180,.35)' : 'rgba(160,190,180,.13)'; g.lineWidth = 1; g.beginPath(); g.moveTo(x, 0); g.lineTo(x, h); g.stroke(); }
+    for (let y = 0; y <= h; y += 15) { g.strokeStyle = y % 75 === 0 ? 'rgba(160,190,180,.35)' : 'rgba(160,190,180,.13)'; g.beginPath(); g.moveTo(0, y); g.lineTo(w, y); g.stroke(); }
+  });
+  const glowTex = ctex(512, 256, (g, w, h) => {
+    const gr = g.createRadialGradient(w / 2, h / 2, 10, w / 2, h / 2, w / 2);
+    gr.addColorStop(0, 'rgba(255,255,255,.9)'); gr.addColorStop(.5, 'rgba(255,255,255,.28)'); gr.addColorStop(1, 'rgba(255,255,255,0)');
+    g.fillStyle = gr; g.fillRect(0, 0, w, h);
+  });
+  const deskTex = ctex(512, 512, (g, w, h) => {
+    g.fillStyle = '#e9e9e9'; g.fillRect(0, 0, w, h); const r = rng(31);
+    for (let i = 0; i < 9000; i++) { const v = 200 + (r() * 55 | 0); g.fillStyle = `rgba(${v},${v},${v},0.35)`; g.fillRect(r() * w, r() * h, 1.2, 1.2); }
+  });
+  deskTex.wrapS = deskTex.wrapT = THREE.RepeatWrapping; deskTex.repeat.set(2, 2);
+  const walnutTex = ctex(1024, 256, (g, w, h) => {
+    g.fillStyle = '#5e4130'; g.fillRect(0, 0, w, h); const r = rng(23);
+    for (let i = 0; i < 140; i++) {
+      const y0 = r() * h, l = 26 + r() * 24, a = 0.08 + r() * 0.18;
+      g.strokeStyle = `hsla(24, 38%, ${l}%, ${a})`; g.lineWidth = 0.6 + r() * 2.2;
+      g.beginPath(); g.moveTo(0, y0);
+      for (let x = 0; x <= w; x += 32) g.lineTo(x, y0 + Math.sin(x * 0.006 + i) * 3 + (r() - 0.5) * 1.5);
+      g.stroke();
+    }
+  });
+  walnutTex.wrapS = walnutTex.wrapT = THREE.RepeatWrapping; walnutTex.repeat.set(0.9, 4);
+  const padTex = ctex(256, 256, (g, w, h) => {
+    g.fillStyle = '#f0f0f0'; g.fillRect(0, 0, w, h); const r = rng(41);
+    for (let i = 0; i < w; i += 2) { g.fillStyle = `rgba(0,0,0,${0.03 + r() * 0.05})`; g.fillRect(i, 0, 1, h); g.fillRect(0, i, w, 1); }
+  });
+  padTex.wrapS = padTex.wrapT = THREE.RepeatWrapping; padTex.repeat.set(6, 6);
+  const meshTex = ctex(1024, 336, (g, w, h) => {
+    g.clearRect(0, 0, w, h); g.strokeStyle = 'rgba(58,62,68,1)'; g.lineWidth = 4.2;
+    for (let x = -h; x < w + h; x += 24) { g.beginPath(); g.moveTo(x, 0); g.lineTo(x + h, h); g.stroke(); g.beginPath(); g.moveTo(x + h, 0); g.lineTo(x, h); g.stroke(); }
+  });
+  meshTex.wrapS = meshTex.wrapT = THREE.RepeatWrapping; meshTex.repeat.set(3, 1);
+
+  /* ---------- 桌子：宜家 UTESPELARE 160×80，桌腿装在 76 cm ---------- */
+  const KH = DH / 100, DEPTH = 0.80, MESH = 0.20;                          // 后 20 cm 金属网，前 60 cm 木板
+  const deskMat = km(0x2a2d31, { map: deskTex, roughness: 0.55, envMapIntensity: 0.9, transparent: true });   // 透明开关：「桌板透明」
+  const frameMat = km(0x232528, { roughness: 0.42, metalness: 0.6, envMapIntensity: 2 });
+  const meshMat = new THREE.MeshStandardMaterial({ color: 0xffffff, map: meshTex, transparent: true, alphaTest: 0.3, side: THREE.DoubleSide, roughness: 0.45, metalness: 0.6 });
+  /* 前 60 cm 木板 */
+  slab(1.6, 0.022, DEPTH - MESH, 0.012, 0.003, deskMat, 0, -0.011, MESH + (DEPTH - MESH) / 2);
+  /* 后 20 cm 金属网 ＋ 外框 ＋ 网下 5 根纵向框架（离中线 0、±32、±64 cm） */
+  const meshPlane = new THREE.Mesh(new THREE.PlaneGeometry(1.56, MESH - 0.03), meshMat);
+  meshPlane.rotation.x = -Math.PI / 2; meshPlane.position.set(0, -0.003, MESH / 2); kit.add(meshPlane);
+  box(1.6, 0.02, 0.02, frameMat, 0, -0.01, 0.01);
+  box(1.6, 0.02, 0.02, frameMat, 0, -0.01, MESH - 0.01);
+  [-0.79, 0.79].forEach(x => box(0.02, 0.02, MESH, frameMat, x, -0.01, MESH / 2));
+  [-0.64, -0.32, 0, 0.32, 0.64].forEach(x => box(0.016, 0.018, MESH - 0.02, frameMat, x, -0.011, MESH / 2));
+  /* A 字腿：每侧前后两根斜腿 ＋ 一根横撑 ＋ 侧上框；桌下前后两根长横梁 */
+  const LX = 0.72, LEGTOP = -0.05, LEGBOT = -KH + 0.012;
+  [-LX, LX].forEach(x => {
+    const bTop = V(x, LEGTOP, 0.28), bBot = V(x, LEGBOT, 0.06), fTop = V(x, LEGTOP, 0.52), fBot = V(x, LEGBOT, 0.74);
+    rod(bTop, bBot, 0.017, frameMat, kit, 4); rod(fTop, fBot, 0.017, frameMat, kit, 4);
+    rod(bTop.clone().lerp(bBot, 0.78), fTop.clone().lerp(fBot, 0.78), 0.011, frameMat, kit, 6);
+    box(0.03, 0.03, 0.74, frameMat, x, -0.037, 0.40);
+    [0.06, 0.74].forEach(z => box(0.05, 0.012, 0.05, blackMatte, x, -KH + 0.006, z));
+  });
+  box(1.44, 0.03, 0.03, frameMat, 0, -0.037, 0.10);
+  box(1.44, 0.025, 0.025, frameMat, 0, -0.035, 0.62);
+  /* 木板下面自带的布制线兜 */
+  const pouchM = km(0x2a2c2f, { roughness: 0.95 });
+  box(0.9, 0.004, 0.18, pouchM, 0, -0.105, 0.32);
+  box(0.9, 0.06, 0.004, pouchM, 0, -0.075, 0.23);
+  box(0.9, 0.06, 0.004, pouchM, 0, -0.075, 0.41);
+
+  /* 桌下收纳槽（已有，装在金属网下面，北端开口）、插排（10 口，每口一盏开关灯）、两个充电头 */
+  const trayMat = km(0x26282c, { roughness: 0.55, metalness: 0.3, transparent: true });
+  box(1.0, 0.004, 0.11, trayMat, 0, -0.125, 0.115);
+  box(1.0, 0.07, 0.004, trayMat, 0, -0.092, 0.17);
+  box(1.0, 0.08, 0.004, trayMat, 0, -0.088, 0.06);
+  box(0.12, 0.034, 0.06, blackMatte, 0.34, -0.106, 0.115);              // 北端：USB 充电头 [占位]
+  box(0.08, 0.03, 0.05, blackMatte, -0.38, -0.108, 0.11);                // 南端：USB 充电头 [占位]
+  box(0.52, 0.036, 0.05, blackMatte, -0.06, -0.105, 0.11);               // 插排
+  const amber = glow(0xff8a2a, 2.2);
+  for (let i = 0; i < 10; i++) box(0.012, 0.004, 0.01, amber, -0.3 + i * 0.05, -0.0855, 0.098);
+
+  /* 主机：Thermaltake S100（宽 22 高 41 深 41）放在推车下层，背面朝西墙，玻璃侧板朝桌子中间（南）。
+     推车在后面用厘米写；这里只是机箱本体，位置按推车算好：机箱占 deskG x 3.5–44.6、z 23.5–45.6、y 7–48 */
+  const PCX = (DL / 2 - 34.55) / 100, PCZ = 0.2405, PCY0 = (7 - DH) / 100;
+  const pcWhite = km(0xf3f3f1, { roughness: 0.35, envMapIntensity: 1.2 });
+  const PCH = 0.411, PCD = 0.411, pcCY = PCY0 + PCH / 2;
+  box(0.20, PCH, PCD, pcWhite, PCX + 0.01, pcCY, PCZ);
+  box(0.022, 0.012, PCD, pcWhite, PCX - 0.10, PCY0 + PCH - 0.006, PCZ); box(0.022, 0.012, PCD, pcWhite, PCX - 0.10, PCY0 + 0.006, PCZ);
+  box(0.022, PCH, 0.012, pcWhite, PCX - 0.10, pcCY, PCZ + PCD / 2 - 0.006); box(0.022, PCH, 0.012, pcWhite, PCX - 0.10, pcCY, PCZ - PCD / 2 + 0.006);
+  const pcGlass = new THREE.Mesh(new THREE.PlaneGeometry(PCD - 0.01, PCH - 0.01), new THREE.MeshStandardMaterial({ color: 0x0a0c10, roughness: 0.08, metalness: 0.2, transparent: true, opacity: 0.45, envMapIntensity: 2 }));
+  pcGlass.rotation.y = -Math.PI / 2; pcGlass.position.set(PCX - 0.1115, pcCY, PCZ); kit.add(pcGlass);
+  const fanMat = glow(0x7a5cff, 1.2);
+  [[PCY0 + 0.30, PCZ - 0.13], [PCY0 + 0.20, PCZ + 0.13], [PCY0 + 0.09, PCZ + 0.13]].forEach(([y, z]) => { const f = new THREE.Mesh(new THREE.TorusGeometry(0.052, 0.006, 8, 28), fanMat); f.rotation.y = Math.PI / 2; f.position.set(PCX - 0.097, y, z); kit.add(f); });
+  box(0.004, 0.025, 0.24, fanMat, PCX - 0.097, PCY0 + 0.16, PCZ - 0.02);
+  box(0.006, 0.006, 0.006, glow(0xffffff, 2), PCX + 0.01, PCY0 + PCH - 0.04, PCZ + PCD / 2 + 0.001);
+
+  /* 显示器：KOORUI 27 寸（宽 61.4 cm），挂在桌子正中；屏幕下沿离桌面 19 cm */
+  const MX = 0, MY = 0.37, MZ = 0.17;
+  const mon = new THREE.Group();
+  box(0.614, 0.36, 0.018, black, 0, 0, 0, mon);
+  const scr = new THREE.Mesh(new THREE.PlaneGeometry(0.614 - 0.012, 0.36 - 0.014), new THREE.MeshBasicMaterial({ map: gameTex, toneMapped: false }));
+  scr.position.z = 0.0095; mon.add(scr);
+  box(0.614 * 0.42, 0.36 * 0.42, 0.035, black, 0, -0.01, -0.026, mon);
+  mon.position.set(MX, MY, MZ); kit.add(mon);
+
+  /* KOORUI 单屏支架：夹在金属网右二那根框架上（离中线 32 cm，北侧） */
+  const AX = 0.32;
+  const armMat = km(0x2e3135, { roughness: 0.35, metalness: 0.6, envMapIntensity: 2.2 });
+  box(0.07, 0.012, 0.09, metal, AX, 0.006, 0.05);
+  box(0.07, 0.10, 0.01, metal, AX, -0.04, -0.006);
+  box(0.07, 0.012, 0.06, metal, AX, -0.085, 0.025);
+  rod(V(AX, 0.012, 0.055), V(AX, 0.19, 0.055), 0.02, metal);
+  rod(V(AX, 0.19, 0.055), V(0.18, 0.37, 0.08), 0.018, armMat);
+  rod(V(0.18, 0.37, 0.08), V(MX + 0.02, MY, MZ - 0.045), 0.015, armMat);
+  [V(AX, 0.19, 0.055), V(0.18, 0.37, 0.08)].forEach(p => { const j = new THREE.Mesh(new THREE.SphereGeometry(0.022, 12, 10), metal); j.position.copy(p); kit.add(j); });
+
+  /* OOWOLF 挂灯 41 cm：灯光本身（聚光）放在场景根上，见后面 regLight('desk') */
+  const barRod = new THREE.Mesh(new THREE.CylinderGeometry(0.012, 0.012, 0.41, 16), black);
+  barRod.rotation.z = Math.PI / 2; barRod.position.set(MX, MY + 0.197, MZ + 0.015); barRod.castShadow = true; kit.add(barRod);
+  box(0.04, 0.035, 0.05, black, MX, MY + 0.19, MZ - 0.01);
+  const barGlowMat = glow(0xfff2dc, 0.2);
+  box(0.38, 0.003, 0.012, barGlowMat, MX, MY + 0.1835, MZ + 0.022).castShadow = false;
+
+  /* 胡桃色增高架 80 cm（深 20、高 9，还没定款）：骑在金属网和木板交界上（离后沿 8–28 cm）；
+     条形音箱（41×7×7）放在架子正中、屏幕正下方；架子两头摆两个 10 cm 以下的小手办 */
+  const walnut = km(0xffffff, { map: walnutTex, roughness: 0.5 });
+  const RL = 0.8, RZ0 = 0.08, RD = 0.20, RH = 0.09;
+  slab(RL, 0.018, RD, 0.008, 0.002, walnut, 0, RH - 0.009, RZ0 + RD / 2);
+  [-1, 1].forEach(s => {
+    const x = s * (RL / 2 - 0.03);
+    box(0.025, 0.01, RD - 0.01, frameMat, x, 0.005, RZ0 + RD / 2);
+    box(0.025, 0.01, RD - 0.01, frameMat, x, RH - 0.023, RZ0 + RD / 2);
+    box(0.025, 0.052, 0.012, frameMat, x, 0.036, RZ0 + 0.012);
+    box(0.025, 0.052, 0.012, frameMat, x, 0.036, RZ0 + RD - 0.012);
+  });
+  const sound = new THREE.Group(); sound.position.set(0, RH, 0.085); kit.add(sound);
+  slab(0.41, 0.07, 0.072, 0.02, 0.004, km(0x17181b, { roughness: 0.5, metalness: 0.2 }), MX, 0.035, 0.115, sound);
+  box(0.36, 0.006, 0.004, glow(0x9a5cff, 1.4), MX, 0.012, 0.152, sound);
+  const fw = km(0xf4f4f2, { roughness: 0.45 }), fb = km(0x2852b8, { roughness: 0.45 }), fr = km(0xc8343a, { roughness: 0.45 }), fy = km(0xf2c230, { roughness: 0.4 });
+  const ex = RL / 2 - 0.075;
+  const figL = new THREE.Group(); figL.position.set(-ex, RH, 0.19); kit.add(figL);   // 左（南）：拼好的小机甲，约 9 cm
+  box(0.05, 0.006, 0.04, blackMatte, 0, 0.003, 0, figL);
+  [-0.009, 0.009].forEach(x => { box(0.011, 0.03, 0.013, fw, x, 0.021, 0, figL); box(0.013, 0.008, 0.019, fb, x, 0.01, 0.003, figL); });
+  box(0.03, 0.013, 0.016, fr, 0, 0.042, 0, figL); box(0.034, 0.018, 0.019, fb, 0, 0.057, 0, figL);
+  [-0.023, 0.023].forEach(x => { box(0.013, 0.013, 0.014, fw, x, 0.062, 0, figL); box(0.008, 0.028, 0.009, fw, x * 1.05, 0.042, 0, figL); });
+  box(0.013, 0.013, 0.013, fw, 0, 0.074, 0, figL); box(0.024, 0.003, 0.003, fy, 0, 0.082, 0.007, figL);
+  const figR = new THREE.Group(); figR.position.set(ex, RH, 0.19); figR.rotation.y = -0.35; kit.add(figR);   // 右（北）：车模，约 10 cm 长
+  const carMat = km(0x1d1f24, { roughness: 0.3, metalness: 0.5, envMapIntensity: 2 });
+  slab(0.1, 0.022, 0.042, 0.01, 0.003, carMat, 0, 0.017, 0, figR);
+  slab(0.05, 0.016, 0.036, 0.008, 0.003, km(0x0c0d10, { roughness: 0.1, metalness: 0.3 }), -0.006, 0.035, 0, figR);
+  box(0.1, 0.003, 0.008, white, 0, 0.0285, 0, figR);
+  [[-0.032, -0.021], [0.032, -0.021], [-0.032, 0.021], [0.032, 0.021]].forEach(([x, z]) => { const w = new THREE.Mesh(new THREE.CylinderGeometry(0.009, 0.009, 0.006, 14), blackMatte); w.rotation.x = Math.PI / 2; w.position.set(x, 0.009, z); figR.add(w); });
+
+  /* 宜家 LÅNESPELARE 鼠标垫 90×40、键盘、鼠标 */
+  const padMat = km(0x1d1e21, { map: padTex, roughness: 0.95, transparent: true });
+  slab(0.9, 0.004, 0.4, 0.025, 0.0015, padMat, 0.10, 0.002, 0.50);
+  const kb = new THREE.Group(); kb.position.set(-0.02, 0.004, 0.54); kit.add(kb);
+  slab(0.368, 0.02, 0.138, 0.008, 0.002, km(0x1a1b1e, { roughness: 0.4, metalness: 0.4 }), 0, 0.01, 0, kb);
+  const kbTop = new THREE.Mesh(new THREE.PlaneGeometry(0.36, 0.13), new THREE.MeshStandardMaterial({ map: keysTex, roughness: 0.7 }));
+  kbTop.rotation.x = -Math.PI / 2; kbTop.position.y = 0.0205; kb.add(kbTop);
+  const mouse = new THREE.Group(); mouse.position.set(0.32, 0.004 + 0.019, 0.55); kit.add(mouse);
+  const mouseBody = new THREE.Mesh(new THREE.SphereGeometry(0.5, 28, 18), km(0xf4f2f4, { roughness: 0.35 })); mouseBody.scale.set(0.062, 0.038, 0.118); mouseBody.castShadow = true; mouse.add(mouseBody);
+  const mouseStripe = new THREE.Mesh(new THREE.SphereGeometry(0.5, 20, 12), km(0xe58fb2, { roughness: 0.4 })); mouseStripe.scale.set(0.02, 0.0385, 0.07); mouseStripe.position.set(0, 0.0005, -0.01); mouse.add(mouseStripe);
+
+  /* vivo Pad3 Pro 13 寸 ＋ 折叠支架：键盘左前方、增高架前面，稍微朝座位转；底座放在鼠标垫上。
+     平板往后仰 a（顶边离人远），下沿抵住前面的挡条，两根撑杆在平板背后、顶到平板背面约 60% 高的地方 */
+  const tstand = new THREE.Group(); tstand.position.set(-0.28, 0.004, 0.36); tstand.rotation.y = 0.2; kit.add(tstand);
+  const ta = 0.5, thh = 0.095, tht = 0.0035, tu = V(0, Math.cos(ta), -Math.sin(ta)), tn = V(0, Math.sin(ta), Math.cos(ta));
+  const tBack = V(0, 0.0062, 0.0297);                                     // 平板下沿背面那条棱（落在底座上，前面就是挡条）
+  box(0.12, 0.006, 0.08, black, 0, 0.003, 0, tstand);                     // 底座
+  box(0.12, 0.014, 0.012, black, 0, 0.013, 0.042, tstand);                // 前挡条
+  const tTop = tBack.clone().addScaledVector(tu, 0.6 * 2 * thh).addScaledVector(tn, -0.004);   // 撑杆顶端：贴着平板背面
+  [-0.045, 0.045].forEach(x => rod(V(x, 0.006, -0.036), V(x, tTop.y, tTop.z), 0.004, black, tstand, 8));
+  rod(V(-0.05, tTop.y, tTop.z), V(0.05, tTop.y, tTop.z), 0.004, black, tstand, 8);   // 顶上的横托
+  const tablet = new THREE.Group(); tablet.rotation.x = -ta; tablet.position.copy(tBack).addScaledVector(tu, thh).addScaledVector(tn, tht); tstand.add(tablet);
+  slab(0.29, 2 * tht, 2 * thh, 0.012, 0.0015, km(0x2a2c30, { roughness: 0.35, metalness: 0.4 }), 0, 0, 0, tablet).rotation.x = Math.PI / 2;
+  const tabScr = new THREE.Mesh(new THREE.PlaneGeometry(0.278, 0.176), new THREE.MeshBasicMaterial({ map: tabTex, toneMapped: false }));
+  tabScr.position.z = tht + 0.0002; tablet.add(tabScr);                   // 屏幕朝座位（平板法线朝上偏前）
+
+  /* 手办展示盒（KAI LED）：左后方、洞洞板前面 */
+  const fcase = new THREE.Group(); fcase.position.set(-0.72, 0, 0.20); kit.add(fcase);
+  box(0.15, 0.025, 0.15, blackMatte, 0, 0.0125, 0, fcase);
+  const caseLed = glow(0xfff1d0, 1.2); box(0.13, 0.004, 0.003, caseLed, 0, 0.02, 0.076, fcase);
+  const acrylic = new THREE.Mesh(new THREE.BoxGeometry(0.15, 0.24, 0.15), new THREE.MeshStandardMaterial({ color: 0xffffff, transparent: true, opacity: 0.13, roughness: 0.05, depthWrite: false, envMapIntensity: 2 }));
+  acrylic.position.set(0, 0.145, 0); fcase.add(acrylic);
+  box(0.14, 0.23, 0.003, km(0xc9ced6, { roughness: 0.12, metalness: 0.25, envMapIntensity: 2 }), 0, 0.145, -0.071, fcase);
+  [-0.014, 0.014].forEach(x => { box(0.02, 0.06, 0.026, fw, x, 0.06, 0, fcase); box(0.022, 0.016, 0.034, fb, x, 0.032, 0.004, fcase); });
+  box(0.052, 0.024, 0.03, fr, 0, 0.1, 0, fcase); box(0.058, 0.032, 0.034, fb, 0, 0.128, 0, fcase);
+  [-0.038, 0.038].forEach(x => { box(0.022, 0.024, 0.026, fw, x, 0.138, 0, fcase); box(0.014, 0.05, 0.016, fw, x * 1.05, 0.102, 0, fcase); });
+  box(0.022, 0.022, 0.022, fw, 0, 0.158, 0, fcase); box(0.04, 0.004, 0.004, fy, 0, 0.17, 0.012, fcase);
+
+  /* 胡桃木托盘（还没定款）：鼠标垫右边，放钥匙、耳机、手表 */
+  const wtray = new THREE.Group(); wtray.position.set(0.665, 0, 0.47); wtray.rotation.y = -0.06; kit.add(wtray);
+  slab(0.21, 0.008, 0.14, 0.014, 0.002, walnut, 0, 0.004, 0, wtray);
+  box(0.21, 0.016, 0.01, walnut, 0, 0.012, -0.065, wtray); box(0.21, 0.016, 0.01, walnut, 0, 0.012, 0.065, wtray);
+  box(0.01, 0.016, 0.14, walnut, -0.1, 0.012, 0, wtray); box(0.01, 0.016, 0.14, walnut, 0.1, 0.012, 0, wtray);
+  slab(0.05, 0.024, 0.06, 0.018, 0.004, white, -0.045, 0.02, -0.01, wtray);                       // 耳机盒
+  rod(V(0.02, 0.011, 0.03), V(0.075, 0.011, -0.02), 0.004, silver, wtray, 8);                       // 钥匙
+  const watch = new THREE.Mesh(new THREE.TorusGeometry(0.018, 0.005, 8, 20), black); watch.rotation.x = Math.PI / 2; watch.position.set(0.05, 0.013, 0.035); wtray.add(watch);
+
+  /* 宜家 KALKSTUFF 理线夹：桌面右后角（北） */
+  const kalkM = km(0xdedcd6);
+  [0.64, 0.68, 0.72].forEach(x => { box(0.03, 0.012, 0.02, white, x, 0.006, 0.225); box(0.012, 0.006, 0.02, kalkM, x, 0.015, 0.225); });
+
+  /* 左边（南）：拼手办区。白色洞洞板（约 60×40）夹在金属网左后方，工具挂在上面 */
+  const peg = new THREE.Group(); peg.position.set(-0.49, 0, 0.025); kit.add(peg);
+  box(0.6, 0.4, 0.012, km(0xffffff, { map: pegTex, roughness: 0.55, metalness: 0.1 }), 0, 0.28, 0, peg);
+  [-0.2, 0.2].forEach(x => { box(0.02, 0.08, 0.02, black, x, 0.04, 0.004, peg); box(0.035, 0.012, 0.06, black, x, -0.042, 0.02, peg); box(0.035, 0.07, 0.008, black, x, -0.008, -0.025, peg); });   // 夹子背板：这里桌子离西墙只有 3 cm，比方案页往前挪 0.5 cm，不顶进墙
+  box(0.34, 0.008, 0.075, white, 0.0, 0.2, 0.045, peg);
+  [[-0.12, 0xd8d8d8], [-0.08, 0x8ab6ff], [-0.03, 0xff9b6a], [0.02, 0xf2f2f2]].forEach(([x, c]) => { const j = new THREE.Mesh(new THREE.CylinderGeometry(0.012, 0.012, 0.04, 14), km(c, { roughness: 0.3 })); j.position.set(x, 0.224, 0.05); j.castShadow = true; peg.add(j); });
+  const cup = new THREE.Mesh(new THREE.CylinderGeometry(0.022, 0.02, 0.06, 18), white); cup.position.set(0.11, 0.234, 0.045); peg.add(cup);
+  [[-0.01, 0xd4d4d4], [0.006, 0xe0b04a], [0.014, 0xd4d4d4]].forEach(([dx, c], i) => rod(V(0.11 + dx, 0.24, 0.045), V(0.11 + dx * 2.2, 0.31 - i * 0.012, 0.05), 0.003, km(c, { metalness: 0.5, roughness: 0.3 }), peg, 6));
+  [[-0.2, 0xd23a3a], [-0.13, 0x3a6bd2]].forEach(([x, c]) => { rod(V(x - 0.008, 0.40, 0.03), V(x - 0.012, 0.31, 0.034), 0.005, km(c), peg, 8); rod(V(x + 0.008, 0.40, 0.03), V(x + 0.012, 0.31, 0.034), 0.005, km(c), peg, 8); box(0.012, 0.03, 0.01, silver, x, 0.41, 0.03, peg); });
+  box(0.11, 0.05, 0.05, white, 0.17, 0.40, 0.04, peg);
+
+  /* PLUS A3 切割垫（往后放）＋ 拼到一半的套件 */
+  box(0.45, 0.003, 0.30, km(0xffffff, { map: cutTex, roughness: 0.8 }), -0.575, 0.0045, 0.50);
+  const kitBox = new THREE.Group(); kitBox.position.set(-0.60, 0.006, 0.50); kit.add(kitBox);
+  const gray = km(0xb7bcc4, { roughness: 0.5 });
+  box(0.17, 0.005, 0.005, gray, 0, 0.003, -0.055, kitBox); box(0.17, 0.005, 0.005, gray, 0, 0.003, 0.055, kitBox); box(0.005, 0.005, 0.11, gray, -0.085, 0.003, 0, kitBox); box(0.005, 0.005, 0.11, gray, 0.085, 0.003, 0, kitBox); box(0.16, 0.003, 0.003, gray, 0, 0.003, 0, kitBox);
+  [[-0.05, -0.03], [0.0, -0.028], [0.05, -0.03], [-0.04, 0.03], [0.03, 0.028]].forEach(([x, z], i) => box(0.026, 0.008, 0.018, i % 2 ? fb : fw, x, 0.005, z, kitBox));
+  box(0.034, 0.03, 0.022, fw, 0.14, 0.015, 0.0, kitBox); box(0.036, 0.018, 0.026, fb, 0.14, 0.04, 0.0, kitBox);
+
+  /* SALLOUS 透明椅子地垫 120×100：地板上，椅子底下 */
+  const cmat = new THREE.Mesh(new THREE.PlaneGeometry(1.2, 1.0), new THREE.MeshStandardMaterial({ color: 0xffffff, transparent: true, opacity: 0.16, roughness: 0.12, envMapIntensity: 1.5, depthWrite: false }));
+  cmat.rotation.x = -Math.PI / 2; cmat.position.set(0.05, -KH + 0.003, 1.37); cmat.userData.noPick = true; kit.add(cmat);
+
+  /* 网下暖光灯带（还没定款）：贴在金属网后沿钢框下面，不碰墙 */
+  const warmLed = glow(0xffa04a, 0.3);
+  box(1.44, 0.004, 0.01, km(0x1a1b1d, { roughness: 0.6 }), 0, -0.022, 0.01);
+  box(1.42, 0.002, 0.006, warmLed, 0, -0.0245, 0.008).castShadow = false;
+
+  return { deskMat, padMat, trayMat, barGlowMat, warmLed, glowTex, MX, MY, MZ, AX, RH };
+})();
+/* 方案页坐标（米）→ deskG（厘米） */
+const KS = (x, y, z) => [100 * z, DH + 100 * y, DL / 2 - 100 * x];
+
+/* 暖光灯带照在西墙下半截和地上的光晕（叠加混合的贴片）：西墙在 deskG x = −3；亮度在 frame_ 里跟灯的开关、白天黑夜走 */
+const glowPlane = (w, h, color) => {
+  const m = new THREE.Mesh(new THREE.PlaneGeometry(w, h), new THREE.MeshBasicMaterial({ map: KIT.glowTex, color, transparent: true, opacity: 0,
+    blending: THREE.AdditiveBlending, depthWrite: false }));
+  m.userData.noPick = true; m.userData.noAO = true; m.castShadow = false; m.receiveShadow = false;
+  deskG.add(m);
+  return m;
+};
+const warmWall = glowPlane(230, 115, 0xff8a32);
+warmWall.rotation.y = Math.PI / 2; warmWall.position.set(-2.6, DH - 12, DL / 2);   // 朝东（朝屋里）
+const warmFloor = glowPlane(DL, 70, 0xff8a32);
+warmFloor.rotation.x = -Math.PI / 2; warmFloor.rotation.z = Math.PI / 2; warmFloor.position.set(32, 0.4, DL / 2);
+
+/* ---------- 桌下：天猫「兰雍」两层主机推车（黑），桌下北端（离座位远的那头） ----------
+   [估算] 宽调到最大：外 36 / 内 34（沿桌长 z），深 外 45 / 内 42（沿 x，背面朝西墙）；轮子离地 6，
+   下层内高约 44，顶层台面离地约 53，顶层后、左、右三面 5 cm 护栏，总高约 58。
+   推车 x 2–47、z 11–47：北边让开 A 字腿（腿在 z≈8），顶上离收纳槽底（约 63）还有 5 cm */
+const CART = { x0: 2, x1: 47, z0: 11, z1: 47, wheel: 6, deck0: 7, deck1: 51, top: 53, rail: 58 };
+const cartM = mat(0x1b1c1f, { roughness: 0.5, metalness: 0.45 });
+const cartDeckM = mat(0x232427, { roughness: 0.7, metalness: 0.2 });
+const db = (...a) => lbox(deskG, ...a);
+{
+  const { x0, x1, z0, z1, wheel, deck0, deck1, top, rail } = CART;
+  /* 万向轮：轮子 ＋ 轮叉，轮子底贴地 */
+  [[x0 + 3.5, z0 + 3.5], [x1 - 3.5, z0 + 3.5], [x0 + 3.5, z1 - 3.5], [x1 - 3.5, z1 - 3.5]].forEach(([x, z]) => {
+    const w = new THREE.Mesh(new THREE.CylinderGeometry(2.4, 2.4, 1.8, 18), legBlackM);
+    w.rotation.x = Math.PI / 2; w.position.set(x, 2.4, z); w.castShadow = true; deskG.add(w);
+    db(x - 1.2, x + 1.2, 2.4, wheel - 0.6, z - 1.4, z - 0.9, cartM); db(x - 1.2, x + 1.2, 2.4, wheel - 0.6, z + 0.9, z + 1.4, cartM);
+    db(x - 1.6, x + 1.6, wheel - 0.6, wheel, z - 1.6, z + 1.6, cartM);
+  });
+  db(x0, x1, wheel, deck0, z0, z1, cartDeckM);                              // 下层台面
+  db(x0, x1, deck1, top, z0, z1, cartDeckM);                                // 顶层台面
+  /* 四根立柱（x 方向 1.5、z 方向 1）→ 内深 42、内宽 34 */
+  [[x0, z0], [x1 - 1.5, z0], [x0, z1 - 1], [x1 - 1.5, z1 - 1]].forEach(([x, z]) => db(x, x + 1.5, wheel, rail, z, z + 1, cartM));
+  /* 顶层护栏：后（西）、左、右各一根横杆 ＋ 中间两根竖杆 */
+  db(x0, x0 + 1.5, rail - 1, rail, z0, z1, cartM);
+  [z0, z1 - 1].forEach(z => {
+    db(x0, x1, rail - 1, rail, z, z + 1, cartM);
+    [x0 + 15, x0 + 30].forEach(x => db(x, x + 0.8, top, rail, z + 0.1, z + 0.9, cartM));
+  });
+  [z0 + 12, z0 + 24].forEach(z => db(x0 + 0.35, x0 + 1.15, top, rail, z, z + 0.8, cartM));
 }
-toDesk(label(`ErGear 升降桌 ${DL}×${DD}，高 ${DH}～118（离西墙 3 cm）`, 45, 152, 60));   // 放进 deskG：删桌时一起消失
+dlabel('兰雍主机推车 [估算] 外 36×45 · 高约 58', 26, 64, 29, '', true);
+dlabel('S100（玻璃侧朝南）', 26, 32, 50, '', true);
+
+/* 下层北边：VDSL 光猫（白，立放）和路由器（深灰，立放），都靠西墙那头、立在自带的小脚上；正面（指示灯）朝东。
+   尺寸 [占位]：光猫 厚 4 × 深 17 × 高 19，路由器 厚 3.5 × 深 16 × 高 20 */
+const modemM = mat(0xf3f2ee, { roughness: 0.45 }), routerM = mat(0x3a3d42, { roughness: 0.5, metalness: 0.1 });
+const ledGreen = mat(0x103010, { emissive: 0x39d353, emissiveIntensity: 1.6 }), ledWhite = mat(0x202020, { emissive: 0xffffff, emissiveIntensity: 1.4 });
+const MODEM = { x0: 5, x1: 22, z0: 13, z1: 17, y0: CART.deck0 + 1, y1: CART.deck0 + 20 };
+const ROUTER = { x0: 5, x1: 21, z0: 18.5, z1: 22, y0: CART.deck0 + 1, y1: CART.deck0 + 21 };
+[MODEM, ROUTER].forEach((d, i) => {
+  rbox(deskG, d.x0, d.x1, d.y0, d.y1, d.z0, d.z1, i ? routerM : modemM, 0.6);
+  [d.x0 + 2.5, d.x1 - 2.5].forEach(x => db(x - 1.5, x + 1.5, CART.deck0, d.y0, d.z0 - 0.6, d.z1 + 0.6, dark));   // 自带的小脚
+});
+[0, 1, 2, 3].forEach(i => db(MODEM.x1, MODEM.x1 + 0.12, MODEM.y1 - 3 - i * 2, MODEM.y1 - 2.4 - i * 2, 14.6, 15.4, ledGreen).castShadow = false);
+[0, 1].forEach(i => db(ROUTER.x1, ROUTER.x1 + 0.12, ROUTER.y1 - 3 - i * 2.4, ROUTER.y1 - 2.4 - i * 2.4, 19.85, 20.65, ledWhite).castShadow = false);
+dlabel('VDSL 光猫 [占位] 4×17×19', 14, 34, 12, '', true);
+dlabel('路由器 [占位] 3.5×16×20', 14, 40, 21, '', true);
+
+/* ---------- 北墙：电话口（モジュラージャック，窄的 RJ11）和墙插，位置沿用以前布线图的位置 ----------
+   墙上的东西放在场景根上（房间坐标 = 桌子坐标 x + 3），删主桌时插口还在 */
+const plugM = mat(0x18191b, { roughness: 0.55 });
+block(12, 17, 19, 25, 0, 0.6, itemWhite, { cast: false });                         // 电话口面板
+block(13.9, 15.1, 21.5, 22.4, 0.6, 0.66, plugM, { cast: false });                  // RJ11 口
+block(14.0, 15.0, 21.55, 22.35, 0.6, 1.9, mat(0xd9dde0, { roughness: 0.2, transparent: true, opacity: 0.8 }));   // 插着的电话线水晶头
+block(22, 30, 17, 26, 0, 0.6, itemWhite, { cast: false });                         // 墙插（2 口）
+[25.3, 26.7].forEach(x => block(x - 0.15, x + 0.15, 18.9, 19.8, 0.6, 0.66, plugM, { cast: false }));   // 下面那口空着
+block(24.6, 27.4, 22.2, 25.2, 0.6, 3.2, plugM);                                    // 上面那口：插排的插头
+{
+  const wl = (text, x, y, z) => { const o = label(text, x, y, z); o.userData.under = true; deskLabels.push(o); return o; };
+  wl('电话口 RJ11（VDSL 进户）', 14.5, 30, 1);
+  wl('墙插（2 口）', 26, 13, 1);
+}
 
 /* ---------- 东墙侧桌 120×60（目录可添加，默认不再摆在这里）：桌高 76.2（原黑桌实测），不放椅子 ----------
    若把这张桌加回来（id=tv），桌上放什么仍由「东墙模式」决定（电视 ＋ 竖放 PS5 / 投影时电视收起、PS5 横放），见 rebuild() */
@@ -1044,606 +1406,177 @@ let passStrip, passLabel;
   passLabel = label(`去阳台的通道 ${x0 - 195} cm：不放椅子，畅通`, (195 + x0) / 2, 6, 285);
 }
 
-/* ---------- 理线配件（可高亮） ---------- */
-const accM = mat(0x4a4f55, { roughness: 0.6, transparent: true, opacity: 0.9 });
-const accHi = new THREE.Color(0x19a3a3), accLo = new THREE.Color(0x4a4f55);
-const accLabels = [];
-const underLabels = [];                                   // 被桌板挡住的东西：从上方看时不显示标签
-const A = m => { m.material = accM; return m; };
-const AL = (...a) => { const o = dlabel(...a, 'acc'); accLabels.push(o); return o; };
-const UL = (...a) => { const o = AL(...a); underLabels.push(o); return o; };
+/* ---------- 桌子的灯：OOWOLF 挂灯、网下暖光灯带 ----------
+   真实灯放在场景根上（不放进 deskG）：删主桌 / 恢复时灯的数量不变，不会触发所有材质重编着色器；主桌不在时 eff() = false，亮度归零 */
+const needDesk = id => () => LIGHTS[id].on && !!furnById('desk');
+/* 挂灯：灯条在屏幕顶上（房间 x 24、y 131），斜照键盘一带。离桌面约 63 cm，intensity 7000 → 桌面照度约 2 */
+regLight('desk', '屏幕挂灯', 'l-desk', [spot(24, 131, DL / 2, 7000, 0.75, 170, 55, DH, DL / 2)], [{ m: KIT.barGlowMat, max: 2.6 }],
+  { eff: needDesk('desk'), needDesk: true });
+/* 暖光灯带：一盏朝下的大角度柔光冒充灯带照到的地面和西墙根；墙上、地上的光晕是两块叠加贴片，夜里才明显 */
+regLight('warm', '桌下暖光灯带', 'l-strip', [spot(13, 70, DL / 2, 1500, 1.2, 220, 8, 0, DL / 2, 0xff9a48)], [{ m: KIT.warmLed, max: 3 }],
+  { eff: needDesk('warm'), needDesk: true, fx: (cur, nightK) => {
+    warmWall.material.opacity = cur * (0.08 + 0.82 * nightK);
+    warmFloor.material.opacity = cur * 0.45 * nightK;
+  } });
 
-/* 北墙：网口在西（靠墙角），墙插在东；都在桌板北端下面 */
-db(9, 14, 19, 25, WALL_Z, WALL_Z + 0.6, itemWhite, { cast: false });
-db(19, 27, 17, 26, WALL_Z, WALL_Z + 0.6, itemWhite, { cast: false });
-dlabel('网口', 11.5, 30, 1);
-dlabel('墙插（2 口）', 23, 33, 1);
-db(23.5, 27, 17, 20.5, WALL_Z + 0.6, WALL_Z + 2.5, itemWhite, { cast: false });
-AL('④ 一分二：光猫、路由器', 34, 12, 3);
-
-/* 桌下线槽（已有）：挂在桌板下靠后沿，在两根桌腿之间 */
-const TZ0 = 30, TZ1 = 126;
-A(db(3, 15, 57, 58, TZ0, TZ1, accM, { cast: false }));
-A(db(3, 3.6, 58, 64, TZ0, TZ1, accM, { cast: false }));
-A(db(14.4, 15, 58, 64, TZ0, TZ1, accM, { cast: false }));
-[40, 80, 120].forEach(z => { A(db(3, 3.6, 64, DH - 3, z - 1, z + 1, accM, { cast: false })); });
-UL('① 桌下线槽（已有）', 16, 54, 78);
-db(5, 11, 58, 61.5, 46, 82, itemWhite, { cast: false });   // 排插
-db(5, 11, 58, 62, 87, 96, itemWhite, { cast: false });     // 充电头
-UL('② 排插（带总开关）', 16, 62, 62);
-UL('③ 充电头（给无线充电台）', 16, 62, 92);
-
-/* 主机 [占位] 宽 22 × 高 44 × 深 34：用吊架挂在线槽正下方，离地 12 cm，背面朝北、玻璃侧板朝房间 */
-[[28.8, 30], [64, 65.2]].forEach(([z0, z1]) => A(db(17, 24, 11, DH - 3, z0, z1, accM)));   // 两条吊带
-A(db(3.5, 26.5, 10, 11, 28.8, 65.2, accM));                                                 // 底托
-db(4, 26, 12, 56, 30, 64, pcM);
-db(26, 26.3, 15, 53, 32, 62, pcGlassM, { cast: false });
-dlabel('主机（吊在桌下）', 15, 36, 47);
-AL('⑤ 主机吊架 [占位]', 20, 6, 47);
-
-/* 网络设备托架 [占位]：挂在桌板北端下面（第一根桌腿和北墙之间），光猫、路由器平放，背面朝北墙 */
-[[3, 3], [39, 3], [3, 20.5], [39, 20.5]].forEach(([x, z]) => A(db(x, x + 1, 55, DH - 3, z, z + 1, accM)));
-A(db(3, 40, 54, 55, 3, 21.5, accM));
-db(5, 19, 55, 59, 4.5, 20.5, itemWhite);                  // 光猫
-db(21, 37, 55, 60.5, 4.5, 20.5, dark);                    // 路由器
-dlabel('光猫', 12, 50, 13);
-dlabel('路由器', 29, 50, 13);
-AL('⑦ 网络设备托架 [占位]', 22, 44, 4);
-
-/* ---------- 桌面物品：可拖动、可取消 ---------- */
-function lbox(g, x0, x1, y0, y1, z0, z1, m) {
-  const o = new THREE.Mesh(new THREE.BoxGeometry(x1 - x0, y1 - y0, z1 - z0), m);
-  o.position.set((x0 + x1) / 2, (y0 + y1) / 2, (z0 + z1) / 2);
-  o.castShadow = true; o.receiveShadow = true;
-  g.add(o);
-  return o;
-}
-function rbox(g, x0, x1, y0, y1, z0, z1, m, r = 1) {
-  const w = x1 - x0, h = y1 - y0, d = z1 - z0;
-  const o = new THREE.Mesh(new RoundedBoxGeometry(w, h, d, 4, Math.min(r, w / 2 - 0.01, h / 2 - 0.01, d / 2 - 0.01)), m);
-  o.position.set((x0 + x1) / 2, (y0 + y1) / 2, (z0 + z1) / 2);
-  o.castShadow = true; o.receiveShadow = true;
-  g.add(o);
-  return o;
-}
-const ITEMS = {};
-const itemLabels = [];
-/* x、z 是物品在桌面上的中心位置（桌子局部坐标）；hx、hz 是半宽，用来限制不出桌面 */
-function makeItem(id, name, def, hx, hz, build, text, ly) {
-  const g = new THREE.Group();
-  deskG.add(g);
-  if (build) build(g);
-  g.traverse(o => { if (o.isMesh) o.userData.itemId = id; });
-  const it = { id, name, on: true, x: def.x, z: def.z, def, hx, hz, group: g };
-  if (text) {
-    const o = label(text, 0, ly, 0);
-    scene.remove(o); g.add(o);
-    itemLabels.push({ o, it });
-    it.labelObj = o;
-  }
-  ITEMS[id] = it;
-  return it;
-}
-/* 主屏：x 是屏幕背面的位置，z 是屏幕中心；几何体在 layout() 里按高度和支架方式重建。座位正对主屏（z=95） */
-const monitor = makeItem('monitor', '主屏 27 寸', { x: 25, z: 95 }, 0, 30.5, null, '主屏 27 寸', 60);
-const lamp = { id: 'lamp', name: '屏幕挂灯（挂在主屏上）', on: true };
-ITEMS.lamp = lamp;
-/* 书桌挂灯的真实光：一盏不投阴影的小聚光，放在场景根上（不放进 deskG，免得删桌 / 隐藏时灯的数量变化导致着色器重编译），
-   位置在 buildMonitor() 里跟着屏幕更新。离桌面约 45 cm，intensity 5000 → 桌面照度约 2.5。
-   开关状态就是 ITEMS.lamp.on（布线区的勾选和「灯」面板是同一个状态） */
-const lampEmiM = mat(0xffffff, { emissive: 0xfff4e0, emissiveIntensity: 1.2, roughness: 0.4 });
-const deskLamp = spot(0, 0, 0, 5000, 0.85, 160);
-regLight('desk', '书桌挂灯', 'l-desk', [deskLamp], [{ m: lampEmiM, max: 1.2 }],
-  { eff: () => lamp.on && monitor.on && !!furnById('desk') });
-makeItem('speaker', '条形音响', { x: 26, z: 95 }, 3.5, 21, g => {
-  rbox(g, -3.5, 3.5, 0, 7, -21, 21, dark, 1.5);
-  const k = new THREE.Mesh(new THREE.CylinderGeometry(2.6, 2.6, 1.5, 20), grey);
-  k.rotation.x = Math.PI / 2; k.position.set(0, 3.5, -21.6); k.castShadow = true; g.add(k);
-}, '条形音响', 11);
-makeItem('keyboard', '键盘', { x: 58.5, z: 95 }, 6.5, 22, g => rbox(g, -6.5, 6.5, 0, 2, -22, 22, keyboardM, 0.8), '键盘', 6);
-makeItem('mouse', '鼠标', { x: 59, z: 62 }, 5, 3, g => rbox(g, -5, 5, 0, 3.2, -3, 3, mouseM, 1.5), '鼠标', 7);
-makeItem('hub', 'USB 集线器', { x: 10.5, z: 52 }, 4.5, 4.5, g => rbox(g, -4.5, 4.5, 0, 2.5, -4.5, 4.5, dark, 0.6), 'USB 集线器', 8);
-makeItem('head', '键鼠充电线头', { x: 24, z: 52 }, 1, 1, g => lbox(g, -1, 1, 0, 0.9, -1, 1, itemWhite), '键鼠充电线头', 5);
-makeItem('charger', '无线充电台', { x: 24, z: 140 }, 5, 5, g => {
-  const c = new THREE.Mesh(new THREE.CylinderGeometry(5, 5, 1.2, 32), itemWhite);
-  c.position.y = 0.6; c.castShadow = true; g.add(c);
-}, '无线充电台', 6);
-/* 悬臂桌夹：夹在桌子后沿，只能沿后沿前后移动 */
-const clamp = makeItem('clamp', '悬臂桌夹', { x: 4, z: 131 }, 0, 4, g => {
-  lbox(g, -3.5, 3.5, 0, 2, -3.5, 3.5, dark);                // 桌面上的底座
-  lbox(g, -5.5, -4, -8.5, 2, -3.5, 3.5, dark);              // 后沿外侧的竖板（在桌子和墙之间的缝里）
-  lbox(g, -5.5, 3.5, -8.5, -7, -3.5, 3.5, dark);            // 桌板下的夹爪
-  const p = new THREE.Mesh(new THREE.CylinderGeometry(1.8, 1.8, 22, 16), dark);
-  p.position.set(0, 11, 0); p.castShadow = true; g.add(p);
-}, '悬臂桌夹（后沿）', 27);
-
-let useArm = true, monBottom = 14, monTilt = 0, monYaw = 0;
-const ARM_REACH = 50;                                       // [占位] 悬臂最大伸出距离，以说明书为准
-let armMeshes = [];
-
-/* 屏幕面板挂在一个子组上，绕屏幕背面中心（VESA 连接处）转：先左右转，再俯仰 */
-const panelG = new THREE.Group();
-panelG.rotation.order = 'YZX';
-monitor.group.add(panelG);
-const _v = new THREE.Vector3();
-/* 屏幕自己坐标里的一个点 → 桌子局部坐标 */
-const mw = (x, y, z) => { _v.set(x, y, z); panelG.localToWorld(_v); deskG.worldToLocal(_v); return [_v.x, _v.y, _v.z]; };
-function buildMonitor() {
-  const g = monitor.group;
-  [...g.children, ...panelG.children].filter(c => c.isMesh).forEach(c => { c.parent.remove(c); disposeTree(c); });
-  const b = monBottom;
-  panelG.position.set(0, b + 18, 0);
-  panelG.rotation.set(0, THREE.MathUtils.degToRad(monYaw), THREE.MathUtils.degToRad(monTilt));
-  addScreen(lbox(panelG, 0, 2.5, -18, 18, -30.5, 30.5, dark), 'x', 1);   // 27 寸 16:9，含边框约 61×36，亮屏朝座位
-  if (useArm) lbox(panelG, -2.5, 0, -6, 6, -6, 6, dark);    // 悬臂的 VESA 连接板
-  else {
-    lbox(g, -3, 0, 0, b + 20, -2, 2, dark);                 // 支架立柱
-    lbox(g, -6, 16, 0, 1.2, -11, 11, dark);                 // 支架底座
-  }
-  if (lamp.on) {
-    lbox(panelG, 0.5, 4.5, 18, 20.5, -23, 23, dark);
-    lbox(panelG, 2.6, 4.4, 17.85, 18.05, -22, 22, lampEmiM);  // 灯条底面的发光条
-  }
-  g.traverse(o => { if (o.isMesh) o.userData.itemId = 'monitor'; });
-  monitor.labelObj.position.set(1, b + 46, 0);
-  g.updateMatrixWorld(true);
-  /* 挂灯的聚光跟着屏幕走：光源在灯条下，朝座位一侧的桌面斜照 */
-  deskLamp.l.position.copy(panelG.localToWorld(new THREE.Vector3(3.5, 17, 0)));
-  deskLamp.l.target.position.copy(panelG.localToWorld(new THREE.Vector3(26, -40, 0)));
-}
-/* 悬臂几何：立柱顶 P0 → 肘 E → 腕 W → 屏幕背面连接点 M。
-   腕 W 在连接点正后方 6 cm（沿屏幕法线往后），肘 E 贴着墙侧，保证臂一直走在屏幕背后 */
-const _e = new THREE.Euler(0, 0, 0, 'YZX'), _q = new THREE.Quaternion(), _one = new THREE.Vector3(1, 1, 1);
-function panelMat(x, z, s = {}) {
-  _e.set(0, THREE.MathUtils.degToRad(s.yaw ?? monYaw), THREE.MathUtils.degToRad(s.tilt ?? monTilt), 'YZX');
-  _q.setFromEuler(_e);
-  return new THREE.Matrix4().compose(new THREE.Vector3(x, DH + (s.b ?? monBottom) + 18, z), _q, _one);
-}
-function armGeom(mx, mz, s = {}, cz = clamp.z) {
-  const Mt = panelMat(mx, mz, s);
-  const P0 = new THREE.Vector3(clamp.x, DH + 22, cz);
-  const M = new THREE.Vector3(-2.5, 0, 0).applyMatrix4(Mt);
-  const Wr = new THREE.Vector3(-8.5, 0, 0).applyMatrix4(Mt);
-  const E = new THREE.Vector3(Math.max(-0.5, Math.min(P0.x, Wr.x) - 1), Math.max(P0.y, Wr.y) + 9, (P0.z + Wr.z) / 2);
-  return { P0, E, Wr, M, Mt };
-}
-const armPoints = () => armGeom(monitor.x, monitor.z);
-/* 臂（含 2.25 cm 半厚）有没有穿进屏幕：把臂上的采样点换到屏幕自己的坐标里看 */
-function armHitsPanel(mx, mz, s = {}, cz = clamp.z) {
-  const { P0, E, Wr, Mt } = armGeom(mx, mz, s, cz);
-  const inv = Mt.clone().invert(), v = new THREE.Vector3();
-  for (const [a, b] of [[P0, E], [E, Wr]]) for (let i = 0; i <= 24; i++) {
-    v.lerpVectors(a, b, i / 24).applyMatrix4(inv);
-    if (v.x > -2.4 && v.x < 4.9 && Math.abs(v.y) < 20.4 && Math.abs(v.z) < 32.8) return true;
-  }
-  return false;
-}
-function buildArm() {
-  armMeshes.forEach(m => { m.parent.remove(m); m.geometry.dispose(); });
-  armMeshes = [];
-  if (!(monitor.on && useArm)) return;
-  const { P0, E, Wr, M } = armPoints();
-  const seg = (a, b) => {
-    const m = new THREE.Mesh(new THREE.BoxGeometry(4.5, 4.5, Math.max(0.1, a.distanceTo(b))), dark);
-    m.position.copy(a).add(b).multiplyScalar(0.5);
-    deskG.add(m);
-    m.lookAt(_v.copy(b).applyMatrix4(deskG.matrixWorld));    // lookAt 用的是世界坐标
-    m.castShadow = true;
-    m.userData.itemId = 'clamp';
-    armMeshes.push(m);
-  };
-  seg(P0, E); seg(E, Wr); seg(Wr, M);
-}
-
-/* ---------- 后沿下线点 ---------- */
-const dropLabel = AL('⑥ 后沿下线点', 2, DH + 4, 95);
-let dropMeshes = [];
-
-/* 桌板以下、桌子范围内的标签：接近正俯视时收起来 */
-const belowDesk = deskLabels.filter(o => !underLabels.includes(o) &&
-  o.position.y < DH - 3 && o.position.x > -3 && o.position.x < DD + 4 && o.position.z > -2 && o.position.z < DL + 2);
-
-/* ---------- 线缆 ---------- */
+/* ---------- 线缆（全部是固定走线，坐标 = deskG 厘米） ----------
+   phys：画成实物的黑线（桌下推车一带看得见的线）；数字 = 只画前 n 个点。其余的线平时藏在支架臂、网下、收纳槽里，
+   只在「走线高亮」时显示（彩色、穿透显示）。线套和插头单独画 */
 const CATS = {
   power:   { name: '电源线', color: 0xe4572e },
-  video:   { name: '视频线', color: 0x2e86de },
-  network: { name: '网线 / 光纤', color: 0x27ae60 },
-  usb:     { name: 'USB 线', color: 0x8e44ad },
-  audio:   { name: '音频线', color: 0xe0a800 },
+  network: { name: '电话线 / 网线', color: 0x27ae60 },
+  signal:  { name: 'DP / USB / 音频', color: 0x2e86de },
 };
-/* 不随桌面物品变化的线：桌下北端的、线槽里的、主机背后的 */
-const STATIC = [
-  { id: 'P1', cat: 'power', name: '排插总线 → 墙插第 1 口', note: '从线槽北端出来，贴着桌子后沿和墙之间的缝下到北墙',
-    pts: [[6, 60, 46], [6, 60, 34], [5, 59, 29], [1.8, 55, 25], [1.8, 40, 17], [1.8, 27, 8], [10, 23, 2.4], [21, 22, 0.8]] },
-  { id: 'P2', cat: 'power', name: '主机电源 → 排插', note: '从主机背面往上，直接进头顶的线槽',
-    pts: [[10, 17, 29.8], [9, 20, 28.8], [8, 52, 28.8], [6.8, 58.5, 31], [6.8, 60, 36], [6.8, 60, 74], [8, 61.5, 76]] },
-  { id: 'P5', cat: 'power', name: '光猫电源 → 墙插第 2 口（一分二）', note: '不经过排插，关排插时网络不断',
-    pts: [[24.5, 18.5, 2.7], [20, 26, 2.4], [9, 46, 2.4], [8, 53.5, 2.6], [8, 56.5, 2.6], [8, 57, 4.3]] },
-  { id: 'P6', cat: 'power', name: '路由器电源 → 墙插第 2 口（一分二）',
-    pts: [[26, 18.5, 2.7], [29, 28, 2.4], [33, 46, 2.4], [33, 53.5, 2.6], [33, 56.5, 2.6], [33, 57.5, 4.3]] },
-  { id: 'N1', cat: 'network', name: '墙上网口 → 光猫', note: '都在桌板北端下面，很短',
-    pts: [[11.5, 22, 0.8], [12, 30, 2], [11.5, 46, 2.2], [11, 53.5, 2.6], [11, 56.5, 2.6], [11, 57, 4.3]] },
-  { id: 'N2', cat: 'network', name: '光猫 → 路由器', note: '用 30 cm 短网线',
-    pts: [[16, 57, 4.3], [17, 58, 2.6], [22, 58, 2.6], [23, 57.5, 4.3]] },
-  { id: 'N3', cat: 'network', name: '路由器 → 主机', note: '从托架下面穿到主机背面',
-    pts: [[27, 57.5, 4.3], [27, 56.5, 2.6], [27, 53.5, 2.6], [24, 49, 3], [16, 49, 14], [14, 51, 26], [14, 52, 29.8]] },
+const { MX, MY, MZ, AX, RH } = KIT;
+const PC_IO = [3.4, 40, 27.5], PC_PSU = [3.4, 11, 40];                   // S100 背面：主板接口（靠上、靠北）、电源（底部）
+const SLEEVE = [[17.5, 21, 3.2], [17.5, 30, 4.4], [17.6, 38, 5.3], [22.3, 53, 5.3], [27.05, 68, 5.3], [22, 69.5, 12], [14, 67.5, 22], [11.5, 65.2, 30.5]];
+const ARM_DOWN = [KS(0.18, 0.36, 0.08), KS(AX, 0.19, 0.055), KS(AX, 0.02, 0.05), KS(AX - 0.02, -0.03, 0.08)];   // 支架臂 → 夹子 → 网下
+const CABLES = [
+  { id: 'P0', cat: 'power', name: '插排电源线 → 北墙墙插', note: '和电话线一起套在黑色缠绕线套里，从墙插斜拉到北边的后桌腿，魔术贴绑在腿上，往上从收纳槽北端进去。地上没有线',
+    pts: [[23, 22.2, 3.2], [22, 20.4, 3.4], [19.8, 20.2, 3.3], ...SLEEVE, [11, 65.4, 45], [11, 65.6, 59]] },
+  { id: 'T1', cat: 'network', name: '电话线：北墙电话口 → 光猫（VDSL）', note: '在线套里走到后桌腿，从最下面那道魔术贴分出来，下到推车里光猫的背面',
+    pts: [[11.5, 21.95, 1.9], [12.4, 20.4, 2.6], [15.5, 20, 3], [17.5, 21, 3.2], [17.5, 30, 4.4], [17.2, 36.5, 5.6], [10, 32, 8.5], [5.5, 27, 10.8], [4.2, 24, 13], [4.2, 22.5, 14.6], [MODEM.x0, 22, 15]] },
+  { id: 'L1', cat: 'network', name: '光猫 → 路由器（网线）', note: '短网线，在推车里', phys: true,
+    pts: [[MODEM.x0, 18, 15.6], [3.8, 17, 17.5], [ROUTER.x0, 18, 19.8]] },
+  { id: 'L2', cat: 'network', name: '路由器 → S100（网线）', note: '在推车里，从机箱背后上到主板接口', phys: true,
+    pts: [[ROUTER.x0, 20, 21], [4.1, 22, 22.6], [2.9, 30, 24.8], [2.9, 36, 26.6], [3.4, 38, 27]] },
+  { id: 'P1', cat: 'power', name: 'S100 电源 → 插排', note: '顺着推车后面往上，从收纳槽北端进去', phys: true,
+    pts: [PC_PSU, [1.2, 12, 39], [1.2, 30, 33], [1.2, 59.5, 29.5], [5, 62, 29.5], [10, 64.4, 34], [10, 64.4, 58], [11, 65.6, 64.5]] },
+  { id: 'P2', cat: 'power', name: '光猫电源 → 插排', note: '顺着推车后面往上进收纳槽', phys: true,
+    pts: [[MODEM.x0, 12, 14.4], [3.5, 12, 14], [1.2, 14, 14], [1.2, 30, 15.5], [1.2, 59.5, 26.5], [5, 62, 27], [9, 64.4, 32], [9, 64.4, 66], [11, 65.6, 70]] },
+  { id: 'P3', cat: 'power', name: '路由器电源 → 插排', note: '顺着推车后面往上进收纳槽', phys: true,
+    pts: [[ROUTER.x0, 12, 20.6], [3.5, 12, 20.6], [1.2, 14, 21], [1.2, 35, 23], [1.2, 59.5, 25], [5, 62, 25.5], [8, 64.4, 31], [8, 64.4, 82], [11, 65.6, 85]] },
+  { id: 'DP', cat: 'signal', name: 'S100 → 主屏（DP）', note: '推车后面 → 收纳槽北端 → 夹子 → 顺支架臂到屏幕背后', phys: 5,
+    pts: [PC_IO, [1.2, 41, 27.5], [1.2, 59.5, 28], [5, 62, 28.5], [10.5, 64.7, 33], [8.5, 71, 46], ...[...ARM_DOWN].reverse().slice(1), KS(MX, MY - 0.04, MZ - 0.04)] },
+  { id: 'M', cat: 'power', name: '主屏电源 → 插排', note: '和 DP 线一起顺支架臂下来，过夹子进收纳槽',
+    pts: [KS(MX, MY - 0.04, MZ - 0.04), ...ARM_DOWN, KS(0.20, -0.10, 0.11), KS(0.05, -0.105, 0.115)] },
+  { id: 'U1', cat: 'signal', name: '挂灯 USB → 收纳槽北端的 USB 充电头', note: '从屏幕背后跟着支架臂下来',
+    pts: [KS(MX, MY + 0.19, MZ - 0.005), KS(MX, MY + 0.14, MZ - 0.035), KS(0.10, MY + 0.01, MZ - 0.07), ...ARM_DOWN, [11.5, 65.6, 46]] },
+  { id: 'U2', cat: 'signal', name: '平板充电线 → 收纳槽', note: '从支架后面下到金属网，掉进收纳槽',
+    pts: [KS(-0.27, 0.012, 0.33), KS(-0.24, 0.006, 0.27), KS(-0.22, 0.004, 0.18), KS(-0.2, -0.03, 0.14), KS(-0.15, -0.10, 0.12)] },
+  { id: 'A1', cat: 'signal', name: '条形音箱（USB 供电 ＋ 3.5mm）→ S100', note: '从增高架后面掉进网下的收纳槽，往北端出来，顺推车后面下到主机背面',
+    pts: [KS(MX, RH + 0.03, 0.18), KS(MX + 0.03, RH + 0.005, 0.12), KS(0.06, RH - 0.02, 0.085), KS(0.06, 0.0, 0.075), KS(0.05, -0.06, 0.09), KS(0.03, -0.10, 0.12),
+      [11, 64.6, 40], [10.5, 64.6, 33], [5, 62, 28.8], [1.2, 59.5, 28.8], [1.2, 43, 28.6], [3.4, 37, 28.2]] },
+  { id: 'U3', cat: 'signal', name: '展示盒 LED（USB）→ 收纳槽南端的 USB 充电头', note: '从洞洞板后面掉进收纳槽',
+    pts: [KS(-0.72, 0.012, 0.13), KS(-0.70, -0.03, 0.12), KS(-0.60, -0.07, 0.11), KS(-0.46, -0.10, 0.12), [11.5, 65.6, 118]] },
 ];
-
-/* 随桌面物品位置自动重算的线 */
-const TRAY_Y = 60;
-const tz = z => Math.min(TZ1, Math.max(TZ0, z));
-/* 从桌面设备背后 → 后沿缝 → 线槽里的某条车道 */
-const drop = (xb, yb, z, lane) => [[xb, yb, z], [1, DH + 0.6, z], [-1.5, DH - 2, z], [-1.5, 64, z], [lane, TRAY_Y, tz(z)]];
-/* 从线槽北端 → 正下方主机背面的接口 */
-const pcEnd = (lane, xPort, yPort) => [[lane, TRAY_Y, 36], [lane, 59, 31], [xPort, yPort + 3, 28.6], [xPort, yPort, 29.8]];
-/* 从主屏背后下到线槽：用悬臂时顺着悬臂到后沿的桌夹，用支架时顺着支架立柱 */
-function monitorDown(lane, zOff = 0) {
-  if (useArm) {
-    const { P0, E, Wr } = armPoints();
-    return [mw(-0.6, -4, zOff), mw(-3, -2.6, 0), [Wr.x, Wr.y - 2.6, Wr.z], [E.x, E.y - 2.6, E.z], [P0.x - 2, P0.y, P0.z],
-      [clamp.x - 2.4, DH + 1.5, clamp.z], [-1.5, DH - 2, clamp.z], [-1.5, 64, clamp.z], [lane, TRAY_Y, tz(clamp.z)]];
-  }
-  return [mw(-0.6, -4, zOff), [monitor.x - 3.6, DH + monBottom + 6, monitor.z],
-    [monitor.x - 3.6, DH + 1.6, monitor.z], ...drop(monitor.x - 6, DH + 0.6, monitor.z, lane).slice(1)];
-}
-function dynCables() {
-  const out = [], I = ITEMS, M = monitor.on;
-  if (M) {
-    out.push({ id: 'P3', cat: 'power', name: '主屏电源 → 排插',
-      note: useArm ? '顺着悬臂下到后沿的桌夹，再进线槽' : '顺着支架立柱掉进线槽',
-      pts: [...monitorDown(7.6, 6), [7.6, TRAY_Y, 72], [8, 61.5, 70]] });
-    out.push({ id: 'V1', cat: 'video', name: '主机 → 主屏（DP）',
-      note: useArm ? '主机背面 → 线槽 → 后沿的桌夹 → 顺悬臂到屏幕背后' : '主机背面 → 线槽 → 顺支架立柱到屏幕背后',
-      pts: [...pcEnd(10, 10, 50).reverse(), ...monitorDown(10, 0).reverse()] });
-  }
-  if (I.charger.on) {
-    out.push({ id: 'P4', cat: 'power', name: '充电头 → 排插', note: '都在线槽里，很短',
-      pts: [[8, 61, 88], [9.8, 60, 84], [9.8, 60, 60], [8, 61.5, 58]] });
-    out.push({ id: 'U2', cat: 'usb', name: '无线充电台 → 充电头（线槽里）', note: '线从充电台正后方掉进线槽',
-      pts: [...drop(I.charger.x - 5, DH + 0.6, I.charger.z, 13.2), [13.2, TRAY_Y, 94], [8, 61.5, 92]] });
-  }
-  if (M && lamp.on && I.hub.on) {
-    out.push({ id: 'U1', cat: 'usb', name: '屏幕挂灯 → USB 集线器', note: '和主屏的线一起下到线槽，再从集线器背后上桌',
-      pts: [mw(2.5, 19, -18), mw(-0.6, 16, -18),
-        ...monitorDown(12.4, -18), ...drop(I.hub.x - 4.5, DH + 1.2, I.hub.z, 12.4).reverse()] });
-  }
-  if (I.hub.on && I.head.on) {
-    out.push({ id: 'U3', cat: 'usb', name: '键鼠充电线 → USB 集线器', note: '只在桌面上一小段；线头平时别在集线器旁，用时拉出来',
-      pts: [[I.hub.x, DH + 1.2, I.hub.z], [(I.hub.x + I.head.x) / 2, DH + 0.7, (I.hub.z + I.head.z) / 2], [I.head.x, DH + 0.5, I.head.z]] });
-  }
-  if (I.hub.on) {
-    out.push({ id: 'U4', cat: 'usb', name: 'USB 集线器 → 主机', note: '集线器自带的线，从后沿掉进线槽，北端下到主机背面',
-      pts: [...drop(I.hub.x - 4.5, DH + 1.2, I.hub.z, 14), ...pcEnd(14, 12, 47)] });
-  }
-  if (I.speaker.on) {
-    out.push({ id: 'A1', cat: 'audio', name: '条形音响 → 主机（USB 供电 ＋ 3.5mm 音频）', note: '一根线两个头，都插主机背面',
-      pts: [...drop(I.speaker.x - 3.5, DH + 3, I.speaker.z, 5.2), ...pcEnd(5.2, 7, 53)] });
-  }
-  return out;
-}
-const ORDER = ['P1', 'P2', 'P3', 'P4', 'P5', 'P6', 'V1', 'N1', 'N2', 'N3', 'U1', 'U2', 'U3', 'U4', 'A1'];
-const clean = pts => {
-  const out = [];
-  for (const p of pts) {
-    const q = out[out.length - 1];
-    if (!q || Math.hypot(p[0] - q[0], p[1] - q[1], p[2] - q[2]) > 0.4) out.push(p);
-  }
-  return out;
+const cableCurve = pts => new THREE.CatmullRomCurve3(pts.map(p => new THREE.Vector3(...p)), false, 'catmullrom', 0.2);
+const tubeOf = (pts, r, m) => {
+  const c = cableCurve(pts);
+  const o = new THREE.Mesh(new THREE.TubeGeometry(c, Math.max(24, Math.round(c.getLength() / 1.5)), r, 8, false), m);
+  o.castShadow = true; o.receiveShadow = true;
+  deskG.add(o);
+  return o;
 };
-
-let CABLES = [], cableMeshes = {};
-const catOn = Object.fromEntries(Object.keys(CATS).map(k => [k, true]));
-let solo = null, wireOn = true;
-function rebuildCables() {
-  Object.values(cableMeshes).forEach(m => { m.parent.remove(m); m.geometry.dispose(); m.material.dispose(); });
-  cableMeshes = {};
-  CABLES = [...STATIC, ...dynCables()].sort((a, b) => ORDER.indexOf(a.id) - ORDER.indexOf(b.id));
-  if (solo && !CABLES.some(c => c.id === solo)) solo = null;
-  for (const c of CABLES) {
-    const pts = clean(c.pts);
-    if (pts.length < 2) continue;
-    const curve = new THREE.CatmullRomCurve3(pts.map(p => new THREE.Vector3(...p)), false, 'catmullrom', 0.08);
-    c.length = curve.getLength();
-    const r = c.cat === 'power' ? 0.55 : 0.42;
-    const m = new THREE.Mesh(new THREE.TubeGeometry(curve, Math.max(40, Math.round(c.length)), r, 8),
-      new THREE.MeshStandardMaterial({ color: CATS[c.cat].color, roughness: 0.6, transparent: true }));
-    m.castShadow = true;
-    deskG.add(m);
-    cableMeshes[c.id] = m;
-  }
+/* 实物：黑色电源线 / 网线、米白的电话线、缠绕线套、绑在后桌腿上的魔术贴 */
+const cordM = mat(0x141517, { roughness: 0.6 }), phoneCordM = mat(0xe8e6e0, { roughness: 0.5 });
+const sleeveM = mat(0x111214, { roughness: 0.9, map: canvasTex(64, (g, S) => {   // 缠绕线套：斜纹
+  g.fillStyle = '#9a9a9a'; g.fillRect(0, 0, S, S);
+  g.strokeStyle = '#4a4a4a'; g.lineWidth = 6;
+  for (let i = -S; i < 2 * S; i += 16) { g.beginPath(); g.moveTo(i, 0); g.lineTo(i + S, S); g.stroke(); }
+}) });
+sleeveM.map.repeat.set(30, 1);
+for (const c of CABLES) {
+  c.length = cableCurve(c.pts).getLength();
+  if (c.phys) tubeOf(c.phys === true ? c.pts : c.pts.slice(0, c.phys), 0.32, cordM);
 }
+tubeOf(SLEEVE, 0.9, sleeveM);
+tubeOf(CABLES[0].pts.slice(0, 4), 0.4, cordM);                           // 插头 → 线套口：电源线
+tubeOf(CABLES[0].pts.slice(-3), 0.4, cordM);                             // 线套出口 → 插排
+tubeOf(CABLES[1].pts.slice(0, 4), 0.25, phoneCordM);                     // 电话口 → 线套口
+tubeOf(CABLES[1].pts.slice(5), 0.25, phoneCordM);                        // 后桌腿处分出来 → 光猫
+{
+  /* 魔术贴：在北边那根后桌腿上绑三道（腿 ＋ 线套一起），腿的轴线 (6, 1.2, 8) → (28, 71, 8) */
+  const legDir = new THREE.Vector3(22, 69.8, 0).normalize(), velcroM = mat(0x0d0d0f, { roughness: 0.95 });
+  [38.5, 53, 66].forEach(y => {
+    const x = 6 + 22 * (y - 1.2) / 69.8;
+    const r = new THREE.Mesh(new THREE.CylinderGeometry(3.15, 3.15, 1.6, 20, 1, true), velcroM);
+    r.material.side = THREE.DoubleSide;
+    r.position.set(x - 0.4, y, 6.65); r.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), legDir); r.castShadow = true;
+    deskG.add(r);
+  });
+}
+dlabel('线套：电源线 ＋ 电话线', 30, 44, 4, '', true);
+dlabel('收纳槽 ＋ 插排（10 口）', 12, 58, 95, '', true);
+dlabel('UTESPELARE 160×80 · 桌高 76', 40, 150, 120);
+
+/* 走线高亮：每根线一条彩色管子，穿透显示（不写深度、不参与环境光遮蔽、点不中） */
+let wireOn = false, topClear = false;
+const hiMeshes = CABLES.map(c => {
+  const m = tubeOf(c.pts, 0.55, new THREE.MeshBasicMaterial({ color: CATS[c.cat].color, toneMapped: false, depthTest: false,
+    depthWrite: false, transparent: true, opacity: 0.92 }));
+  m.renderOrder = 8; m.castShadow = false; m.receiveShadow = false; m.visible = false;
+  m.userData.noPick = true; m.userData.noAO = true;
+  return m;
+});
+let solo = null;
 function refreshCables() {
-  for (const c of CABLES) {
-    const m = cableMeshes[c.id];
-    if (!m) continue;
-    m.visible = wireOn && catOn[c.cat];
-    const dim = solo && solo !== c.id;
-    m.material.opacity = dim ? 0.1 : 1;
-    m.material.depthWrite = !dim;
-  }
+  CABLES.forEach((c, i) => {
+    hiMeshes[i].visible = wireOn;
+    hiMeshes[i].material.opacity = solo && solo !== c.id ? 0.12 : 0.92;
+  });
   document.querySelectorAll('.cable').forEach(el => el.classList.toggle('sel', el.dataset.id === solo));
   invalidate();
 }
-const catsEl = document.getElementById('cats');
-const catCount = {};
-for (const [k, v] of Object.entries(CATS)) {
-  const lab = document.createElement('label');
-  lab.className = 'cat';
-  lab.innerHTML = `<input type="checkbox" checked><span class="sw" style="background:#${v.color.toString(16).padStart(6, '0')}"></span>${v.name}<span class="cnt"></span>`;
-  lab.querySelector('input').addEventListener('change', e => { catOn[k] = e.target.checked; refreshCables(); });
-  catCount[k] = lab.querySelector('.cnt');
-  catsEl.appendChild(lab);
-}
-const listEl = document.getElementById('cableList');
-function buildList() {
-  listEl.innerHTML = '';
+/* 右侧清单：每根线的走法和建议线长（走线长度 ＋ 25% 余量，按 0.5 m 取整） */
+{
+  const listEl = document.getElementById('cableList');
   for (const c of CABLES) {
-    const buy = Math.max(0.5, Math.ceil((c.length || 0) * 1.25 / 50) * 0.5);
+    const buy = Math.max(0.5, Math.ceil(c.length * 1.25 / 50) * 0.5);
     const el = document.createElement('div');
     el.className = 'cable';
     el.dataset.id = c.id;
     el.innerHTML = `<b style="color:#${CATS[c.cat].color.toString(16).padStart(6, '0')}">${c.id}</b>
-      <span>${c.name}<small>走线约 ${Math.round(c.length || 0)} cm，建议线长 ${buy} m${c.note ? '；' + c.note : ''}</small></span>`;
-    el.addEventListener('click', () => { solo = solo === c.id ? null : c.id; refreshCables(); });
+      <span>${c.name}<small>走线约 ${Math.round(c.length)} cm，建议线长 ${buy} m；${c.note}</small></span>`;
+    el.addEventListener('click', () => {
+      solo = solo === c.id ? null : c.id;
+      if (solo && !wireOn) { wireOn = true; document.getElementById('btnWire').classList.add('on'); }
+      refreshCables();
+    });
     listEl.appendChild(el);
   }
-  for (const k of Object.keys(CATS)) catCount[k].textContent = `（${CABLES.filter(c => c.cat === k).length} 根）`;
 }
-function rebuildDrops() {
-  dropMeshes.forEach(m => { m.parent.remove(m); m.geometry.dispose(); });
-  dropMeshes = [];
-  const zs = [];
-  const add = z => { if (!zs.some(v => Math.abs(v - z) < 4)) zs.push(z); };
-  if (monitor.on) add(useArm ? clamp.z : monitor.z);
-  ['hub', 'speaker', 'charger'].forEach(id => { if (ITEMS[id].on) add(ITEMS[id].z); });
-  zs.forEach(z => dropMeshes.push(A(db(-1.2, 0.4, DH - 3, DH, z - 1.5, z + 1.5, accM, { cast: false }))));
-  dropLabel.element.textContent = `⑥ 后沿下线点 ×${zs.length}`;
-  if (zs.length) dropLabel.position.set(2, DH + 4, zs[0]);
-}
-
-/* ---------- 碰撞：桌面物品按包围盒检测，不允许互相穿过 ---------- */
-const HEIGHT = { speaker: 7, keyboard: 2, mouse: 3.2, hub: 2.5, head: 0.9, charger: 1.2 };
-const deg = THREE.MathUtils.degToRad;
-const clampR = (v, a, b) => Math.min(b, Math.max(a, v));
-/* 物品在某个假设位置/姿态下占的空间（相对桌面，y 从桌面算起） */
-function boxesOf(it, x, z, s = {}) {
-  if (it === monitor) {
-    const b = s.b ?? monBottom, t = deg(s.tilt ?? monTilt), w = deg(s.yaw ?? monYaw), arm = s.arm ?? useArm;
-    const ex = 1.25 * Math.abs(Math.cos(t)) + 18 * Math.abs(Math.sin(t));   // 俯仰后屏幕前后方向的厚度
-    const hx = Math.abs(Math.cos(w)) * ex + Math.abs(Math.sin(w)) * 30.5;
-    const hz = Math.abs(Math.sin(w)) * ex + Math.abs(Math.cos(w)) * 30.5;
-    const hy = 18 * Math.abs(Math.cos(t)) + 1.25 * Math.abs(Math.sin(t));
-    const cx = x + 1.25, cy = b + 18;
-    const out = [{ x0: cx - hx, x1: cx + hx, y0: cy - hy, y1: cy + hy, z0: z - hz, z1: z + hz }];
-    if (!arm) out.push({ x0: x - 6, x1: x + 16, y0: 0, y1: 1.2, z0: z - 11, z1: z + 11 },
-      { x0: x - 3, x1: x, y0: 0, y1: b + 18, z0: z - 2, z1: z + 2 });
-    return out;
-  }
-  if (it === clamp) return [{ x0: 0.5, x1: 7.5, y0: 0, y1: 24, z0: z - 3.5, z1: z + 3.5 }];
-  return [{ x0: x - it.hx, x1: x + it.hx, y0: 0, y1: HEIGHT[it.id] || 2, z0: z - it.hz, z1: z + it.hz }];
-}
-const active = it => it.group && it.on && (it !== clamp || (monitor.on && useArm));
-const touch = (a, b) => a.x0 < b.x1 - 0.1 && a.x1 > b.x0 + 0.1 && a.y0 < b.y1 - 0.1 && a.y1 > b.y0 + 0.1 &&
-  a.z0 < b.z1 - 0.1 && a.z1 > b.z0 + 0.1;
-const WALL_HIT = { name: '西墙' }, ARM_HIT = { name: '悬臂' }, PANEL_HIT = { name: '屏幕' };
-/* 物品 it 放到 (x, z)、主屏姿态为 s 时，会碰到哪个物品 */
-function hitWith(it, x, z, s = {}) {
-  if (it === monitor) {
-    if (boxesOf(monitor, x, z, s)[0].x0 < WALL_X + 0.3) return WALL_HIT;      // 屏幕转进墙里
-    if ((s.arm ?? useArm) && armGeom(x, z, s).Wr.x < WALL_X + 2.4) return WALL_HIT;   // 悬臂腕部顶到墙
-    if ((s.arm ?? useArm) && armHitsPanel(x, z, s)) return ARM_HIT;         // 悬臂穿过屏幕
-  }
-  if (it === clamp && monitor.on && useArm && armHitsPanel(monitor.x, monitor.z, {}, z)) return PANEL_HIT;
-  const mine = boxesOf(it, x, z, s);
-  for (const o of Object.values(ITEMS)) {
-    if (o === it || !active(o)) continue;
-    const theirs = boxesOf(o, o.x, o.z);
-    if (mine.some(a => theirs.some(b => touch(a, b)))) return o;
-  }
-  return null;
-}
-function findOverlap() {
-  const list = Object.values(ITEMS).filter(active);
-  for (let i = 0; i < list.length; i++) for (let j = i + 1; j < list.length; j++) {
-    const A1 = boxesOf(list[i], list[i].x, list[i].z), B1 = boxesOf(list[j], list[j].x, list[j].z);
-    if (A1.some(a => B1.some(b => touch(a, b)))) return [list[i], list[j]];
-  }
-  return null;
-}
-let blockedBy = null;
-function updateHitInfo() {
-  const pair = findOverlap();
-  const armIn = monitor.on && useArm && armHitsPanel(monitor.x, monitor.z);
-  document.getElementById('hitInfo').textContent = pair
-    ? `「${pair[0].name}」和「${pair[1].name}」重叠了，挪开其中一个`
-    : armIn ? '悬臂穿过了屏幕：把屏幕往前拉一点，或把桌夹挪开'
-    : blockedBy ? `会碰到「${blockedBy.name}」，已停住` : '';
-}
-
-/* ---------- 布局：物品位置 → 几何体、悬臂、线、下线点、面板 ---------- */
-const armInfo = document.getElementById('armInfo');
-function layout(light) {
-  for (const it of Object.values(ITEMS)) {
-    if (!it.group) continue;
-    it.group.visible = it.on;
-    it.group.position.set(it.x, DH, it.z);
-  }
-  clamp.group.visible = monitor.on && useArm;
-  buildMonitor();
-  buildArm();
-  rebuildCables();
-  rebuildDrops();
-  refreshCables();
-  if (monitor.on && useArm) {
-    const { P0, M } = armPoints();
-    const d = Math.hypot(M.x - P0.x, M.z - P0.z);
-    armInfo.textContent = `悬臂伸出约 ${Math.round(d)} cm` + (d > ARM_REACH ? '，可能超过臂展（按 50 cm 估算，以说明书为准）' : '');
-    armInfo.classList.toggle('warn', d > ARM_REACH);
-  } else {
-    armInfo.textContent = '';
-  }
-  document.getElementById('deskInfo').textContent = monitor.on
-    ? `屏幕离桌子前沿约 ${Math.round(DD - monitor.x - 2.5)} cm` : '';
-  updateHitInfo();
-  if (!light) { buildList(); syncUI(); }
-  sceneChanged();                                           // 物品、悬臂、线缆变了：重画阴影和画面
-}
-
-/* ---------- 面板：物品勾选、悬臂、高度、复位 ---------- */
-const itemsEl = document.getElementById('items');
-['monitor', 'lamp', 'speaker', 'keyboard', 'mouse', 'hub', 'head', 'charger'].forEach(id => {
-  const it = ITEMS[id];
-  const lab = document.createElement('label');
-  lab.className = 'cat';
-  lab.innerHTML = `<input type="checkbox" checked data-item="${id}"> ${it.name}`;
-  lab.querySelector('input').addEventListener('change', e => { it.on = e.target.checked; layout(); if (id === 'lamp') save(); });
-  itemsEl.appendChild(lab);
-});
-const useArmEl = document.getElementById('useArm'), monHEl = document.getElementById('monH'), monHv = document.getElementById('monHv');
-useArmEl.addEventListener('change', () => {
-  useArm = useArmEl.checked;
-  if (!useArm) monitor.x = Math.max(monitor.x, 6);
-  layout();
-});
-/* 高度、俯仰、左右转：新姿态会碰到东西就不改，滑块弹回原值 */
-const tryMonitor = s => {
-  blockedBy = monitor.on ? hitWith(monitor, monitor.x, monitor.z, s) : null;
-  if (!blockedBy) {
-    if (s.b !== undefined) monBottom = s.b;
-    if (s.tilt !== undefined) monTilt = s.tilt;
-    if (s.yaw !== undefined) monYaw = s.yaw;
-  }
-  layout();
-};
-monHEl.addEventListener('input', () => tryMonitor({ b: Number(monHEl.value) }));
-const tiltEl = document.getElementById('tilt'), yawEl = document.getElementById('yaw');
-tiltEl.addEventListener('input', () => tryMonitor({ tilt: Number(tiltEl.value) }));
-yawEl.addEventListener('input', () => tryMonitor({ yaw: Number(yawEl.value) }));
-function syncUI() {
-  document.querySelectorAll('[data-item]').forEach(i => { i.checked = ITEMS[i.dataset.item].on; });
-  document.querySelector('[data-item=lamp]').disabled = !monitor.on;
-  useArmEl.checked = useArm; useArmEl.disabled = !monitor.on;
-  monHEl.value = monBottom; monHEl.disabled = !monitor.on;
-  monHv.textContent = monBottom;
-  tiltEl.value = monTilt; tiltEl.disabled = !monitor.on;
-  document.getElementById('tiltV').textContent = monTilt;
-  yawEl.value = monYaw; yawEl.disabled = !monitor.on;
-  document.getElementById('yawV').textContent = monYaw;
-  refreshLightCards();                                      // 屏幕挂灯的勾选和「灯」面板是同一个状态
-}
-document.getElementById('btnReset').addEventListener('click', () => {
-  for (const it of Object.values(ITEMS)) { it.on = true; if (it.def) { it.x = it.def.x; it.z = it.def.z; } }
-  useArm = true; monBottom = 14; monTilt = 0; monYaw = 0; blockedBy = null;
-  layout();
-});
-let accOn = true, topClear = false;
 const onOff = (id, get, set) => {
   const b = document.getElementById(id);
   b.addEventListener('click', () => { set(!get()); b.classList.toggle('on', get()); invalidate(); });
 };
-onOff('btnWire', () => wireOn, v => { wireOn = v; refreshCables(); });
-onOff('btnAcc', () => accOn, v => { accOn = v; });
+onOff('btnWire', () => wireOn, v => { wireOn = v; if (!v) solo = null; refreshCables(); });
 onOff('btnTop', () => topClear, v => { topClear = v; });
+const clearMats = [[KIT.deskMat, 0.18], [KIT.padMat, 0.3], [KIT.trayMat, 0.3]];   // 「桌板透明」时变透明的：桌板、鼠标垫、收纳槽
 
-/* ---------- 鼠标拖动桌面物品（capture 阶段抢在视角控制器之前） ---------- */
+/* ---------- 指针：点门 / 灯 / 家具、拖家具（capture 阶段抢在视角控制器之前） ---------- */
 const ray = new THREE.Raycaster(), ptr = new THREE.Vector2(), hitP = new THREE.Vector3();
-const dragPlane = new THREE.Plane(new THREE.Vector3(0, 1, 0), 0), dragOff = new THREE.Vector3();
-let drag = null, dragV = false, vStartY = 0, vStartB = 0;
-const vPlane = new THREE.Plane();
+const clampR = (v, a, b) => Math.min(b, Math.max(a, v));
 function setRay(e) {
   const r = renderer.domElement.getBoundingClientRect();
   ptr.set(((e.clientX - r.left) / r.width) * 2 - 1, -((e.clientY - r.top) / r.height) * 2 + 1);
   ray.setFromCamera(ptr, camera);
 }
-function pick(e) {
-  if (!deskG.parent) return null;                          // 主桌被删了：桌面物品都不在场景里
-  setRay(e);
-  const targets = [...Object.values(ITEMS).filter(it => it.group && it.group.visible).map(it => it.group), ...armMeshes];
-  const hit = ray.intersectObjects(targets, true).find(h => h.object.isMesh && h.object.userData.itemId);
-  return hit ? { hit, it: ITEMS[hit.object.userData.itemId] } : null;
-}
 /* press：这次按下的记录，抬起时移动 < 6 px 且只有一根手指才算「点击」（点门 / 灯 / 家具），避免和转视角冲突 */
 let press = null, nPtr = 0;
-let editMode = false;                                       // 浏览模式（默认）下，家具和桌面物品都不能选、不能拖
+let editMode = false;                                       // 浏览模式（默认）下，家具不能选、不能拖
 renderer.domElement.addEventListener('pointerdown', e => {
   nPtr = e.isPrimary ? 1 : nPtr + 1;                       // isPrimary 时归 1，防止漏掉的抬起事件让计数错乱
   if (nPtr > 1) { if (press) press.multi = true; return; }  // 双指：交给视角控制
   press = e.button === 0 ? { x: e.clientX, y: e.clientY, id: e.pointerId } : null;
-  if (e.button !== 0) return;
-  if (!editMode) return;                                   // 浏览模式：这次按下只用来转视角 / 点门和灯
-  const p = pick(e);
-  if (!p) { startFurnDrag(e); return; }                    // 没点到桌面物品：看看是不是家具（见后面「家具」一节）
-  press.item = true;
-  e.stopImmediatePropagation();                            // 不让视角控制器接手这次拖动
-  tween = null;
-  drag = p.it;
-  dragV = drag === monitor && e.shiftKey;                  // 按住 Shift 拖屏幕：上下调高低
-  if (dragV) {
-    const n = new THREE.Vector3();
-    camera.getWorldDirection(n); n.y = 0;
-    if (n.lengthSq() < 1e-4) n.set(1, 0, 0);
-    vPlane.setFromNormalAndCoplanarPoint(n.normalize(), p.hit.point);
-    vStartY = p.hit.point.y; vStartB = monBottom;
-  }
-  dragPlane.constant = -p.hit.point.y;
-  const lp = deskG.worldToLocal(p.hit.point.clone());
-  dragOff.set(drag.x - lp.x, 0, drag.z - lp.z);
-  controls.enabled = false;
-  renderer.domElement.setPointerCapture(e.pointerId);
-  renderer.domElement.style.cursor = 'grabbing';
-  setLowRes(true);                                         // 手机：拖动时临时降到像素比 1
+  if (e.button !== 0 || !editMode) return;                 // 浏览模式：这次按下只用来转视角 / 点门和灯
+  startFurnDrag(e);                                        // 点到能拖的家具就接手（见后面「家具」一节）
 }, { capture: true });
 renderer.domElement.addEventListener('pointermove', e => {
   if (fdrag) { moveFurnDrag(e); return; }
-  if (!drag) {
-    if (e.buttons === 0) renderer.domElement.style.cursor = editMode && pick(e) ? 'grab' : hoverCursor(e);
-    return;
-  }
-  setRay(e);
-  if (dragV) {
-    if (!ray.ray.intersectPlane(vPlane, hitP)) return;
-    const nb = clampR(Math.round(vStartB + hitP.y - vStartY), 0, 30);
-    blockedBy = hitWith(monitor, monitor.x, monitor.z, { b: nb });
-    if (!blockedBy) monBottom = nb;
-    monHEl.value = monBottom; monHv.textContent = monBottom;
-    layout(true);
-    return;
-  }
-  if (!ray.ray.intersectPlane(dragPlane, hitP)) return;
-  deskG.worldToLocal(hitP);
-  let x = hitP.x + dragOff.x, z = hitP.z + dragOff.z;
-  if (drag === clamp) { x = clamp.def.x; z = clampR(z, 4, DL - 4); }
-  else if (drag === monitor) { x = clampR(x, useArm ? 1 : 6, Math.min(45, DD - 15)); z = clampR(z, 30.5, DL - 30.5); }
-  else { x = clampR(x, drag.hx, DD - drag.hx); z = clampR(z, drag.hz, DL - drag.hz); }
-  /* 碰到东西时先试着只沿一个方向滑，都不行就停在原地 */
-  const ox = drag.x, oz = drag.z;
-  blockedBy = hitWith(drag, x, z);
-  if (!blockedBy) { drag.x = x; drag.z = z; }
-  else if (!hitWith(drag, x, oz)) drag.x = x;
-  else if (!hitWith(drag, ox, z)) drag.z = z;
-  layout(true);
+  if (e.buttons === 0) renderer.domElement.style.cursor = hoverCursor(e);
 });
-const endDrag = e => {
-  if (!drag) return;
-  drag = null;
-  blockedBy = null;
-  controls.enabled = true;
-  renderer.domElement.releasePointerCapture(e.pointerId);
-  renderer.domElement.style.cursor = '';
-  layout();
-};
 renderer.domElement.addEventListener('pointerup', e => {
   nPtr = Math.max(0, nPtr - 1);
-  endDrag(e);
   const pr = press && press.id === e.pointerId ? press : null;
   if (pr) press = null;
   const moved = pr ? Math.hypot(e.clientX - pr.x, e.clientY - pr.y) : 99;
   endFurnDrag(e);
-  if (pr && !pr.item && !pr.multi && moved < 6) clickScene(e);   // 点门 / 灯 / 家具（见后面「家具」一节）
+  if (pr && !pr.multi && moved < 6) clickScene(e);         // 点门 / 灯 / 家具（见后面「家具」一节）
 });
-renderer.domElement.addEventListener('pointercancel', e => { nPtr = Math.max(0, nPtr - 1); press = null; endDrag(e); endFurnDrag(e); });
+renderer.domElement.addEventListener('pointercancel', e => { nPtr = Math.max(0, nPtr - 1); press = null; endFurnDrag(e); });
 
-/* 布线标签：只在相机离桌子近时显示；桌板以下的标签，视线穿过桌板（被挡住）时收起，桌板透明时不收 */
+/* 桌子标签：只在相机离桌子近时显示；桌板以下的标签，视线穿过桌板（被挡住）时收起，桌板透明时不收 */
 const _cl = new THREE.Vector3(), _lp = new THREE.Vector3();
 function hiddenByDesk(o) {
   if (topClear) return false;
@@ -1654,13 +1587,10 @@ function hiddenByDesk(o) {
   return x > 0 && x < DD && z > 0 && z < DL;
 }
 function updateDeskLabels() {
-  /* 相机在卧室以北的房间里时（隔着墙），不显示桌面布线标签；从屋顶上方往下看不受影响 */
+  /* 相机在卧室以北的房间里时（隔着墙），不显示桌子标签；从屋顶上方往下看不受影响 */
   const showW = showLabels && camera.position.distanceTo(DESK_C) < 340 && (camera.position.z > -5 || camera.position.y > H);
   _cl.copy(camera.position); deskG.worldToLocal(_cl);
-  deskLabels.forEach(o => { o.visible = showW && (accOn || !accLabels.includes(o)); });
-  underLabels.forEach(o => { o.visible = showW && accOn && !hiddenByDesk(o); });
-  belowDesk.forEach(o => { o.visible = showW && (accOn || !accLabels.includes(o)) && !hiddenByDesk(o); });
-  itemLabels.forEach(({ o, it }) => { o.visible = showW && it.on && (it !== clamp || (monitor.on && useArm)); });
+  deskLabels.forEach(o => { o.visible = showW && !(o.userData.under && hiddenByDesk(o)); });
 }
 
 /* ---------- 投影（东墙画面）、主椅、床上桌：随按钮重建 ---------- */
@@ -1763,14 +1693,14 @@ function rebuild() {
     scene.children.slice(n0).forEach(o => { scene.remove(o); o.position.x -= d.x; o.position.z -= d.z; f.group.add(o); });
   };
 
-  /* 主椅（家具 id='chair'）：正对主屏默认位置（z=95）；收进时座面推到桌下，只剩靠背在桌沿外。
-     只在按钮切换后执行一次，而且只在椅子还在主桌前（z 95±45、x 40–165，即默认座位附近）时才挪；
+  /* 主椅（家具 id='chair'）：正对主屏（桌子正中，z=80）；收进时座面推到桌下，只剩靠背在桌沿外。
+     只在按钮切换后执行一次，而且只在椅子还在主桌前（z 80±45、x 40–165，即默认座位附近）时才挪；
      被拖到别处的椅子不受这个按钮影响，下次拖回桌前再按就又生效 */
   if (chairDone !== state.chair1) {
     chairDone = state.chair1;
     const ch = furnById('chair');
-    if (ch && Math.abs(ch.z - 95) < 45 && ch.x > 40 && ch.x < 165) {
-      ch.x = 3 + (state.chair1 === 'in' ? DD + 2 : DD + 35); ch.z = 95;
+    if (ch && Math.abs(ch.z - DL / 2) < 45 && ch.x > 40 && ch.x < 165) {
+      ch.x = 3 + (state.chair1 === 'in' ? DD + 2 : DD + 35); ch.z = DL / 2;
       placeFurn(ch);
     }
   }
@@ -1819,13 +1749,13 @@ function rebuild() {
     }
   });
 
-  /* 投影仪 [占位]：放主桌南端（悬臂桌夹南边），光束打到东墙画面四角；主桌被删了就没地方放，不画投影仪和光束 */
+  /* 投影仪 [占位]：放主桌南端的前角（切割垫东边、桌子前沿），光束打到东墙画面四角；主桌被删了就没地方放，不画投影仪和光束 */
   projScreen.visible = state.proj;
   if (state.proj && furnById('desk')) {
-    const pz = DL - 10, top = DH;
-    B(4, 18, top, top + 8, pz - 9, pz + 9, printerM);
-    B(18, 19, top + 2, top + 7, pz - 3, pz + 3, dark, { cast: false });
-    const a = [19, top + 4.5, pz], c = PROJ;
+    const pz = DL - 10, top = DH, x1 = 3 + DD;
+    B(x1 - 14, x1, top, top + 8, pz - 9, pz + 9, printerM);
+    B(x1, x1 + 1, top + 2, top + 7, pz - 3, pz + 3, dark, { cast: false });
+    const a = [x1 + 1, top + 4.5, pz], c = PROJ;
     const pts = [a, [c.x, c.y0, c.z0], [c.x, c.y0, c.z1], [c.x, c.y1, c.z1], [c.x, c.y1, c.z0]];
     const g = new THREE.BufferGeometry();
     g.setAttribute('position', new THREE.Float32BufferAttribute(pts.flat(), 3));
@@ -2433,177 +2363,18 @@ label('[估算] 冰箱 ＋ 微波炉', 285, 165, -48, 'est');
 label('[估算] 洗衣机凹室', 285, 120, -248, 'est');
 label('[估算] 玄关', 200, 10, -340, 'est');
 
-/* ===================================================================
-   候选房 B：麻布十番 1K，放在现在这套房的东边对比
-   - 尺寸全部是 [估算]：沿用户型图的布局；总面积 26.61㎡、洋室 9 帖（用户确认）两个数都满足——
-     洋室做到壁芯约 14.6㎡（内净约 295 × 489，含东南角的柱子、不含收纳），
-     剩下的面积给玄关、整体浴室、走廊厨房、厕所、洗衣机位，整套内净约 295 × 839
-   - 方向：户型图的指北针朝右，实际阳台朝东。这里为了和现在的房子并排对比，摆成同一个方向（玄关在北、阳台在南）
-   - 局部坐标：原点 = B 的室内西北角，x 向东（0..295），z 向南（0..839）；建好后整组挪到 (CB.x0, 0, CB.z0)
-   - 空房（照片是空室）：只有房子自带的设备，不放家具
-   =================================================================== */
-const CB = { x0: 470, w: 295, l: 839 };
-CB.z0 = D - CB.l;                                            // 阳台一侧和现在卧室的南墙对齐
-const candLabels = [];
-const candG = collect(0, 0, () => {
-  const BW = CB.w, BL = CB.l;
-  /* 南北分段：玄关 / 浴室 0..145 ｜ 走廊厨房 145..340 ｜ 隔墙 340..350 ｜ 洋室 350..839 */
-  const ZA = 145, ZP = 340, ZR = 350;
-  const bLabel = (text, x, y, z, cls = 'est') => { const o = label(text, x, y, z, cls); candLabels.push(o); return o; };
-  const woodFloorM = mat(0xa8774f, { map: tiled(floorTex, BW, BL, 120), roughness: 0.5 });   // 中等深度的棕色木地板（照片）
-  const psM = mat(0xefece6, { roughness: 0.9 });
-  const ubM = mat(0xf7f7f4, { roughness: 0.35 });
-  const leafM = mat(0xe6e0d4, { roughness: 0.55 });
-  const cabM = mat(0x7b5639, { roughness: 0.5 });                                          // 厨房柜门：棕色木纹（照片）
-  const greenM = mat(0x6e9f8a, { roughness: 0.8 });                                        // 厨房那面绿色墙（照片）
-  const darkFrameM = mat(0x2b2b2d, { roughness: 0.4, metalness: 0.3 });
-  const lampM = () => mat(0xffffff, { emissive: 0xfff6e8, emissiveIntensity: 0.9, roughness: 0.3 });
-
-  /* 地面：玄关地砖、整体浴室白色防水盘、其余棕色木地板 */
-  block(0, 105, -6, 0, 0, ZA, tileMat(105, ZA, 0xd9d3c8), { cast: false });
-  block(105, BW, -6, 0, 0, ZA, psM, { cast: false });
-  block(115, BW, 0, 1, 0, 135, ubM, { cast: false });
-  block(0, BW, -6, 0, ZA, BL, woodFloorM, { cast: false });
-  block(170, BW, 0, 0.3, 190, 270, mat(0xd6d0c4, { roughness: 0.55 }), { cast: false });   // 厕所软地板
-
-  /* 外墙：西墙开入户门，东墙开窗，南墙开阳台推拉门 */
-  wall({ axis: 'z', at: 0, from: -T, to: BL + T, normal: [-1, 0], openings: [{ a: 58, b: 140, top: 200 }] });
-  wall({ axis: 'z', at: BW, from: -T, to: BL + T, normal: [1, 0], openings: [{ a: 640, b: 725, bottom: 80, top: 205 }] });
-  wall({ axis: 'x', at: 0, from: 0, to: BW, normal: [0, -1] });
-  wall({ axis: 'x', at: BL, from: 0, to: BW, normal: [0, 1], openings: [{ a: 45, b: 205, top: 205 }] });
-  /* 内墙：玄关 | 浴室、浴室 | 走廊、厕所、走廊 | 洋室、收纳 */
-  wall({ axis: 'z', at: 105, from: 0, to: 135, normal: [1, 0], t: 10 });
-  wall({ axis: 'x', at: 135, from: 115, to: BW, normal: [0, 1], t: 10, openings: [{ a: 125, b: 185, top: 200 }] });
-  wall({ axis: 'z', at: 160, from: 190, to: 270, normal: [1, 0], t: 10, openings: [{ a: 200, b: 264, top: 200 }] });
-  wall({ axis: 'x', at: 270, from: 160, to: BW, normal: [0, 1], t: 8 });
-  wall({ axis: 'x', at: ZP, from: 0, to: BW, normal: [0, 1], t: 10, openings: [{ a: 86, b: 160, top: 200 }] });
-  wall({ axis: 'z', at: 165, from: ZR, to: ZR + 60, normal: [-1, 0], t: 5 });
-  block(170, BW, 0, H, ZA, 190, psM, { cast: false });                                       // 管井（户型图上的 PS 和结构）
-  block(240, BW, 0, H, 278, ZP, psM, { cast: false });                                       // 洗衣机位东边的管井
-  block(210, BW, 0, H, 740, BL, psM, { cast: false });                                       // 洋室东南角的柱子
-  ceiling(0, BW, 0, BL);
-  /* 踢脚线（洋室三面） */
-  [[0, 1.2, ZR, BL], [0, 210, BL - 1.2, BL], [BW - 1.2, BW, ZR + 60, 740]].forEach(([a, b, c, d]) =>
-    block(a, b, 0, 7, c, d, skirtM, { cast: false }));
-
-  /* 入户门（西墙，向外开）、洋室门（向洋室里开，默认开）、厕所门（向走廊开）：可以点开关 */
-  const lever = (put, w, h, t) => {
-    [-1, 1].forEach(sg => put(1.6, 1.6, 11, sg * (t / 2 + 2), 95, w - 11, leverM));
-    put(t + 4, 4, 4, 0, 95, w - 6, leverM);
-  };
-  const eDoor = swingDoor(-5, 139, 80, 198, 4, Math.PI, mat(0xdcd8d0, { roughness: 0.45 }), lever);
-  regDoor('b-entry', 'B 入户门', 'dr-entry', false, t => { eDoor.rotation.y = Math.PI + t * Math.PI / 2; }, [eDoor]);
-  const rDoor = swingDoor(160, ZR - 1, 74, 198, 3.5, -Math.PI / 2, leafM, lever);
-  regDoor('b-room', 'B 洋室门', 'dr-bed', true, t => { rDoor.rotation.y = -Math.PI / 2 + t * Math.PI / 2; }, [rDoor]);
-  const tDoor = swingDoor(165, 200, 64, 198, 3.5, 0, leafM, lever);
-  regDoor('b-toilet', 'B 厕所门', 'dr-toilet', false, t => { tDoor.rotation.y = -t * Math.PI / 2; }, [tDoor]);
-
-  /* 玄关：鞋柜（门朝南） */
-  rblock(32, 105, 0, 110, 0, 40, mat(0xece7dc, { roughness: 0.5 }), 0.6);
-  block(68, 69, 10, 104, 40, 40.4, mat(0xbdb5a6), { cast: false });
-  [[62, 66], [71, 75]].forEach(([a, b]) => block(a, b, 60, 62, 40, 41.4, leverM));
-  bLabel('B 玄关', 52, 12, 100);
-
-  /* 整体浴室（内净约 180 × 135）：浴缸沿东墙，洗手盆和镜子在北墙 */
-  basinWall(222, 292, 4, 131, 1, 52, 6, 10, 5, ceramicM, 1.2);
-  rblock(227, 287, 1, 14, 9, 126, ceramicM, 3);
-  basinWall(168, 212, 1, 33, 64, 76, 3, 10, 7, ceramicM, 1);
-  rblock(170, 210, 64, 67, 3, 31, ceramicM, 1.5);
-  cyl(1.2, 1.4, 6, 190, 79, 3, chromeM);
-  cyl(0.8, 0.8, 7, 190, 81.5, 6.5, chromeM, { rx: Math.PI / 2 });
-  block(170, 212, 108, 160, 0, 0.6, mat(0xd3d9d8, { metalness: 0.25, roughness: 0.06, envMapIntensity: 2.2 }), { cast: false });
-  cyl(1.6, 1.6, 20, 293, 70, 68, chromeM, { rx: Math.PI / 2 });                             // 浴缸龙头
-  const bathLampM = lampM();
-  const bLamp = cyl(8, 8, 3, 205, H - 1.5, 68, bathLampM);
-  bLamp.userData.lightId = 'b-bath';
-  regLight('b-bath', 'B 浴室灯', 'l-bath', [spot(205, H - 6, 68, 40000, 1.0, 300)], [{ m: bathLampM, max: 0.9 }],
-    { eff: () => LIGHTS['b-bath'].on && candG.visible });
-  bLabel('B 浴室（整体浴室）', 205, 110, 68);
-
-  /* 厕所（内净约 125 × 80）：马桶靠东墙、朝西（门口） */
-  rblock(277, 293, 32, 74, 217, 243, ceramicM, 3);
-  rblock(248, 282, 0.3, 38, 220, 240, ceramicM, 6);
-  rblock(246, 281, 38, 41, 219, 241, mat(0xf6f5f2, { roughness: 0.3 }), 4);
-  rblock(240, 254, 64, 71, 264, 270, mat(0xf3f2ee, { roughness: 0.35 }), 1.5);                // 卷纸架
-  bLabel('B 厕所', 232, 110, 230);
-
-  /* 厨房：沿西墙，二口煤气灶 ＋ 水槽 ＋ 棕色柜门；后面一面绿色墙；尽头是冰箱位 */
-  block(0, 0.6, 85, H, ZA + 2, 287, greenM, { cast: false });
-  block(0, 56, 0, 8, 152, 282, mat(0x3a332d), { cast: false });
-  rblock(0, 60, 8, 82, 152, 282, cabM, 0.6);
-  block(0, 62, 82, 85, 152, 282, mat(0xc7cbce, { roughness: 0.3, metalness: 0.7 }));         // 不锈钢台面
-  block(12, 48, 84.9, 85.3, 222, 272, mat(0x7f8487, { roughness: 0.3, metalness: 0.8 }), { cast: false });   // 水槽
-  [170, 200].forEach(z => {                                                                   // 二口灶
-    cyl(6, 6, 1, 30, 85.6, z, mat(0x1b1c1e, { roughness: 0.5 }));
-    cyl(3, 3, 1.4, 30, 86.4, z, mat(0x2c2d30, { roughness: 0.4 }));
-  });
-  [165, 215, 250].forEach(z => block(60, 61.4, 70, 72, z - 8, z + 8, steelM));               // 柜门拉手
-  const kSpout = new THREE.Mesh(new THREE.TubeGeometry(new THREE.CatmullRomCurve3([
-    new THREE.Vector3(5, 85, 248), new THREE.Vector3(5, 99, 248), new THREE.Vector3(9, 103, 248), new THREE.Vector3(15, 100, 248),
-    new THREE.Vector3(16, 96, 248)]), 30, 0.9, 10), chromeM);
-  kSpout.castShadow = true; scene.add(kSpout);
-  rblock(0, 34, 150, 214, 214, 282, cabM, 0.6);                                              // 吊柜
-  rblock(0, 52, 182, 200, 155, 210, mat(0xe9e9e6, { roughness: 0.4 }), 1);                  // 抽油烟机
-  bLabel('B 厨房', 30, 120, 215);
-  bLabel('B 冰箱位', 30, 20, 312);
-
-  /* 洗衣机位（防水盘 ＋ 止水栓） */
-  basinWall(172, 238, 280, 338, 0, 5, 3, 3, 4, mat(0xf4f4f2, { roughness: 0.5 }), 0.6);
-  cyl(1.6, 1.6, 7, 236, 118, 309, chromeM, { rz: Math.PI / 2 });
-  bLabel('B 洗衣机位', 205, 20, 309);
-
-  /* 收纳（洋室东北角，深 60，折叠门朝南） */
-  [[166, 197], [198, 229], [230, 261], [262, BW - 1]].forEach(([a, b]) => {
-    block(a, b - 0.4, 0, 205, ZR + 58, ZR + 60.5, mat(0xf1eee7, { roughness: 0.5 }));
-  });
-  [[196, 200], [259, 263]].forEach(([a, b]) => block(a, b, 100, 102, ZR + 60.5, ZR + 61.6, leverM));
-  bLabel('B 收纳', 230, 120, ZR + 30);
-
-  /* 阳台推拉门（南墙，深色框）＋ 东墙窗 ＋ 南墙上的空调 */
-  [[45, 126, BL + 3], [124, 205, BL + 6]].forEach(([a, b, z]) => {
-    block(a, b, 4, 201, z - 0.5, z + 0.5, glass, { cast: false });
-    [[a, a + 4], [b - 4, b]].forEach(([c, d]) => block(c, d, 0, 205, z - 1.5, z + 1.5, darkFrameM));
-    block(a, b, 0, 4, z - 1.5, z + 1.5, darkFrameM); block(a, b, 201, 205, z - 1.5, z + 1.5, darkFrameM);
-  });
-  block(BW + 4.5, BW + 5.5, 80, 205, 640, 725, glass, { cast: false });
-  [[640, 644], [721, 725], [681, 684]].forEach(([a, b]) => block(BW + 3, BW + 7, 80, 205, a, b, darkFrameM));
-  [[80, 84], [201, 205]].forEach(([a, b]) => block(BW + 3, BW + 7, a, b, 640, 725, darkFrameM));
-  rblock(55, 140, 205, 232, 817, BL, mat(0xf6f6f4, { roughness: 0.4 }), 2);
-  /* 阳台：宽同房间，进深约 90（2.7㎡）[估算] */
-  block(-T, BW + T, -3, 0, BL + T, BL + T + 92, mat(0xffffff, { map: concreteTex, roughness: 0.9 }), { cast: false });
-  block(-T, BW + T, 0, 110, BL + T + 88, BL + T + 92, mat(0xdfe2e0, { transparent: true, opacity: 0.55 }), { cast: false });
-  bLabel('B 阳台（实际朝东）', BW / 2, 10, BL + T + 46);
-
-  /* 灯：洋室圆形吸顶灯、走廊筒灯 */
-  const roomLampM = lampM(), hallLampM = lampM();
-  const rl = cyl(22, 23, 6, 147, H - 3, 600, roomLampM);
-  rl.userData.lightId = 'b-room';
-  regLight('b-room', 'B 洋室灯', 'l-ceil', [spot(147, H - 8, 600, 90000, 1.2, 430)], [{ m: roomLampM, max: 0.9 }],
-    { eff: () => LIGHTS['b-room'].on && candG.visible });
-  const hl = cyl(5.2, 5.2, 0.6, 110, H - 0.3, 240, hallLampM, { cast: false });
-  hl.userData.lightId = 'b-hall';
-  regLight('b-hall', 'B 走廊灯', 'l-down', [spot(110, H - 3, 240, 50000, 1.0, 360)], [{ m: hallLampM, max: 1.3 }],
-    { eff: () => LIGHTS['b-hall'].on && candG.visible });
-
-  bLabel('B 洋室 9 帖（壁芯约 14.6㎡）', 100, 12, 600, 'room');
-  bLabel('候选房 B · 1K 26.61㎡（尺寸按户型图估算）', BW / 2, H + 30, 420, 'room');
-});
-candG.position.set(CB.x0, 0, CB.z0);
-candG.updateMatrixWorld(true);
 /* ---------- 视角 ---------- */
 const views = {
   iso:     { p: [-520, 650, 800],  t: [90, 20, 150] },
   top:     { p: [90, 1250, 181],   t: [90, 0, 180] },
   inside:  { p: [238, 165, 108],   t: [95, 55, 285] },
-  desk:    { p: [215, 215, 10],    t: [12, 95, 75] },
+  desk:    { p: [250, 225, 150],   t: [38, 86, 80] },
   balcony: { p: [200, 170, 760],   t: [150, 70, 120] },
   all:     { p: [-560, 760, 420],  t: [157, 0, -20] },
-  seat:    { p: [232, 208, 95],    t: [22, 80, 95] },
-  under:   { p: [205, 40, 18],     t: [10, 36, 62] },
-  bay:     { p: [135, 44, 46],     t: [16, 36, 12] },
-  back:    { p: [-200, 125, 85],   t: [16, 60, 85] },
-  compare: { p: [-330, 1180, 900], t: [395, 0, -90] },     // 两套房并排
-  cand:    { p: [10, 650, 560],    t: [617, 20, -110] },   // 候选房 B
+  seat:    { p: [205, 172, 80],    t: [25, 92, 80] },
+  under:   { p: [155, 48, 168],    t: [30, 38, 70] },
+  bay:     { p: [112, 34, 20],     t: [20, 27, 27] },        // 桌下北端：主机推车（从东边低处看，光猫、路由器在机箱北边）
+  back:    { p: [-200, 125, 80],   t: [16, 60, 80] },
   /* 卧室以北：相机站在屋里，和实拍视频的机位差不多 */
   hall:    { p: [190, 150, -190],  t: [186, 100, 0],     fov: 62 },
   kitchen: { p: [165, 150, -150],  t: [300, 100, -125],  fov: 62 },
@@ -2617,7 +2388,7 @@ const walk = { on: false, x: 0, z: 0, yaw: 0, pitch: 0, keys: {}, goto: null, fl
 function baseFov() { return camera.aspect < 0.8 ? 55 : 38; }   // 竖屏手机：视野角放大，左右能多看到一点
 /* 视角预设是按横屏（宽高比约 1.6）调的。竖屏时左右能看到的范围窄很多：
    看全屋的视角按宽高比拉远；室内视角不拉远（一拉就会退进衣柜、墙里），只靠竖屏时放大视野角（见 resize） */
-const OUTSIDE_VIEWS = new Set(['iso', 'top', 'all', 'balcony', 'compare', 'cand']);
+const OUTSIDE_VIEWS = new Set(['iso', 'top', 'all', 'balcony']);
 function fitK(name) {
   const a = camera.aspect;
   if (a >= 1.2) return 1;
@@ -2690,17 +2461,9 @@ btnChair.addEventListener('click', () => {
   save();
 });
 btnWall.addEventListener('click', () => { autoHide = !autoHide; btnWall.classList.toggle('on', autoHide); invalidate(); });
-/* 候选房 B 显示 / 隐藏（标签是 CSS2D，不跟着父级隐藏，要单独管） */
-const btnCand = document.getElementById('btnCand');
-btnCand.addEventListener('click', () => {
-  candG.visible = !candG.visible;
-  btnCand.classList.toggle('on', candG.visible);
-  candLabels.forEach(o => { o.visible = candG.visible && showLabels; });
-  sceneChanged();
-});
 btnLabel.addEventListener('click', () => {
   showLabels = !showLabels; btnLabel.classList.toggle('on', showLabels);
-  labelObjs.forEach(o => { o.visible = showLabels && (!candLabels.includes(o) || candG.visible); });
+  labelObjs.forEach(o => { o.visible = showLabels; });
   updateOverlays();
   invalidate();
 });
@@ -2786,7 +2549,8 @@ function setLowRes(on) {
      东墙侧桌 / 40 寸电视 / PS5 改在目录里，加回来即可；把侧桌加回来（id=tv）时，rebuild() 仍会在桌上摆电视和 PS5
    - 和 rebuild() 的关系：枕头 / 床上桌只放在 id='bed' 的床上，电视 / PS5 只在 id='tv' 的侧桌存在时放进该组，
      侧桌不在就不生成（不会报错）；投影仪只在主桌在时放；主椅「拉出 / 收进」只挪 id='chair'。每次增删家具都会 rebuild()
-   - 主桌 ErGear 和整套布线是一体的（北墙插座、网口也在 deskG 里），所以只能删 / 恢复（回默认位置），不能拖
+   - 主桌（宜家 UTESPELARE 160×80）和桌面物品、桌下推车、走线是一体的（都在 deskG 里；北墙的电话口和墙插在场景根上，
+     删主桌时还在），所以只能删 / 恢复（回默认位置），不能拖
    - 范围只在卧室：x 0–W、z 0–D，不能压到衣柜（x 250–W、z 0–57）和东南柱（x 255–W、z 253–D）
    =================================================================== */
 const FM = {                                                // 新家具的材质：放在文件后部建，不打乱前面程序贴图的随机数序列
@@ -2829,7 +2593,7 @@ function simpleDesk(dx, dz, h, topM, t4) {
 }
 const FT = {                                                // 家具类型（hx / hz = 未旋转时的半宽，x / z 方向）
   bed:     { name: '床', ic: 'f-bed', hx: 97.5, hz: 70, main: 'bed', def: { x: 97.5, z: 238 }, mainGroup: bedG, proto: BED_PROTO },
-  desk:    { name: '主桌 160×80', ic: 'f-desk', hx: DD / 2, hz: DL / 2, main: 'desk', unique: true, fixed: true,
+  desk:    { name: '主桌 UTESPELARE', ic: 'f-desk', hx: DD / 2, hz: DL / 2, main: 'desk', unique: true, fixed: true,
              def: { x: 3 + DD / 2, z: DL / 2 }, mainGroup: deskG },
   desk70:  { name: '主桌 160×70', ic: 'f-desk70', hx: 35, hz: 80, make: () => simpleDesk(70, 160, DH, deskBlackM, false) },
   desk120: { name: '书桌 120×60', ic: 'f-desk120', hx: 30, hz: 60, make: () => simpleDesk(60, 120, 72, FM.oak, true) },
@@ -2892,7 +2656,7 @@ const FT = {                                                // 家具类型（hx
     scene.remove(o); g.add(o);
     return g;
   } },
-  chair:   { name: '电竞椅', ic: 'f-chair', hx: 30, hz: 30, main: 'chair', def: { x: 3 + DD + 35, z: 95 }, make: gamingChair },
+  chair:   { name: '电竞椅', ic: 'f-chair', hx: 30, hz: 30, main: 'chair', def: { x: 3 + DD + 35, z: DL / 2 }, make: gamingChair },
   sofa:    { name: '双人沙发', ic: 'f-sofa', hx: 42, hz: 76, make: () => {           // 150×84，面朝 -x（西）
     const g = new THREE.Group(), L = FM.linen;
     [[-1, -1], [-1, 1], [1, -1], [1, 1]].forEach(([sx, sz]) => {
@@ -2973,47 +2737,6 @@ const CAT_ORDER = ['bed', 'desk', 'desk70', 'desk120', 'cubeshelf', 'tvdesk', 't
 const MAIN_OF = { bed: 'bed', desk: 'desk', tv: 'tvdesk', chair: 'chair', cube: 'cubeshelf' };  // 这几个 id 只能是对应的类型
 const DEFAULT_FURN = ['bed', 'desk', 'cubeshelf', 'chair'].map(type => ({ type, id: FT[type].main, x: FT[type].def.x, z: FT[type].def.z, rotY: 0 }));
 
-/* ---------- 候选房 B：把现在的家具搬进去试摆（尺寸都按现在的家具，摆法是设计建议）----------
-   B 的洋室（局部坐标）：x 0..295，z 350..839；北墙门洞 x 86..160（门往屋里开）、东北角收纳 x 165..295 z 350..410、
-   东墙窗 z 640..725、东南角柱 x 210..295 z 740..839、南墙阳台门 x 45..205。
-   - 主桌 160×80 靠东墙北段（x 215..295，z 470..630）：坐着面朝东墙，窗在右手边，侧光、屏幕不反光；
-     这扇窗按户型图实际朝北，没有直射。桌子离收纳门留 60 cm，收纳能正常开
-   - 电竞椅在桌前；椅子和床错开（椅子在 x 150..215，床在 x 0..140），中间就是去阳台的过道，约 75 cm
-   - 床 140×195 贴西墙、床头朝南（x 0..140，z 575..770）：不挡阳台门；床头到南墙留约 69 cm，从床头那边去阳台
-   - 收纳格横放在床尾当电视柜（x 14..126，z 535..574），开口朝北（进门方向能用），40 寸电视和 PS5 放在上面、朝床
-   - 冰箱 ＋ 微波炉进冰箱位，洗衣机进洗衣机位
-   ---------- */
-const candFurn = collect(0, 0, () => {
-  const add = (g, x, z, ry = 0, y = 0) => { stripLabels(g); g.position.set(x, y, z); g.rotation.y = ry; scene.add(g); return g; };
-  const fl = (text, x, y, z) => { const o = label(text, x, y, z, 'est'); candLabels.push(o); return o; };
-  add(BED_PROTO.clone(), 70, 672.5, Math.PI / 2);                                         // 床：长边沿南北，床头朝南
-  add(simpleDesk(80, 160, DH, deskBlackM, false), 255, 550, Math.PI);                     // 主桌：后沿靠东墙
-  /* 桌上：27 寸屏（靠墙、朝西）、键盘、鼠标 */
-  block(287, 289, DH, DH + 14, 545, 555, dark);
-  block(276, 292, DH, DH + 1.2, 538, 562, dark);
-  addScreen(block(281, 283.5, DH + 14, DH + 50, 519.5, 580.5, dark), 'x', -1);
-  rblock(240, 253, DH, DH + 2, 528, 572, keyboardM, 0.8);
-  rblock(242, 252, DH, DH + 3.2, 585, 591, mouseM, 1.5);
-  add(gamingChair(), 182, 550, Math.PI);                                                   // 电竞椅：面朝东（书桌）
-  add(FT.cubeshelf.make(), 70, 554.5, -Math.PI / 2);                                      // 收纳格：横放在床尾，开口朝北
-  add(FT.tvset.make(), 56, 556, Math.PI / 2, 112);                                        // 40 寸电视：放在收纳格上，朝床
-  add(FT.ps5.make(), 113, 556, Math.PI / 2, 112);
-  /* 冰箱 ＋ 微波炉（冰箱位，门朝东）、洗衣机（洗衣机位）：外观按现在家里的简化 */
-  const whiteM = mat(0xf4f4f2, { roughness: 0.35 }), seam = mat(0xd5d6d3, { roughness: 0.5 });
-  rblock(2, 56, 0, 122, 287, 338, whiteM, 2);
-  block(56, 56.6, 76, 77, 289, 336, seam, { cast: false });
-  [[84, 112], [40, 68]].forEach(([y0, y1]) => block(56.2, 57.6, y0, y1, 330, 333, mat(0xbfc2c4, { roughness: 0.3 })));
-  rblock(6, 50, 122, 148, 292, 334, whiteM, 1.5);
-  block(50, 50.4, 127, 144, 296, 322, blackGlassM, { cast: false });
-  rblock(176, 234, 5, 86, 283, 335, mat(0xb8bbbe, { roughness: 0.35, metalness: 0.55 }), 3);
-  rblock(175.5, 234.5, 84, 90, 282.5, 335.5, mat(0x16171a, { roughness: 0.25, metalness: 0.2 }), 2);
-  fl('床 140×195（床头朝南）', 70, 72, 690);
-  fl('主桌 160×80（窗在右手边）', 255, 135, 550);
-  fl('收纳格当电视柜（开口朝北）', 70, 175, 545);
-  fl('过道约 75 cm', 178, 6, 655);
-  fl('阳台门前约 69 cm', 125, 6, 805);
-});
-scene.remove(candFurn); candG.add(candFurn);
 const FURN = [];
 let selId = null;
 function furnById(id) { return FURN.find(f => f.id === id) || null; }
@@ -3257,7 +2980,6 @@ function clickScene(e) {
   if (h && h.furn && furnById(h.furn)) { if (selId !== h.furn) select(h.furn); }
   else if (!h || !h.light) select(null);                     // 点空地 = 取消选中
 }
-const isOn = L => (L.id === 'desk' ? lamp.on : L.on);
 function toggleDoor(id) {
   const d = DOORS[id];
   if (!d) return;
@@ -3267,11 +2989,8 @@ function toggleDoor(id) {
 function toggleLight(id) {
   const L = LIGHTS[id];
   if (!L) return;
-  if (id === 'desk') {                                       // 书桌挂灯 = 布线区「屏幕挂灯」勾选，同一个状态
-    if (!furnById('desk') || !monitor.on) return;
-    lamp.on = !lamp.on;
-    layout();
-  } else L.on = !L.on;
+  if (L.needDesk && !furnById('desk')) return;             // 挂灯、灯带：主桌不在时点不了
+  L.on = !L.on;
   refreshLightCards(); save(); invalidate();
 }
 function setAllDoors(v) { Object.values(DOORS).forEach(d => { d.open = v; }); refreshDoorCards(); save(); invalidate(); }
@@ -3288,7 +3007,7 @@ function save() {
     localStorage.setItem(SAVE_KEY, JSON.stringify({
       v: SAVE_V, dv: DOOR_DEF_V,
       doors: Object.fromEntries(Object.values(DOORS).map(d => [d.id, d.open])),
-      lights: Object.fromEntries(Object.values(LIGHTS).map(L => [L.id, isOn(L)])),
+      lights: Object.fromEntries(Object.values(LIGHTS).map(L => [L.id, L.on])),
       chair1: state.chair1,
       furn: FURN.map(f => ({ type: f.type, id: f.id, x: Math.round(f.x * 10) / 10, z: Math.round(f.z * 10) / 10, rotY: f.rotY })),
     }));
@@ -3314,6 +3033,7 @@ function readSaved() {
       if (![e.x, e.z, e.rotY].every(Number.isFinite) || Math.abs(e.x) > 2000 || Math.abs(e.z) > 2000) return null;
       if ((MAIN_OF[e.id] && MAIN_OF[e.id] !== e.type) || (e.type === 'desk' && e.id !== 'desk')) return null;
       ids.add(e.id);
+      if (e.id === 'chair' && Math.abs(e.z - 95) < 0.5 && Math.abs(e.x - (3 + DD + 35)) < 0.5) e.z = FT.chair.def.z;   // 旧主桌时代的默认座位
       list.push({ type: e.type, id: e.id, x: e.x, z: e.z, rotY: (((Math.round(e.rotY / (Math.PI / 2)) % 4) + 4) % 4) * Math.PI / 2 });
     }
     return { list, ...parseSaveDoorsLights(s) };
@@ -3328,23 +3048,21 @@ function applySavedPrefs(s) {                                 // 只恢复门 / 
   for (const L of Object.values(LIGHTS)) {
     const v = s.lights[L.id];
     if (typeof v !== 'boolean') continue;
-    if (L.id === 'desk') lamp.on = v; else L.on = v;
+    L.on = v;
   }
   state.chair1 = chairDone = s.chair1;
 }
 function defaultDoorsLights(instant) {
   for (const d of Object.values(DOORS)) { d.open = d.def; if (instant) { d.t = d.def ? 1 : 0; d.apply(d.t); } }
   for (const L of Object.values(LIGHTS)) L.on = true;
-  lamp.on = true;
 }
-/* 恢复默认：家具回默认四件（床、主桌、东墙收纳格、主椅）原位，门和灯回默认，主椅拉出，写回存档。桌面小件不动 */
+/* 恢复默认：家具回默认四件（床、主桌、东墙收纳格、主椅）原位，门和灯回默认，主椅拉出，写回存档 */
 function resetRoom() {
   selId = null;
   applyFurnList(DEFAULT_FURN);
   defaultDoorsLights(false);
   state.chair1 = chairDone = 'out';
   setNm(btnChair, '主椅：拉出');
-  layout();                                                 // 挂灯开关可能变了：重建主屏几何和线
   afterFurnChange();
 }
 
@@ -3382,6 +3100,7 @@ const IC = {
   'l-bath': '<path class="w" d="M10 4h12a6 5 0 0 1-12 0z"/><path d="M10 4h12a6 5 0 0 1-12 0z"/><path d="M4 18h24v3a6 6 0 0 1-6 6H10a6 6 0 0 1-6-6zM7 18v-4a2 2 0 0 1 4 0"/>',
   'l-toilet': '<path class="w" d="M11 4h10a5 4 0 0 1-10 0z"/><path d="M11 4h10a5 4 0 0 1-10 0z"/><path d="M9 13h6v8H9zM15 18h9a5 5 0 0 1-5 5h-4zM14 23l-1 5h6"/>',
   'l-kitchen': '<rect class="a" x="5" y="4" width="22" height="9" rx="1.5"/><rect x="5" y="4" width="22" height="9" rx="1.5"/><path class="w" d="M7 13h18v2.5H7z"/><path d="M7 13h18v2.5H7zM9 20l-2 5M16 20v5M23 20l2 5"/>',
+  'l-strip': '<path d="M4 9h24"/><path class="w" d="M6 11h20v3H6z"/><path d="M6 11h20v3H6zM9 18l-1.5 5M16 18v6M23 18l1.5 5"/>',
   'l-floor': '<path class="w" d="M10 4h12l3 9H7z"/><path d="M10 4h12l3 9H7zM16 13v14M11 28h10"/>',
   'f-bed': '<path class="a" d="M4 15h24v7H4z"/><path d="M4 8v19M28 15v12M4 15h24v7H4z"/><rect x="7" y="11" width="8" height="4" rx="1.5"/>',
   'f-desk': '<rect class="a" x="10" y="3" width="12" height="8" rx="1"/><rect x="10" y="3" width="12" height="8" rx="1"/><path d="M16 11v3"/><path class="a" d="M3 14h26v3H3z"/><path d="M3 14h26v3H3zM6 17v10M26 17v10"/>',
@@ -3422,8 +3141,8 @@ function refreshLightCards() {                               // 落地灯是动�
   let n = 0;
   for (const L of Object.values(LIGHTS)) {
     const b = card(L.ic, L.dyn ? `落地灯 ${++n}` : L.name, 'lt');
-    b.classList.toggle('on', isOn(L));
-    if (L.id === 'desk') { b.disabled = !furnById('desk') || !monitor.on; b.title = '和「布线」里「屏幕挂灯」的勾选是同一个开关'; }
+    b.classList.toggle('on', L.on);
+    if (L.needDesk) { b.disabled = !furnById('desk'); b.title = b.disabled ? '主桌不在，先在「家具」里恢复主桌' : ''; }
     b.addEventListener('click', () => toggleLight(L.id));
     lightCardsEl.appendChild(b);
   }
@@ -3451,13 +3170,13 @@ function refreshFurnUI() {
   furnCatEl.querySelectorAll('[data-cat]').forEach(b => {
     const dis = b.dataset.cat === 'desk' && hasDesk;
     b.disabled = dis;
-    b.title = b.dataset.cat === 'desk' ? (dis ? '原来的 ErGear 主桌已经在了' : '恢复原来的 ErGear 主桌（含桌面物品和布线），回默认位置') : '';
+    b.title = b.dataset.cat === 'desk' ? (dis ? '主桌（UTESPELARE 桌搭）已经在了' : '恢复主桌（UTESPELARE，含桌面物品、桌下推车和走线），回默认位置') : '';
   });
   const f = selId && furnById(selId);
   furnRotEl.disabled = !f || FT[f.type].fixed;
   furnDelEl.disabled = !f;
   furnInfoEl.textContent = !f ? '' : FT[f.type].fixed
-    ? `选中：${furnName(f)}。布线接在北墙插座上，只能删除 / 从目录恢复，不能拖`
+    ? `选中：${furnName(f)}。桌下的推车和线接着北墙的墙插、电话口，只能删除 / 从目录恢复，不能拖`
     : `选中：${furnName(f)}。按住拖动，Delete 删除，R 旋转`;
   btnBed.disabled = !furnById('bed');
   btnChair.disabled = !furnById('chair');
@@ -3492,13 +3211,8 @@ const WALK_SPOTS = [
   ['厕所', 150, -250, -Math.PI / 2, -0.3],
   ['洗衣机', 214, -246, Math.PI / 2, -0.28],                  // 走廊里正对洗衣机凹室口                   // 站在门口往里看（厕所太小，站进去只能看到马桶）
   ['卧室门口', 185, 32, Math.PI],
-  ['书桌前', 150, 95, -Math.PI / 2, -0.42],
+  ['书桌前', 150, DL / 2, -Math.PI / 2, -0.42],
   ['窗边', 225, 285, -0.65],
-  ['B 玄关', CB.x0 + 60, CB.z0 + 110, Math.PI],
-  ['B 厨房', CB.x0 + 115, CB.z0 + 220, -Math.PI / 2, -0.15],
-  ['B 洋室', CB.x0 + 120, CB.z0 + 375, Math.PI, -0.1],
-  ['B 窗边', CB.x0 + 150, CB.z0 + 800, -0.25],
-  ['B 书桌前', CB.x0 + 135, CB.z0 + 640, 0.75, -0.3],
 ];
 const btnWalk = document.getElementById('btnWalk'), walkSpotsEl = document.getElementById('walkSpots');
 /* 漫游用广角（接近手机超广角镜头）：横屏竖向 84°（横向约 110°），竖屏竖向 100°（横向约 57°） */
@@ -3665,7 +3379,7 @@ document.getElementById('doorsClose').addEventListener('click', () => setAllDoor
 window.addEventListener('keydown', e => {
   const t = e.target;
   if (t && (t.isContentEditable || /^(INPUT|TEXTAREA|SELECT)$/.test(t.tagName))) return;
-  if (!editMode || !selId || fdrag || drag || e.ctrlKey || e.metaKey || e.altKey) return;
+  if (!editMode || !selId || fdrag || e.ctrlKey || e.metaKey || e.altKey) return;
   if (e.key === 'Delete' || e.key === 'Backspace') { e.preventDefault(); deleteSel(); }
   else if (e.key === 'r' || e.key === 'R') rotateSel();
   else if (e.key === 'Escape') select(null);
@@ -3697,7 +3411,6 @@ setNm(btnChair, state.chair1 === 'out' ? '主椅：拉出' : '主椅：收进');
 updateOverlays();
 
 setEast(false);                                             // 默认电视模式（内部会 rebuild）
-layout();
 refreshRoomUI();
 saveReady = true;
 
@@ -3766,17 +3479,14 @@ function frame_() {
     }
   }
 
-  /* 桌板透明（看桌下）、理线配件高亮、布线标签 */
+  /* 桌板透明（看桌下：桌板、鼠标垫、收纳槽变透明）、桌子标签 */
   const k3 = 1 - Math.exp(-dt * 8);
-  const topT = topClear ? 0.22 : 1;
-  topM.opacity = approach(topM.opacity, topT, k3, 0.004);
-  if (topM.opacity !== topT) busy = true;
-  topM.depthWrite = topM.opacity > 0.9;
-  seamTM.opacity = topM.opacity; seamTM.depthWrite = topM.depthWrite;
-  const accT = accOn ? accHi : accLo;
-  accM.color.lerp(accT, k3);
-  if (Math.abs(accM.color.r - accT.r) + Math.abs(accM.color.g - accT.g) + Math.abs(accM.color.b - accT.b) < 0.004) accM.color.copy(accT);
-  else busy = true;
+  for (const [m, lo] of clearMats) {
+    const tg = topClear ? lo : 1;
+    m.opacity = approach(m.opacity, tg, k3, 0.004);
+    if (m.opacity !== tg) busy = true;
+    m.depthWrite = m.opacity > 0.9;
+  }
   updateDeskLabels();
   /* 窄屏又离得远（看全屋）时，只留房间级标签（卧室、阳台），其余标签挤成一团没法看，拉近了再显示 */
   document.body.classList.toggle('far', NARROW.matches && camera.position.distanceTo(controls.target) > 700);
@@ -3809,6 +3519,7 @@ function frame_() {
   dayK = approach(dayK, dayKT, k2, 0.002);
   if (dayK !== dayKT) busy = true;
   const kL = 1 - Math.exp(-dt * 7);
+  const nightK = Math.min(1, Math.max(0, (dayK - LIGHT.lampIn) / (1 - LIGHT.lampIn)));   // 0 = 白天，1 = 夜里（灯带光晕用）
   for (const L of Object.values(LIGHTS)) {
     if (!L.lights) continue;
     const tg = L.eff() ? 1 : 0;
@@ -3816,6 +3527,7 @@ function frame_() {
     if (L.cur !== tg) busy = true;
     for (const s of L.lights) s.l.intensity = s.max * L.cur * dayK;
     for (const s of L.mats) s.m.emissiveIntensity = s.max * L.cur;
+    if (L.fx) L.fx(L.cur, nightK);
   }
   const bgT = night ? BG_DARK : BG_DAY;
   ceilMats.forEach(m => { m.emissiveIntensity = night ? 0.04 : 0.4; });
@@ -3827,11 +3539,11 @@ function frame_() {
   labelRenderer.render(scene, camera);
 
   if (busy) invalidate();
-  else if (lowRes && !ctrlActive && !drag && !fdrag) setLowRes(false);   // 停下来了：恢复清晰度（resize 里会再出一帧）
+  else if (lowRes && !ctrlActive && !fdrag) setLowRes(false);   // 停下来了：恢复清晰度（resize 里会再出一帧）
   else if (!rafId) idle = true;
 }
 invalidate();
-window.__room = { scene, FURN, furnById, tvG, addFurn, removeFurn, resetRoom, setEast, go, camera, controls, invalidate, state, labelObjs };
+window.__room = { scene, FURN, furnById, tvG, deskG, kit, addFurn, removeFurn, resetRoom, setEast, go, camera, controls, invalidate, state, labelObjs, LIGHTS };
 </script>
 </body>
 </html>
